@@ -11,9 +11,6 @@ import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.geom.Point2D;
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import raspimediacenter.GUI.Components.MenuButton;
 
 public class MainMenu extends JPanel{
@@ -21,6 +18,7 @@ public class MainMenu extends JPanel{
     private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     private final int screenWidth = dim.width;
     private final int screenHeight = dim.height;
+    private JLabel focusOptionInfo;
     
     //MENU SETTINGS
     private float menuTransparency = 0.6f;
@@ -31,6 +29,59 @@ public class MainMenu extends JPanel{
         
         this.setLayout(null);
         createMenuButtons();
+        createCategoryInfo();
+    }
+    
+    private void createMenuButtons () {
+        
+        JButton moviesBtn = new MenuButton("MOVIES", this);
+        JButton tvShowsBtn = new MenuButton("TV SHOWS", this);
+        JButton musicBtn = new MenuButton("MUSIC", this);
+        JButton imagesBtn = new MenuButton("IMAGES", this);
+
+        int menuOptionsWidth = (int)(screenWidth/5);
+        int menuPosY = (int)(screenHeight * menuScreenPosition);
+        
+        this.add(moviesBtn);
+        this.add(tvShowsBtn);
+        this.add(musicBtn);
+        this.add(imagesBtn);
+        
+        moviesBtn.setBounds(menuOptionsWidth/2, menuPosY-5, 400, menuHeight);
+        tvShowsBtn.setBounds(menuOptionsWidth+(menuOptionsWidth/2), menuPosY-5, 400, menuHeight);
+        musicBtn.setBounds((menuOptionsWidth*2)+(menuOptionsWidth/2), menuPosY-5, 400, menuHeight);
+        imagesBtn.setBounds((menuOptionsWidth*3)+(menuOptionsWidth/2), menuPosY-5, 400, menuHeight);
+        
+        moviesBtn.requestFocus();
+    }
+    
+    private void createCategoryInfo () {
+        
+        focusOptionInfo = new JLabel();
+        focusOptionInfo.setText("LIBRARY ITEMS - MOVIES");
+        focusOptionInfo.setFont(new Font("MonoSpatial", Font.BOLD, 25));
+        focusOptionInfo.setForeground(Color.white);
+        
+        this.add(focusOptionInfo);
+        
+        focusOptionInfo.setBounds(20, 20, 400, 25);
+    }
+    
+    public void updateInfoLabel (String buttonName) {
+        
+        focusOptionInfo.setText("LIBRARY ITEMS - " + buttonName);
+    }
+ 
+    @Override
+    public void paintComponent(Graphics g){
+        
+        super.paintComponent(g);
+        Graphics2D paint = (Graphics2D) g;
+        
+        paint.setRenderingHint(RenderingHints.KEY_RENDERING, 
+                               RenderingHints.VALUE_RENDER_QUALITY);
+        
+        paintMenuBar(paint);
     }
     
     private void paintMenuBar (Graphics2D paint) {
@@ -48,40 +99,5 @@ public class MainMenu extends JPanel{
         paint.setPaint(menuGrad);
         paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, menuTransparency));
         paint.fillRect(0, menuPosY, screenWidth, menuHeight);
-    }
-    
-    private void createMenuButtons () {
-        
-        JButton moviesBtn = new MenuButton("MOVIES");
-        JButton tvShowsBtn = new MenuButton("TV SHOWS");
-        JButton musicBtn = new MenuButton("MUSIC");
-        JButton imagesBtn = new MenuButton("IMAGES");
-
-        int menuOptionsWidth = (int)(screenWidth/5);
-        int menuPosY = (int)(screenHeight * menuScreenPosition);
-        
-        this.add(moviesBtn);
-        this.add(tvShowsBtn);
-        this.add(musicBtn);
-        this.add(imagesBtn);
-        
-        moviesBtn.setBounds(menuOptionsWidth/2, menuPosY, 400, menuHeight);
-        tvShowsBtn.setBounds(menuOptionsWidth+(menuOptionsWidth/2), menuPosY, 400, menuHeight);
-        musicBtn.setBounds((menuOptionsWidth*2)+(menuOptionsWidth/2), menuPosY, 400, menuHeight);
-        imagesBtn.setBounds((menuOptionsWidth*3)+(menuOptionsWidth/2), menuPosY, 400, menuHeight);
-        
-        moviesBtn.requestFocus();
-    }
-    
-    @Override
-    public void paintComponent(Graphics g){
-        
-        super.paintComponent(g);
-        Graphics2D paint = (Graphics2D) g;
-        
-        paint.setRenderingHint(RenderingHints.KEY_RENDERING, 
-                               RenderingHints.VALUE_RENDER_QUALITY);
-        
-        paintMenuBar(paint);
     }
 }
