@@ -59,7 +59,7 @@ public class MainMenu extends JPanel{
         
         focusOptionInfo = new JLabel();
         focusOptionInfo.setText("LIBRARY ITEMS - MOVIES");
-        focusOptionInfo.setFont(new Font("MonoSpatial", Font.BOLD, 25));
+        focusOptionInfo.setFont(new Font("Bombard", Font.BOLD, 25));
         focusOptionInfo.setForeground(Color.white);
         
         this.add(focusOptionInfo);

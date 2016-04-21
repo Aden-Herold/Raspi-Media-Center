@@ -18,7 +18,7 @@ import raspimediacenter.GUI.MainMenu;
 
 public class MenuButton extends JButton {
  
-    private final String backgroundImagePath = "src/raspimediacenter/GUI/Fonts/MonoSpatial.ttf";
+    private final String backgroundImagePath = "src/raspimediacenter/GUI/Fonts/Bombard.ttf";
     private boolean isFocused = false;
     private MainMenu menu;
     private String buttonName;
@@ -73,7 +73,7 @@ public class MenuButton extends JButton {
         buttonName = s;
         
         loadFont();
-        Font menuFont = new Font("MonoSpatial", Font.BOLD, 60);
+        Font menuFont = new Font("Bombard", Font.BOLD, 60);
 
         setFont(menuFont);
         setOpaque(false);
