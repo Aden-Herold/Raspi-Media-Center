@@ -29,6 +29,7 @@ public class BackgroundCanvas extends JPanel {
         
     }
 
+    //Boolean Overload
     public BackgroundCanvas(boolean useBackgroundImage){
         this.useBackgroundImage = useBackgroundImage;
         
