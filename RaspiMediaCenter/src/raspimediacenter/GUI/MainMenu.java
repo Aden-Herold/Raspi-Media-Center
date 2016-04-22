@@ -23,7 +23,7 @@ import raspimediacenter.GUI.Components.MenuButton;
 
 public class MainMenu extends JPanel{
 
-    private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    private final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     private final int screenWidth = dim.width;
     private final int screenHeight = dim.height;
     private JLabel focusOptionInfo;
@@ -41,10 +41,10 @@ public class MainMenu extends JPanel{
         @Override
         public void actionPerformed(ActionEvent e) {
             DateFormat timeFormat = new SimpleDateFormat("hh:mm a");
-            timeLabel.setText(timeFormat.format(new Date()).toString());
+            timeLabel.setText(timeFormat.format(new Date()));
             
             DateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
-            dateLabel.setText(dateFormat.format(new Date()).toString().toUpperCase());
+            dateLabel.setText(dateFormat.format(new Date()).toUpperCase());
         }
     });
     
@@ -123,7 +123,23 @@ public class MainMenu extends JPanel{
     public void updateInfoLabel (String buttonName) {
         
         focusOptionInfo.setText("LIBRARY - " + buttonName);
-        focusOptionItems.setText("FILES: 10 UNWATCHED: 4");
+        
+        if (buttonName.matches("MOVIES"))
+        {
+            focusOptionItems.setText("FILES: 192 UNWATCHED: 82");
+        }
+        else if (buttonName.matches("TV SHOWS"))
+        {
+            focusOptionItems.setText("FILES: 2812 UNWATCHED: 2712");
+        }
+        else if (buttonName.matches("MUSIC"))
+        {
+            focusOptionItems.setText("FILES: 521");
+        } 
+        else if (buttonName.matches("IMAGES"))
+        {
+            focusOptionItems.setText("FILES: 125");
+        } 
     }
  
     @Override
