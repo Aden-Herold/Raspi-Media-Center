@@ -5,7 +5,6 @@ import java.awt.Frame;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 import raspimediacenter.GUI.Components.BackgroundCanvas;
 
 /**

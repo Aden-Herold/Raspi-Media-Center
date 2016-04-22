@@ -13,7 +13,7 @@ import raspimediacenter.Logic.Utilities.ImageUtilities;
 public class BackgroundCanvas extends JPanel {
 
     //SCREEN DIMENSIONS
-    private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    private final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     private final int screenWidth = dim.width;
     private final int screenHeight = dim.height;
     

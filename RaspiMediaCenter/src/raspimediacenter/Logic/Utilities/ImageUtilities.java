@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 
 public class ImageUtilities {
     
+    //RETURNS THE IMAGE FROM THE GIVEN PATH
     public static Image getImageFromPath (String path)
     {
         Image backgroundImage = null;
@@ -31,6 +32,7 @@ public class ImageUtilities {
         }
     }
     
+    //RETURNS AN ARRAYLIST OF IMAGES FROM AN ARRAYLIST OF IMAGE LOCATION PATHS
     public static ArrayList<Image> getImagesFromPaths (ArrayList<String> imagePaths) 
     {
         ArrayList<Image> images = new ArrayList<>();
@@ -50,6 +52,8 @@ public class ImageUtilities {
         return images;
     }
     
+    //SEARCHES THE DIRECTORY FOR ANY IMAGE FILES WITH EXTENSION '.JPG'
+    //CAN SEARCH SUB-DIRECTORIES FOR IMAGES AND ADD THEM TO THE ARRAYLIST
     public static ArrayList<String> getAllImagesPathsInDir (File directory, boolean descendIntoSubDirs) throws IOException
     {
         ArrayList<String> imageList = new ArrayList<String>();
@@ -57,7 +61,7 @@ public class ImageUtilities {
         
         for (File file : files)
         {
-            if (file != null && (file.getName().toLowerCase().endsWith(".jpg") || file.getName().toLowerCase().endsWith(".png")))
+            if (file != null && (file.getName().toLowerCase().endsWith(".jpg")))
             {
                 imageList.add(file.getCanonicalPath());
             }

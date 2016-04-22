@@ -18,7 +18,7 @@ import raspimediacenter.GUI.MainMenu;
 
 public class MenuButton extends JButton {
  
-    private final String backgroundImagePath = "src/raspimediacenter/GUI/Fonts/Bombard.ttf";
+    private final String menuFontPath = "src/raspimediacenter/GUI/Fonts/Bombard.ttf";
     private boolean isFocused = false;
     private MainMenu menu;
     private String buttonName;
@@ -90,7 +90,7 @@ public class MenuButton extends JButton {
         try 
         {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(backgroundImagePath)));
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(menuFontPath)));
         } 
         catch (IOException | FontFormatException e) 
         {
@@ -105,11 +105,11 @@ public class MenuButton extends JButton {
         
         if (isFocused)
         {
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.6));
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.7));
         }
         else 
         {
-          g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.2));  
+          g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.3));  
         }
         
         super.paint(g2);
