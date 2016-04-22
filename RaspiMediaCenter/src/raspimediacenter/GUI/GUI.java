@@ -7,10 +7,6 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import raspimediacenter.GUI.Components.BackgroundCanvas;
 
-/**
- *
- * @author Robert
- */
 public class GUI {
     
     //retrieve the local screen resolution

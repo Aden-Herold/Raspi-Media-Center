@@ -128,8 +128,6 @@ public class BackgroundCanvas extends JPanel {
         //If multiple images in array list and user or default images were found
         else if (useBackgroundImages && (userImagePaths != null || defaultImagePaths != null))
         {
-            System.out.println(userImageCounter);
-
             paint.setComposite(AlphaComposite.SrcOver.derive(alpha));
             paint.drawImage(fadeInImage, 0, 0, screenWidth, screenHeight, this);
             

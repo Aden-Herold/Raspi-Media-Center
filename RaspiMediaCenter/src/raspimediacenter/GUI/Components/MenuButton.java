@@ -105,11 +105,11 @@ public class MenuButton extends JButton {
         
         if (isFocused)
         {
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.7));
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.9));
         }
         else 
         {
-          g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.3));  
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));  
         }
         
         super.paint(g2);
