@@ -21,9 +21,9 @@ public class MainMenu extends JPanel{
     private JLabel focusOptionInfo;
     
     //MENU SETTINGS
-    private float menuTransparency = 0.6f;
-    private double menuScreenPosition = 0.7; //Percentage value of the screen from the top
-    private final int menuHeight = 120;
+    private float MENU_TRANSPARENCY = 0.9f; //Percentage value of menu transparency
+    private double MENU_POSITION = 0.7; //Percentage value of the screen from the top
+    private final int MENU_HEIGHT = 120; //Height of the menu bar
     
     public MainMenu () {
         
@@ -40,17 +40,17 @@ public class MainMenu extends JPanel{
         JButton imagesBtn = new MenuButton("IMAGES", this);
 
         int menuOptionsWidth = (int)(screenWidth/5);
-        int menuPosY = (int)(screenHeight * menuScreenPosition);
+        int menuPosY = (int)(screenHeight * MENU_POSITION);
         
         this.add(moviesBtn);
         this.add(tvShowsBtn);
         this.add(musicBtn);
         this.add(imagesBtn);
         
-        moviesBtn.setBounds(menuOptionsWidth/2, menuPosY-5, 400, menuHeight);
-        tvShowsBtn.setBounds(menuOptionsWidth+(menuOptionsWidth/2), menuPosY-5, 400, menuHeight);
-        musicBtn.setBounds((menuOptionsWidth*2)+(menuOptionsWidth/2), menuPosY-5, 400, menuHeight);
-        imagesBtn.setBounds((menuOptionsWidth*3)+(menuOptionsWidth/2), menuPosY-5, 400, menuHeight);
+        moviesBtn.setBounds(menuOptionsWidth/2, menuPosY-5, 400, MENU_HEIGHT);
+        tvShowsBtn.setBounds(menuOptionsWidth+(menuOptionsWidth/2), menuPosY-5, 400, MENU_HEIGHT);
+        musicBtn.setBounds((menuOptionsWidth*2)+(menuOptionsWidth/2), menuPosY-5, 400, MENU_HEIGHT);
+        imagesBtn.setBounds((menuOptionsWidth*3)+(menuOptionsWidth/2), menuPosY-5, 400, MENU_HEIGHT);
         
         moviesBtn.requestFocus();
     }
@@ -86,18 +86,18 @@ public class MainMenu extends JPanel{
     
     private void paintMenuBar (Graphics2D paint) {
         
-        int menuPosY = (int)(screenHeight * menuScreenPosition);
+        int menuPosY = (int)(screenHeight * MENU_POSITION);
         
         //Create Menu Background
         final Color[] backgroundGradient = {new Color(124,124,124), new Color(0, 0, 0)};
         final float[] gradientFractions = {0.0f, 1f};
         LinearGradientPaint menuGrad = new LinearGradientPaint(
                                                     new Point2D.Double(0, menuPosY),
-                                                    new Point2D.Double(0, menuPosY+menuHeight),
+                                                    new Point2D.Double(0, menuPosY+MENU_HEIGHT),
                                                     gradientFractions,
                                                     backgroundGradient); 
         paint.setPaint(menuGrad);
-        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, menuTransparency));
-        paint.fillRect(0, menuPosY, screenWidth, menuHeight);
+        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, MENU_TRANSPARENCY));
+        paint.fillRect(0, menuPosY, screenWidth, MENU_HEIGHT);
     }
 }
