@@ -17,8 +17,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.*;
+import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.GUI.Components.MenuButton;
 import raspimediacenter.GUI.SceneManager;
+import raspimediacenter.Logic.Utilities.ParserUtility;
 
 public class MainMenuScene extends Scene {
 
@@ -31,6 +33,7 @@ public class MainMenuScene extends Scene {
     private final int MENU_HEIGHT = 120; //Height of the menu bar
     
     private final SceneManager sceneManager;
+    private TVSeriesContainer tvSeries;
     
     Timer clockUpdateTimer = new Timer(1000, new ActionListener(){
         @Override
@@ -48,6 +51,8 @@ public class MainMenuScene extends Scene {
         super();
         
         this.sceneManager = sceneManager;
+        ParserUtility parser = new ParserUtility();
+        tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
         
         //Add Background to Frame
         loadBackgrounds();
@@ -140,7 +145,8 @@ public class MainMenuScene extends Scene {
         }
         else if (buttonName.matches("TV SHOWS"))
         {
-            focusOptionItems.setText("FILES: 2812 UNWATCHED: 2712");
+            int files = tvSeries.results.size()-1;
+            focusOptionItems.setText("FILES: " + files + " UNWATCHED: 2712");
         }
         else if (buttonName.matches("MUSIC"))
         {
