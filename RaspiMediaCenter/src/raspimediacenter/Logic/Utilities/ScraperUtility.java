@@ -19,7 +19,7 @@ import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
 public class ScraperUtility {
-    
+
     public static final String BACKDROP_SIZE = "w1280";
     public static final String POSTER_SIZE = "w780";
     public static final String STILL_SIZE = "w300";
@@ -40,7 +40,9 @@ public class ScraperUtility {
             try {
                 tvSeries = parser.parseSeriesList(jsonURI, true);
                 parser.appendToSeriesList(tvSeries.results.get(0));
+                System.out.println("Downloading " + name + " backdrop.");
                 backdropImage = scrapeImage(BACKDROP_SIZE, tvSeries.results.get(0).getBackdropPath());
+                System.out.println("Downloading " + name + " poster.");
                 posterImage = scrapeImage(POSTER_SIZE, tvSeries.results.get(0).getPosterPath());
                 saveImage(backdropImage, "series_backdrop.jpg", "TV Shows/" + name + "/");
                 saveImage(posterImage, "series_poster.jpg", "TV Shows/" + name + "/");
@@ -54,6 +56,18 @@ public class ScraperUtility {
                     int seasonNo = parser.trimFileName("season ", subDirFiles[j].getName().toLowerCase());
                     jsonURI = constructSeasonURI(tvSeries.results.get(0).getID(), seasonNo);
                     tvSeason = parser.parseSeason(jsonURI, true);
+                    System.out.println("Downloading " + name + " - season " + (j + 1) + " poster.");
+                    posterImage = scrapeImage(POSTER_SIZE, tvSeason.getPosterPath());
+                    saveImage(posterImage, "season_poster.jpg", "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
+                    File stillsDir = new File("TV Shows/" + name + "/" + subDirFiles[j].getName() + "/Stills/");
+                    if (!stillsDir.exists()) {
+                        stillsDir.mkdir();
+                    }
+                    for (int k = 0; k < tvSeason.episodes.size(); k++) {
+                        System.out.println("Downloading " + name + " - season " + (j + 1) + " - episode " + (k + 1) + " still.");
+                        stillImage = scrapeImage(STILL_SIZE, tvSeason.episodes.get(k).getStillPath());
+                        saveImage(stillImage, "EP" + (k + 1) + "_still.jpg", stillsDir.getPath() + "/");
+                    }
                     saveLocalSeasonJSON(tvSeason, "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
                 }
             }
