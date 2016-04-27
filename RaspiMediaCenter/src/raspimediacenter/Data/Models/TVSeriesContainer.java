@@ -5,7 +5,7 @@ import java.util.List;
 public class TVSeriesContainer {
 
     public List<TVSeries> results;
-
+    
     public static class TVSeries {
 
         private String poster_path;
