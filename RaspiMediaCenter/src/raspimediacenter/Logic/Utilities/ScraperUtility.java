@@ -23,7 +23,7 @@ import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
 public class ScraperUtility {
 
-    private String apiKey = "6008a027cf502f4abce71e9315c49f7c";
+    private String apiKey = System.getenv("API_KEY");
     private String baseURI = "http://api.themoviedb.org/3/";
     private TVSeriesContainer tvSeries;
     private TVSeasonContainer tvSeason;
