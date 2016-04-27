@@ -65,14 +65,24 @@ public class ParserUtility {
     public void appendToSeriesList(TVSeries series) {
         File file = new File("TV Shows/series-list.json");
         TVSeriesContainer container;
-        if(file.exists()) {
-            container = parseSeriesList("TV Shows/series-list.json", false);
-        } else {
+        boolean entryExists = false;
+        if (!file.exists()) {
             beginJSONOutput(file, "{" + "results" + ":[{}]}");
             container = parseSeriesList("TV Shows/series-list.json", false);
+            container.results.remove(0);
+        } else {
+            container = parseSeriesList("TV Shows/series-list.json", false);
         }
-        container.results.add(series);
-        saveAmendedSeriesList(container);
+        for (int i = 0; i < container.results.size(); i++) {
+            if (container.results.get(i).getID() == series.getID()) {
+                entryExists = true;
+                break;
+            }
+        }
+        if (!entryExists) {
+            container.results.add(series);
+            saveAmendedSeriesList(container);
+        }
     }
 
     public void saveAmendedSeriesList(TVSeriesContainer container) {
@@ -140,3 +150,4 @@ public class ParserUtility {
     }
 
 }
+
