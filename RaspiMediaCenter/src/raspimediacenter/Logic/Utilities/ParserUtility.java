@@ -2,9 +2,13 @@ package raspimediacenter.Logic.Utilities;
 
 import com.google.gson.Gson;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -29,9 +33,9 @@ public class ParserUtility {
         return series;
     }
 
-    public TVSeriesContainer parseSeriesSearch(String filePath, boolean remote) {
+    public TVSeriesContainer parseSeriesList(String filePath, boolean remote) {
         Gson gson = new Gson();
-        seriesContainer = gson.fromJson(prepareJSON(filePath, true), TVSeriesContainer.class);
+        seriesContainer = gson.fromJson(prepareJSON(filePath, remote), TVSeriesContainer.class);
         return seriesContainer;
     }
 
@@ -56,6 +60,43 @@ public class ParserUtility {
             Logger.getLogger(ParserUtility.class.getName()).log(Level.SEVERE, null, ex);
         }
         return json;
+    }
+
+    public void appendToSeriesList(TVSeries series) {
+        File file = new File("TV Shows/series-list.json");
+        TVSeriesContainer container;
+        if(file.exists()) {
+            container = parseSeriesList("TV Shows/series-list.json", false);
+        } else {
+            beginJSONOutput(file, "{" + "results" + ":[{}]}");
+            container = parseSeriesList("TV Shows/series-list.json", false);
+        }
+        container.results.add(series);
+        saveAmendedSeriesList(container);
+    }
+
+    public void saveAmendedSeriesList(TVSeriesContainer container) {
+        File infoFile = new File("TV Shows/series-list.json");
+        Gson gson = new Gson();
+        String s = gson.toJson(container);
+        beginJSONOutput(infoFile, s);
+    }
+
+    public void beginJSONOutput(File outputFile, String output) {
+        try {
+            FileOutputStream fos = new FileOutputStream(outputFile);
+            OutputStreamWriter outputStream = new OutputStreamWriter(fos);
+            outputStream.write(output);
+            outputStream.close();
+            fos.close();
+
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ScraperUtility.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ScraperUtility.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public int trimFileName(String pattern, String fileName) {

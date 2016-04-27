@@ -1,6 +1,7 @@
 package raspimediacenter.Logic.Utilities;
 
 import com.google.gson.Gson;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -8,31 +9,45 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import raspimediacenter.Data.Models.TVSeasonContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
 public class ScraperUtility {
+    
+    public static final String BACKDROP_SIZE = "w1280";
+    public static final String POSTER_SIZE = "w780";
+    public static final String STILL_SIZE = "w300";
 
     private String apiKey = System.getenv("API_KEY");
     private String baseURI = "http://api.themoviedb.org/3/";
+    private String baseImageURL = "http://image.tmdb.org/t/p/";
     private TVSeriesContainer tvSeries;
     private TVSeasonContainer tvSeason;
     private ParserUtility parser = new ParserUtility();
 
     public void beginTVScrape() {
         File[] files = getTVDirectory("TV Shows");
+        BufferedImage backdropImage, posterImage, stillImage = null;
         for (int i = 0; i < files.length; i++) {
             String name = files[i].getName();
             String jsonURI = constructSearchURI("tv", parser.encodeURLParameter(name), "");
             try {
-                tvSeries = parser.parseSeriesSearch(jsonURI, true);
+                tvSeries = parser.parseSeriesList(jsonURI, true);
+                parser.appendToSeriesList(tvSeries.results.get(0));
+                backdropImage = scrapeImage(BACKDROP_SIZE, tvSeries.results.get(0).getBackdropPath());
+                posterImage = scrapeImage(POSTER_SIZE, tvSeries.results.get(0).getPosterPath());
+                saveImage(backdropImage, "series_backdrop.jpg", "TV Shows/" + name + "/");
+                saveImage(posterImage, "series_poster.jpg", "TV Shows/" + name + "/");
             } catch (Exception ex) {
                 Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
             }
-            saveLocalSeriesJSON(tvSeries.results.get(0), "TV Shows/" + files[i].getName() + "/");
+            saveLocalSeriesJSON(tvSeries.results.get(0), "TV Shows/" + name + "/");
             File[] subDirFiles = getTVDirectory("TV Shows/" + name);
             for (int j = 0; j < subDirFiles.length; j++) {
                 if (subDirFiles[j].getName().toLowerCase().contains("season")) {
@@ -42,6 +57,29 @@ public class ScraperUtility {
                     saveLocalSeasonJSON(tvSeason, "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
                 }
             }
+        }
+    }
+
+    public BufferedImage scrapeImage(String imageSize, String imageURL) {
+        URL url = null;
+        BufferedImage image = null;
+        try {
+            url = new URL(baseImageURL + imageSize + "/" + imageURL);
+            image = ImageIO.read(url);
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return image;
+    }
+
+    public void saveImage(BufferedImage image, String imageName, String destination) {
+        File file = new File(destination + imageName);
+        try {
+            ImageIO.write(image, "jpg", file);
+        } catch (IOException ex) {
+            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -66,10 +104,13 @@ public class ScraperUtility {
             outputStream.write(output);
             outputStream.close();
             fos.close();
+
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtility.class
+                    .getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtility.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
     }
 
