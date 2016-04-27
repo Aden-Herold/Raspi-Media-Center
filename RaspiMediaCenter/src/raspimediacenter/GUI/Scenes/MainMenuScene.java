@@ -1,8 +1,7 @@
-package raspimediacenter.GUI;
+package raspimediacenter.GUI.Scenes;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,7 +9,6 @@ import java.awt.LinearGradientPaint;
 import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
@@ -19,23 +17,23 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.*;
+import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.GUI.Components.MenuButton;
+import raspimediacenter.GUI.SceneManager;
+import raspimediacenter.Logic.Utilities.ParserUtility;
 
-public class MainMenu extends JPanel{
+public class MainMenuScene extends Scene {
 
-    private final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-    private final int screenWidth = dim.width;
-    private final int screenHeight = dim.height;
     private JLabel focusOptionInfo;
     private JLabel focusOptionItems;
     private JLabel timeLabel;
     private JLabel dateLabel;
     
-    //MENU SETTINGS
-    private float MENU_TRANSPARENCY = 0.9f; //Percentage value of menu transparency
-    private double MENU_POSITION = 0.7; //Percentage value of the screen from the top
+    private final double MENU_POSITION = 0.7; //Percentage value of the screen from the top
     private final int MENU_HEIGHT = 120; //Height of the menu bar
-    private Color MENU_COLOR = new Color(0, 153, 204); //Color of menu elements
+    
+    private final SceneManager sceneManager;
+    private TVSeriesContainer tvSeries;
     
     Timer clockUpdateTimer = new Timer(1000, new ActionListener(){
         @Override
@@ -48,9 +46,23 @@ public class MainMenu extends JPanel{
         }
     });
     
-    public MainMenu () {
+    public MainMenuScene (SceneManager sceneManager) {
         
-        this.setLayout(null);
+        super();
+        
+        this.sceneManager = sceneManager;
+        ParserUtility parser = new ParserUtility();
+        tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
+        
+        //Add Background to Frame
+        loadBackgrounds();
+        bgCanvas.setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
+        SceneManager.getContentPane().add(bgCanvas, 0, 0);
+        
+        this.setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
+        this.setOpaque(false);
+        SceneManager.getContentPane().add(this, 1, 0);
+        
         createMenuButtons();
         createCategoryInfo();
         createTimeInfo();
@@ -60,12 +72,15 @@ public class MainMenu extends JPanel{
     private void createMenuButtons () {
         
         JButton moviesBtn = new MenuButton("MOVIES", this);
+        moviesBtn.addActionListener(new menuOptionSelected());
         JButton tvShowsBtn = new MenuButton("TV SHOWS", this);
+        tvShowsBtn.addActionListener(new menuOptionSelected());
         JButton musicBtn = new MenuButton("MUSIC", this);
+        musicBtn.addActionListener(new menuOptionSelected());
         JButton imagesBtn = new MenuButton("IMAGES", this);
 
-        int menuOptionsWidth = (int)(screenWidth/5);
-        int menuPosY = (int)(screenHeight * MENU_POSITION);
+        int menuOptionsWidth = (int)(SceneManager.getScreenWidth()/5);
+        int menuPosY = (int)(SceneManager.getScreenHeight() * MENU_POSITION);
         
         this.add(moviesBtn);
         this.add(tvShowsBtn);
@@ -116,8 +131,8 @@ public class MainMenu extends JPanel{
         this.add(timeLabel);
         this.add(dateLabel);
         
-        timeLabel.setBounds(screenWidth-220, 20, 200, 25);
-        dateLabel.setBounds(screenWidth-220, 45, 200, 25);
+        timeLabel.setBounds(SceneManager.getScreenWidth()-220, 20, 200, 25);
+        dateLabel.setBounds(SceneManager.getScreenWidth()-220, 45, 200, 25);
     }
     
     public void updateInfoLabel (String buttonName) {
@@ -130,7 +145,8 @@ public class MainMenu extends JPanel{
         }
         else if (buttonName.matches("TV SHOWS"))
         {
-            focusOptionItems.setText("FILES: 2812 UNWATCHED: 2712");
+            int files = tvSeries.results.size()-1;
+            focusOptionItems.setText("FILES: " + files + " UNWATCHED: 2712");
         }
         else if (buttonName.matches("MUSIC"))
         {
@@ -158,9 +174,9 @@ public class MainMenu extends JPanel{
     
     private void paintInfoPanel (Graphics2D paint)
     {
-        final Color[] backgroundGradient = {new Color(MENU_COLOR.getRed(), MENU_COLOR.getGreen(), MENU_COLOR.getBlue()),
-                                            new Color(MENU_COLOR.getRed(), MENU_COLOR.getGreen(), MENU_COLOR.getBlue(), 90), 
-                                            new Color(MENU_COLOR.getRed(), MENU_COLOR.getGreen(), MENU_COLOR.getBlue(), 0)};
+        final Color[] backgroundGradient = {new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue()),
+                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 90), 
+                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 0)};
         final float[] gradientFractions = {0.0f, 0.7f, 1f};
         Rectangle2D rect = new Rectangle2D.Double(-450, -120, 900, 240);
         RadialGradientPaint menuGrad = new RadialGradientPaint(
@@ -177,11 +193,11 @@ public class MainMenu extends JPanel{
     
     private void paintTimePanel (Graphics2D paint)
     {
-        final Color[] backgroundGradient = {new Color(MENU_COLOR.getRed(), MENU_COLOR.getGreen(), MENU_COLOR.getBlue()),
-                                            new Color(MENU_COLOR.getRed(), MENU_COLOR.getGreen(), MENU_COLOR.getBlue(), 90), 
-                                            new Color(MENU_COLOR.getRed(), MENU_COLOR.getGreen(), MENU_COLOR.getBlue(), 0)};
+        final Color[] backgroundGradient = {new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue()),
+                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 90), 
+                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 0)};
         final float[] gradientFractions = {0.0f, 0.7f, 1f};
-        Rectangle2D rect = new Rectangle2D.Double(screenWidth-450, -120, 900, 240);
+        Rectangle2D rect = new Rectangle2D.Double(SceneManager.getScreenWidth()-450, -120, 900, 240);
         RadialGradientPaint menuGrad = new RadialGradientPaint(
                                                     rect,
                                                     gradientFractions,
@@ -189,17 +205,17 @@ public class MainMenu extends JPanel{
                                                     CycleMethod.NO_CYCLE);
         paint.setPaint(menuGrad);
         paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-        paint.fillOval(screenWidth-450, -120, 900, 240);
+        paint.fillOval(SceneManager.getScreenWidth()-450, -120, 900, 240);
         
         paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
     
     private void paintMenuBar (Graphics2D paint) {
         
-        int menuPosY = (int)(screenHeight * MENU_POSITION);
+        int menuPosY = (int)(SceneManager.getScreenHeight() * MENU_POSITION);
         
         //Create Menu Background
-        final Color[] backgroundGradient = {new Color(MENU_COLOR.getRed(), MENU_COLOR.getGreen(), MENU_COLOR.getBlue(), 150), 
+        final Color[] backgroundGradient = {new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 150), 
                                             new Color(20, 20, 20, 225)};
         final float[] gradientFractions = {0.0f, 1f};
         LinearGradientPaint menuGrad = new LinearGradientPaint(
@@ -208,7 +224,25 @@ public class MainMenu extends JPanel{
                                                     gradientFractions,
                                                     backgroundGradient); 
         paint.setPaint(menuGrad);
-        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, MENU_TRANSPARENCY));
-        paint.fillRect(0, menuPosY, screenWidth, MENU_HEIGHT);
+        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, getMenuTransparency()));
+        paint.fillRect(0, menuPosY, SceneManager.getScreenWidth(), MENU_HEIGHT);
+    }
+   
+    //EVENT LISTENERS
+    private class menuOptionSelected implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+             
+            try 
+            {   
+                String option = ((JButton)ae.getSource()).getText();
+                sceneManager.loadScene(option.toLowerCase());
+            }
+            catch (UnsupportedOperationException e) {
+                
+                System.out.println(e.getMessage());
+            }
+        }   
     }
 }

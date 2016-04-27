@@ -9,18 +9,18 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
-import raspimediacenter.GUI.MainMenu;
+import raspimediacenter.GUI.Scenes.MainMenuScene;
 
 public class MenuButton extends JButton {
  
     private final String menuFontPath = "src/raspimediacenter/GUI/Fonts/Bombard.ttf";
     private boolean isFocused = false;
-    private MainMenu menu;
+    private MainMenuScene menu;
     private String buttonName;
 
     private final FocusListener focusListener = new FocusListener() {
@@ -38,34 +38,7 @@ public class MenuButton extends JButton {
         }
     };
     
-    private final MouseListener mouseListener = new MouseListener() {
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            requestFocus();
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
-    };
-    
-    public MenuButton(String s, MainMenu menu) {
+    public MenuButton(String s, MainMenuScene menu) {
         
         super(s);
         
@@ -82,7 +55,13 @@ public class MenuButton extends JButton {
         setFocusPainted(false);
         setForeground(Color.white);
         addFocusListener(focusListener);
-        addMouseListener(mouseListener);
+        
+        addMouseListener(new MouseAdapter() { 
+            @Override
+            public void mouseEntered(MouseEvent e) {
+              requestFocus();
+        }
+        }); 
     }
     
     private void loadFont() {

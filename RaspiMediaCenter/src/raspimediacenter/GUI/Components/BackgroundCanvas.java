@@ -24,18 +24,10 @@ public class BackgroundCanvas extends JPanel {
                                                 new Color(35, 0, 79)};
     
     private final float[] gradientFractions = {0.0f, 0.25f, 0.5f, 0.9f};
-    
-    //BACKGROUND DEFAULT IMAGES - SECONDARY PRIORITY
-    private final String backgroundImagesPath = "src/raspimediacenter/GUI/Resources/";
-    private ArrayList<String> defaultImagePaths = new ArrayList<>();
-    
-    //BACKGROUND USER IMAGES - PRIMARY PRIORITY
-    private final String userImagesPath = "src/raspimediacenter/GUI/Resources/UserBackgrounds/";
-    private ArrayList<String> userImagePaths = new ArrayList<>();
-    
+
     //BACKGROUND VARIABLES
+    private ArrayList<String> imagePaths = new ArrayList<>();
     private ArrayList<Image> backgroundImages = new ArrayList<>();
-    private boolean useBackgroundImages = false;
     
     //BACKGROUND TRANSITION SPEED VARIABLES
     private Timer timer;
@@ -51,49 +43,31 @@ public class BackgroundCanvas extends JPanel {
     
     //BASE CONSTUCTOR
     public BackgroundCanvas() {}
-
-    //BACKGROUND IMAGES OVERLOAD
-    public BackgroundCanvas (boolean useBackgroundImages)
+    
+    //FUNCTIONS
+    public boolean loadImagesFromDir(String path)
     {
-        this.useBackgroundImages = useBackgroundImages;
-        
-        if (useBackgroundImages)
-        {
-            //Give preference to user images
-            loadUserImages(userImagesPath);
-
-            //If user images do not exist load default images
-            if (backgroundImages.size() < 1)
-            {
-                loadDefaultImages();
-            }
-        }
-    }
-    
-    private void loadDefaultImages () {
-        try 
-        {
-            File directory = new File(backgroundImagesPath);
-            defaultImagePaths = ImageUtilities.getAllImagesPathsInDir(directory, true); 
-            loadImagesFromPaths(defaultImagePaths);
-        }
-        catch (IOException e)
-        {
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    private void loadUserImages (String path) {
         try 
         {
             File directory = new File(path);
-            userImagePaths = ImageUtilities.getAllImagesPathsInDir(directory, true); 
-            loadImagesFromPaths(userImagePaths);
+            imagePaths = ImageUtilities.getAllImagesPathsInDir(directory, true); 
+            loadImagesFromPaths(imagePaths);
+            
+            return true;
         }
         catch (IOException e)
         {
             System.out.println(e.getMessage());
+            return false;
         }
+    }
+    
+    public void loadImageFromPath(String path)
+    {
+        ArrayList<String> tmpList = new ArrayList<>();
+        tmpList.add(path);
+        loadImagesFromPaths(tmpList);
+        repaint();
     }
     
     private void loadImagesFromPaths (ArrayList<String> imagePaths)
@@ -104,7 +78,7 @@ public class BackgroundCanvas extends JPanel {
         {
             fadeInImage = backgroundImages.get(0);
             fadeOutImage = backgroundImages.get(0);
-            timer = new Timer(TRANSITION_SPEED, new MoveListener());
+            timer = new Timer(TRANSITION_SPEED, new TimerListener());
             timer.start();
         }
     }
@@ -121,12 +95,12 @@ public class BackgroundCanvas extends JPanel {
         paint.fillRect(0, 0, screenWidth, screenHeight);
         
         //If only single image in array list
-        if (useBackgroundImages && backgroundImages.size() < 2)
+        if (backgroundImages.size() > 0 && backgroundImages.size() < 2)
         {
             paint.drawImage(backgroundImages.get(0), 0, 0, screenWidth, screenHeight, this);
         }
         //If multiple images in array list and user or default images were found
-        else if (useBackgroundImages && (userImagePaths != null || defaultImagePaths != null))
+        else if (imagePaths != null)
         {
             paint.setComposite(AlphaComposite.SrcOver.derive(alpha));
             paint.drawImage(fadeInImage, 0, 0, screenWidth, screenHeight, this);
@@ -172,7 +146,7 @@ public class BackgroundCanvas extends JPanel {
     });
     
     //CHANGE BACKGROUND IMAGE AFTER EVERY FULL TIMER INTERVAL
-    private class MoveListener implements ActionListener {
+    private class TimerListener implements ActionListener {
         
         @Override
         public void actionPerformed(ActionEvent event) {
