@@ -33,19 +33,17 @@ public class ScraperUtility {
 
     public void beginTVScrape() {
         File[] files = getTVDirectory("TV Shows");
-        BufferedImage backdropImage, posterImage, stillImage = null;
+        BufferedImage backdropImage = null, posterImage = null, stillImage = null;
         for (int i = 0; i < files.length; i++) {
             String name = files[i].getName();
             String jsonURI = constructSearchURI("tv", parser.encodeURLParameter(name), "");
             try {
                 tvSeries = parser.parseSeriesList(jsonURI, true);
                 parser.appendToSeriesList(tvSeries.results.get(0));
-                System.out.println("Downloading " + name + " backdrop.");
-                backdropImage = scrapeImage(BACKDROP_SIZE, tvSeries.results.get(0).getBackdropPath());
-                System.out.println("Downloading " + name + " poster.");
-                posterImage = scrapeImage(POSTER_SIZE, tvSeries.results.get(0).getPosterPath());
-                saveImage(backdropImage, "series_backdrop.jpg", "TV Shows/" + name + "/");
-                saveImage(posterImage, "series_poster.jpg", "TV Shows/" + name + "/");
+                TVSeries series = tvSeries.results.get(0);
+                name = renameDir(name, series.getName());
+                requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", series.getBackdropPath(), "TV Shows/" + name + "/");
+                requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", series.getPosterPath(), "TV Shows/" + name + "/");
             } catch (Exception ex) {
                 Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -56,17 +54,14 @@ public class ScraperUtility {
                     int seasonNo = parser.trimFileName("season ", subDirFiles[j].getName().toLowerCase());
                     jsonURI = constructSeasonURI(tvSeries.results.get(0).getID(), seasonNo);
                     tvSeason = parser.parseSeason(jsonURI, true);
-                    System.out.println("Downloading " + name + " - season " + (j + 1) + " poster.");
-                    posterImage = scrapeImage(POSTER_SIZE, tvSeason.getPosterPath());
-                    saveImage(posterImage, "season_poster.jpg", "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
+                    requestImageScrape(POSTER_SIZE, posterImage, "season_poster.jpg", tvSeason.getPosterPath(), "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
                     File stillsDir = new File("TV Shows/" + name + "/" + subDirFiles[j].getName() + "/Stills/");
                     if (!stillsDir.exists()) {
                         stillsDir.mkdir();
                     }
                     for (int k = 0; k < tvSeason.episodes.size(); k++) {
-                        System.out.println("Downloading " + name + " - season " + (j + 1) + " - episode " + (k + 1) + " still.");
-                        stillImage = scrapeImage(STILL_SIZE, tvSeason.episodes.get(k).getStillPath());
-                        saveImage(stillImage, "EP" + (k + 1) + "_still.jpg", stillsDir.getPath() + "/");
+                        requestImageScrape(BACKDROP_SIZE, backdropImage, "EP" + (k + 1) + "_still.jpg", tvSeason.episodes.get(k).getStillPath(), 
+                                "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/Stills/");
                     }
                     saveLocalSeasonJSON(tvSeason, "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
                 }
@@ -95,6 +90,24 @@ public class ScraperUtility {
         } catch (IOException ex) {
             Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void requestImageScrape(String size, BufferedImage image, String name, String imageURL, String path) {
+        File file = new File(path + "/" + name);
+        if (!file.exists()) {
+            System.out.println("Downloading " + name + " to " + path + ".");
+            image = scrapeImage(size, imageURL);
+            saveImage(image, name, path);
+        }
+    }
+    
+    public String renameDir(String oldName, String newName) {
+        File dir = new File("TV Shows/" + oldName);
+        File newDir = new File("TV Shows/" + newName);
+        if(dir.isDirectory()) {
+            dir.renameTo(newDir);
+        }
+        return newName;
     }
 
     public void saveLocalSeasonJSON(TVSeasonContainer season, String filePath) {
