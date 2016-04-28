@@ -1,6 +1,7 @@
 package raspimediacenter.Logic.Utilities;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,9 +10,9 @@ import javax.imageio.ImageIO;
 public class ImageUtilities {
     
     //RETURNS THE IMAGE FROM THE GIVEN PATH
-    public static Image getImageFromPath (String path)
+    public static BufferedImage getImageFromPath (String path)
     {
-        Image backgroundImage = null;
+        BufferedImage backgroundImage = null;
         
         try 
         {
@@ -33,15 +34,15 @@ public class ImageUtilities {
     }
     
     //RETURNS AN ARRAYLIST OF IMAGES FROM AN ARRAYLIST OF IMAGE LOCATION PATHS
-    public static ArrayList<Image> getImagesFromPaths (ArrayList<String> imagePaths) 
+    public static ArrayList<BufferedImage> getImagesFromPaths (ArrayList<String> imagePaths) 
     {
-        ArrayList<Image> images = new ArrayList<>();
+        ArrayList<BufferedImage> images = new ArrayList<>();
         
         if (imagePaths != null)
             {
                 for (String imgPath : imagePaths)
                 {
-                    Image tmpImg = ImageUtilities.getImageFromPath(imgPath);
+                    BufferedImage tmpImg = ImageUtilities.getImageFromPath(imgPath);
                     if (tmpImg != null)
                     {
                         images.add(tmpImg);

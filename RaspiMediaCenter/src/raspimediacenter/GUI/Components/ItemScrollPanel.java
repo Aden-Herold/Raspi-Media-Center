@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -18,6 +20,7 @@ import raspimediacenter.GUI.Scenes.Scene;
 public class ItemScrollPanel extends JScrollPane {
     
     private Scene scene;
+    private boolean hasScrollBar = false;
     
     public ItemScrollPanel (Component c, Scene scene)
     {
@@ -29,7 +32,24 @@ public class ItemScrollPanel extends JScrollPane {
         this.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         this.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         this.getVerticalScrollBar().setUI(new ScrollBarUI());
+        this.getVerticalScrollBar().setOpaque(false);
+        this.getVerticalScrollBar().setUnitIncrement(16);
         this.setBorder(BorderFactory.createEmptyBorder());
+        this.setFocusable(false);
+        
+        this.getVerticalScrollBar().addHierarchyListener(new HierarchyListener() {
+            @Override
+            public void hierarchyChanged(HierarchyEvent e) {
+                if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED && (e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+                    hasScrollBar = getVerticalScrollBar().isVisible();
+                }
+            }
+        });
+    }
+    
+    public boolean hasScrollBar ()
+    {
+        return hasScrollBar;
     }
     
     private class ScrollBarUI extends BasicScrollBarUI {
@@ -40,6 +60,7 @@ public class ItemScrollPanel extends JScrollPane {
             button.setPreferredSize(zeroDim);
             button.setMinimumSize(zeroDim);
             button.setMaximumSize(zeroDim);
+            button.setFocusable(false);
             return button;
         }
         
@@ -57,7 +78,7 @@ public class ItemScrollPanel extends JScrollPane {
         protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds)
         {
             Graphics2D g2d = (Graphics2D)g;
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.0));
             g2d.setColor(new Color(255, 255, 255));
             g2d.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
         }
@@ -68,7 +89,7 @@ public class ItemScrollPanel extends JScrollPane {
             Color menuColor = Scene.getMenuColor();
             g2d.setColor(new Color(menuColor.getRed(), menuColor.getGreen(), menuColor.getBlue()));
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Scene.getMenuTransparency()));
-            g2d.fillRect(thumbBounds.x+thumbBounds.width/3, thumbBounds.y, thumbBounds.width/2, thumbBounds.height);
+            g2d.fillRect(thumbBounds.x+thumbBounds.width/4, thumbBounds.y, thumbBounds.width/2, thumbBounds.height);
         }
     }
 }

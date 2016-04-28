@@ -1,5 +1,6 @@
 package raspimediacenter.GUI;
 
+import java.awt.Color;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.GUI.Scenes.MainMenuScene;
 import java.awt.Dimension;
@@ -28,6 +29,7 @@ public final class SceneManager {
         
         //Create a JFrame
         frame = new JFrame();
+        frame.setBackground(Color.black);
         //Start media center in full screen
         frame.setSize(screenWidth, screenHeight);
 
