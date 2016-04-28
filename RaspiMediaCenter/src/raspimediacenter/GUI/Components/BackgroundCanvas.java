@@ -112,7 +112,6 @@ public class BackgroundCanvas extends JPanel {
         //If only single image in array list
         if (backgroundImages.size() > 0 && backgroundImages.size() < 2)
         {
-            System.out.println(backgroundImages.get(0));
             paint.drawImage(backgroundImages.get(0), 0, 0, screenWidth, screenHeight, this);
         }
         //If multiple images in array list and user or default images were found

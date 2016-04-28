@@ -200,7 +200,6 @@ public class FileBrowserScene extends Scene {
         
         for (String info : labelValues)
         {
-            System.out.println(info);
             JLabel infoLabel = new StyledLabel(info, Font.PLAIN, 25, SwingConstants.LEFT);
             infoLabels.add(infoLabel);
             infoLabel.setPreferredSize(new Dimension((int) Math.floor(SceneManager.getScreenWidth()*0.3), 45));
