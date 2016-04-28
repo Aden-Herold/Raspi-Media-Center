@@ -48,12 +48,14 @@ public class ScraperUtility {
                 String name = files[i].getName();
                 String jsonURI = constructSearchURI("tv", parser.encodeURLParameter(name), "");
                 tvSeries = parser.parseSeriesList(jsonURI, true);
-                parser.appendToSeriesList(tvSeries.results.get(0));
                 series = tvSeries.results.get(0);
+                jsonURI = constructSeriesURI(tvSeries.results.get(0).getID());
+                series = parser.parseSeries(jsonURI, true);
+                parser.appendToSeriesList(series);
                 name = renameDir("TV Shows/", name, series.getName());
                 requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", series.getBackdropPath(), "TV Shows/" + name + "/");
                 requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", series.getPosterPath(), "TV Shows/" + name + "/");
-                saveLocalSeriesJSON(tvSeries.results.get(0), "TV Shows/" + name + "/");
+                saveLocalSeriesJSON(series, "TV Shows/" + name + "/");
                 File[] subDirFiles = getTVDirectory("TV Shows/" + name);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
@@ -170,9 +172,14 @@ public class ScraperUtility {
         return baseURI + "movie/" + id + "?api_key=" + apiKey;
     }
 
+    //constructs a URI to return a series using the 'The Movie Database API'.
+    public String constructSeriesURI(int id) {
+        return baseURI + "tv/" + id + "?api_key=" + apiKey;
+    }
+
     //constructs a URI to return a season using the 'The Movie Database API'.
-    public String constructSeasonURI(int ID, int season) {
-        return baseURI + "tv/" + ID + "/season/" + season + "?api_key=" + apiKey;
+    public String constructSeasonURI(int id, int season) {
+        return baseURI + "tv/" + id + "/season/" + season + "?api_key=" + apiKey;
     }
 }
 
