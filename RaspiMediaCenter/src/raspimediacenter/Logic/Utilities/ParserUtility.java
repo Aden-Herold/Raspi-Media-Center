@@ -16,6 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import raspimediacenter.Data.Models.MovieContainer;
+import raspimediacenter.Data.Models.MovieContainer.Movie;
 import raspimediacenter.Data.Models.TVSeasonContainer;
 import raspimediacenter.Data.Models.TVSeasonContainer.TVSeason;
 import raspimediacenter.Data.Models.TVSeriesContainer;
@@ -23,11 +25,27 @@ import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
 public class ParserUtility {
 
+    private Movie movie;
+    private MovieContainer movieContainer;
     private TVSeries series;
     private TVSeriesContainer seriesContainer;
     private TVSeasonContainer season;
 
-    //Parses in JSON for a particular TV Series from /TV Shows/
+    //Parses in JSON for a particular Movie from /Movies/ or remote
+    public Movie parseMovie(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        movie = gson.fromJson(prepareJSON(filePath, remote), Movie.class);
+        return movie;
+    }
+
+    //Parses in JSON for a remote Movie search results, or a local list in /Movies/ containing info about all TV Shows the user has
+    public MovieContainer parseMovieList(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        movieContainer = gson.fromJson(prepareJSON(filePath, remote), MovieContainer.class);
+        return movieContainer;
+    }
+
+    //Parses in JSON for a particular TV Series from /TV Shows/ or remote
     public TVSeries parseSeries(String filePath, boolean remote) {
         Gson gson = new Gson();
         series = gson.fromJson(prepareJSON(filePath, remote), TVSeries.class);
@@ -67,6 +85,30 @@ public class ParserUtility {
         return json;
     }
 
+    //When a new movie is scraped, information about the movie is appended as a JSON object to /Movies/movie-list.json's input.
+    public void appendToMovieList(Movie movie) {
+        File file = new File("Movies/movie-list.json");
+        MovieContainer container;
+        boolean entryExists = false;
+        if (!file.exists()) {
+            beginJSONOutput(file, "{" + "results" + ":[{}]}");
+            container = parseMovieList("Movies/movie-list.json", false);
+            container.results.clear();
+        } else {
+            container = parseMovieList("Movies/movie-list.json", false);
+        }
+        for (int i = 0; i < container.results.size(); i++) {
+            if (container.results.get(i).getID() == movie.getID()) {
+                entryExists = true;
+                break;
+            }
+        }
+        if (!entryExists) {
+            container.results.add(movie);
+            saveAmendedMovieList(container);
+        }
+    }
+
     //When a new series is scraped, information about the series is appended as a JSON object to /Tv Shows/series-list.json's input
     public void appendToSeriesList(TVSeries series) {
         File file = new File("TV Shows/series-list.json");
@@ -94,6 +136,14 @@ public class ParserUtility {
     //Called after appendToSeriesList, outputs modified JSON to /TV Shows/series-list.json to save changes
     public void saveAmendedSeriesList(TVSeriesContainer container) {
         File infoFile = new File("TV Shows/series-list.json");
+        Gson gson = new Gson();
+        String s = gson.toJson(container);
+        beginJSONOutput(infoFile, s);
+    }
+    
+    //Called after appendtoMovieList, outputs modified JSON to /Movies/movie-list.json to save changes
+    public void saveAmendedMovieList(MovieContainer container) {
+        File infoFile = new File("Movies/movie-list.json");
         Gson gson = new Gson();
         String s = gson.toJson(container);
         beginJSONOutput(infoFile, s);
@@ -161,3 +211,4 @@ public class ParserUtility {
     }
 
 }
+
