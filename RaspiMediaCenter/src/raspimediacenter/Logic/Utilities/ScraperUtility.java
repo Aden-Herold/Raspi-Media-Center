@@ -94,7 +94,7 @@ public class ScraperUtility {
 
     public void requestImageScrape(String size, BufferedImage image, String name, String imageURL, String path) {
         File file = new File(path + "/" + name);
-        if (!file.exists()) {
+        if (!file.exists() && imageURL != null) {
             System.out.println("Downloading " + name + " to " + path + ".");
             image = scrapeImage(size, imageURL);
             saveImage(image, name, path);
@@ -165,3 +165,4 @@ public class ScraperUtility {
         return baseURI + "tv/" + ID + "/season/" + season + "?api_key=" + apiKey;
     }
 }
+
