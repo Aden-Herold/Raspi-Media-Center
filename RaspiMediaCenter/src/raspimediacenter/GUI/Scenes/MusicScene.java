@@ -7,5 +7,6 @@ public class MusicScene extends FileBrowserScene {
     public MusicScene(SceneManager sceneManager) {
         super(sceneManager);
         Scene.setCurrentScene("Music");
+        createListDisplay("");
     }
 }

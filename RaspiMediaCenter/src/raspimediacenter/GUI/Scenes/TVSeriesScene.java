@@ -1,11 +1,18 @@
 package raspimediacenter.GUI.Scenes;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import javax.swing.JButton;
+import java.awt.RenderingHints;
+import javax.swing.JPanel;
 import raspimediacenter.Data.Models.TVSeriesContainer;
+import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.GUI.Components.ItemScrollPanel;
 import raspimediacenter.GUI.Components.ListItemButton;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
@@ -13,10 +20,7 @@ import raspimediacenter.Logic.Utilities.ParserUtility;
 
 public class TVSeriesScene extends FileBrowserScene{
     
-    private static TVSeriesContainer tvSeries;
-    private ArrayList<JButton> seriesLinks = new ArrayList<>();
-    private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
-    private static ArrayList<BufferedImage> posters = new ArrayList<>();
+    private TVSeriesContainer tvSeries;
     
     public TVSeriesScene(SceneManager sceneManager) {
         super(sceneManager);
@@ -25,91 +29,48 @@ public class TVSeriesScene extends FileBrowserScene{
         ParserUtility parser = new ParserUtility();
         tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
         
-        loadSeriesBackgrounds();
-        loadSeriesPosters();
-        bgCanvas.setBackgroundImage(0);
+        currentFanart = ImageUtilities.getImageFromPath("TV Shows/" + tvSeries.results.get(1).getName() + "/series_backdrop.jpg");
+        currentPoster = ImageUtilities.getImageFromPath("TV Shows/" + tvSeries.results.get(1).getName() + "/series_poster.jpg");
+        
+        loadBackground("TV Shows/" + tvSeries.results.get(1).getName() + "/series_backdrop.jpg");
+        
+        createListDisplay("");
+    }
+    
+    @Override
+    public void createListDisplay(String directory)
+    {
+        Dimension listSize = new Dimension();
+        listSize.setSize(SceneManager.getScreenWidth()*0.25, SceneManager.getScreenHeight()*0.7);
 
-        setupInfoLabels(infoLabels);
-        createInfoDisplay(generateTVSeriesInfo(1));
-        createOverviewDisplay(tvSeries.results.get(0).getOverview());
-        createLinkList();
-        createListDisplay(seriesLinks);
-        createStarRating(tvSeries.results.get(0).getRatingAverage());
-    }
-    
-    private void createLinkList()
-    {
-        for (int x = 0; x < tvSeries.results.size(); x++)
-        {
-            if (!tvSeries.results.get(x).getName().matches("")){
-                JButton button = new ListItemButton(tvSeries.results.get(x).getName(), this, x);
-                seriesLinks.add(button);
-            }
-        }
-    }
-    
-    private void loadSeriesBackgrounds ()
-    {
-        ArrayList<String> backgroundPaths = new ArrayList<>();
-        
-        for (int x = 0; x < tvSeries.results.size(); x++)
-        {
-            if (!tvSeries.results.get(x).getName().matches(""))
-            {
-                String path = "TV Shows/" + tvSeries.results.get(x).getName() + "/series_backdrop.jpg";
-                backgroundPaths.add(path);
-            }
-        }
-        
-        bgCanvas.loadFanartImagesIntoMemory(backgroundPaths);
-    }
-    
-    private void loadSeriesPosters ()
-    {
-        for (int x = 0; x < tvSeries.results.size(); x++)
-        {
-            if (!tvSeries.results.get(x).getName().matches(""))
-            {
-                String path = "TV Shows/" + tvSeries.results.get(x).getName() + "/series_poster.jpg";
-                BufferedImage poster = ImageUtilities.getImageFromPath(path);
-                posters.add(poster);
-            }
-        }
-    }
-    
-    public static TVSeriesContainer getTVSeries ()
-    {
-        return tvSeries;
-    }
-    
-    public static ArrayList<String> generateTVSeriesInfo (int linkNum)
-    {
-        String genres = "";
-        
-        for (int x = 0; x < tvSeries.results.get(linkNum).genres.size(); x++)
-        {
-            if (x < tvSeries.results.get(linkNum).genres.size()-1)
-            {
-                genres += tvSeries.results.get(linkNum).genres.get(x).getGenre() + ", ";
-            }
-            else
-            {
-                genres += tvSeries.results.get(linkNum).genres.get(x).getGenre();
-            }
-        }
+        JPanel panel = new JPanel(new GridLayout(0,1));
+        panel.setOpaque(false);
 
-        ArrayList<String> labelInfo = new ArrayList<>();
-        labelInfo.add(tvSeries.results.get(linkNum).networks.get(0).getNetwork());
-        labelInfo.add(tvSeries.results.get(linkNum).getStartYear() + " - " + tvSeries.results.get(linkNum).getEndYear());
-        labelInfo.add(tvSeries.results.get(linkNum).getStatus());
-        labelInfo.add(genres);
-        labelInfo.add(tvSeries.results.get(linkNum).getOriginCountry()[0]);
+        for (TVSeries show : tvSeries.results)
+        {
+            ListItemButton button = new ListItemButton(show.getName(), this);
+            panel.add(button);
+        }
         
-        return labelInfo;
+        JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        flowPanel.setOpaque(false);
+        flowPanel.add(panel);
+        
+        ItemScrollPanel filesList = new ItemScrollPanel(flowPanel, this);
+        filesList.setBounds(SceneManager.getScreenWidth()-listSize.width, 0, listSize.width, listSize.height);
+        SceneManager.getContentPane().add(filesList, 1, 0);
     }
     
-    public static BufferedImage getPosterImage (int linkNum)
-    {
-        return posters.get(linkNum);
+    @Override
+    public void paintComponent(Graphics g){
+        
+        super.paintComponent(g);
+        Graphics2D paint = (Graphics2D) g;
+        
+        paint.setRenderingHint(RenderingHints.KEY_RENDERING, 
+                               RenderingHints.VALUE_RENDER_QUALITY);
+        
+        drawDetailsHUD(paint);
+        drawPoster(paint);
     }
 }

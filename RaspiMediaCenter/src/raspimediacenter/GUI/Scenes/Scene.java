@@ -58,11 +58,6 @@ public class Scene extends JPanel {
     }
     
     //FUNCTIONS
-    /*public void setBackground(Image image)
-    {
-        bgCanvas.setBackgroundImage(image);
-    }
-*/
     public void loadBackgrounds()
     {
         if (!bgCanvas.loadImagesFromDir(userImagesPath))
@@ -74,5 +69,5 @@ public class Scene extends JPanel {
     public void loadBackground(String path)
     {
         bgCanvas.loadImageFromPath(path);
-    }  
+    }
 }

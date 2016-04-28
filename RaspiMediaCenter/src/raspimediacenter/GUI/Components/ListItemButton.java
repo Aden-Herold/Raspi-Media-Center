@@ -28,20 +28,15 @@ public class ListItemButton extends JButton {
     private boolean isFocused = false;
     private FileBrowserScene menu;
     private String buttonName;
-    private int linkNum;
     
     private final FocusListener focusListener = new FocusListener() {
 
         @Override
         public void focusGained(FocusEvent e) {
             isFocused = true;
-            //menu.loadBackground(Scene.getCurrentScene()+"/" + buttonName + "/series_backdrop.jpg");
-            //menu.updateCurrentPoster(Scene.getCurrentScene()+"/" + buttonName + "/series_poster.jpg");
-            menu.updateInfoLabels(linkNum);
-            menu.updateOverview(linkNum);
-            menu.updateStarRating(linkNum);
-            menu.setBackground(linkNum);
-            menu.setPoster(linkNum);
+            //menu.updateInfoLabel(buttonName);
+            menu.loadBackground(Scene.getCurrentScene()+"/" + buttonName + "/series_backdrop.jpg");
+            menu.updateCurrentPoster(Scene.getCurrentScene()+"/" + buttonName + "/series_poster.jpg");
         }
 
         @Override
@@ -51,16 +46,15 @@ public class ListItemButton extends JButton {
         }
     };
     
-    public ListItemButton(String s, FileBrowserScene menu, int linkNum) {
+    public ListItemButton(String s, FileBrowserScene menu) {
         
         super(s);
         
         this.menu = menu;
         buttonName = s;
-        this.linkNum = linkNum;
         
         loadFont();
-        Font menuFont = new Font("Bombard", Font.PLAIN, 25);
+        Font menuFont = new Font("Bombard", Font.PLAIN, 20);
 
         this.setHorizontalAlignment(SwingConstants.RIGHT);
         setFont(menuFont);
@@ -70,7 +64,7 @@ public class ListItemButton extends JButton {
         setFocusPainted(false);
         setForeground(Color.white);
         addFocusListener(focusListener);
-        this.setPreferredSize(new Dimension((int) (SceneManager.getScreenWidth()*0.24), 45));
+        this.setPreferredSize(new Dimension((int) (SceneManager.getScreenWidth()*0.24), 35));
         
         addMouseListener(new MouseAdapter() { 
             @Override
@@ -94,30 +88,13 @@ public class ListItemButton extends JButton {
     }
     
     @Override
-    public void paintComponent(Graphics g) 
+    public void paint(Graphics g) 
     {       
-        Graphics2D paint = (Graphics2D) g;
+        Graphics2D g2 = (Graphics2D) g.create();
         
         final float[] gradientFractions = {0.0f, 1f};
         
-        //Start with default black canvas
-        //paint.setColor(Color.BLACK);
-        //paint.fillRect(0, 0, screenWidth, screenHeight);
-        
-        if (!isFocused)
-        {
-            final Color[] backgroundGradient = {new Color(0, 0, 0, 0), Scene.getMenuColor()};
-            LinearGradientPaint menuGrad = new LinearGradientPaint(
-                                                        new Point2D.Double(0, 0),
-                                                        new Point2D.Double(getWidth(), getHeight()),
-                                                        gradientFractions,
-                                                        backgroundGradient);
-            
-            paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)); 
-            paint.setPaint(menuGrad);
-            paint.fillRect(0, 0, getWidth(), getHeight());
-        }
-        else 
+        if (isFocused)
         {
             final Color[] backgroundGradient = {new Color(0, 0, 0, 0), Color.black};
             LinearGradientPaint menuGrad = new LinearGradientPaint(
@@ -126,14 +103,29 @@ public class ListItemButton extends JButton {
                                                         gradientFractions,
                                                         backgroundGradient);
             
-            paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-            paint.setPaint(menuGrad);
-            paint.fillRect(0, 0, getWidth(), getHeight());
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5));
+            g2.setPaint(menuGrad);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 1));
+        }
+        else 
+        {
+            final Color[] backgroundGradient = {new Color(0, 0, 0, 0), Scene.getMenuColor()};
+            LinearGradientPaint menuGrad = new LinearGradientPaint(
+                                                        new Point2D.Double(0, 0),
+                                                        new Point2D.Double(getWidth(), getHeight()),
+                                                        gradientFractions,
+                                                        backgroundGradient);
+            
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 0.5)); 
+            g2.setPaint(menuGrad);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) 1));
         }
         
-        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-        
-        super.paintComponent(paint);
-        paint.dispose();
+        super.paint(g2);
+        g2.dispose();
     }
 }

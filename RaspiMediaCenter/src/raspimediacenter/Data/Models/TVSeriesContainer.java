@@ -40,17 +40,6 @@ public class TVSeriesContainer {
             return id;
         }
 
-        public String getStartYear () {
-            
-            String year = first_air_date.substring(0, 4);
-            return year;
-        }
-        
-        public String getEndYear() {
-            String year = last_air_date.substring(0, 4);
-            return year;
-        }
-        
         public String getLastAirDate() {
             return last_air_date;
         }
@@ -87,10 +76,10 @@ public class TVSeriesContainer {
             return status;
         }
 
-        public float getRatingAverage() {
+        public float getAverage() {
             return vote_average;
         }
-        
+
         public static class SeriesCreator {
 
             private String name;
