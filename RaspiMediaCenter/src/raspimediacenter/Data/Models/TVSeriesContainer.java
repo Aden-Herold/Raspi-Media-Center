@@ -6,6 +6,16 @@ public class TVSeriesContainer {
 
     public List<TVSeries> results;
 
+    public int getTotalEpisodes ()
+    {
+        int episodes = 0;
+        for (TVSeries series : results)
+        {
+            episodes += series.number_of_episodes;
+        }
+        return episodes;
+    }
+    
     public static class TVSeries {
 
         private String backdrop_path;

@@ -126,20 +126,21 @@ public class MainMenuScene extends Scene {
         
         if (buttonName.matches("MOVIES"))
         {
-            focusOptionItems.setText("FILES: 192 UNWATCHED: 82");
+            focusOptionItems.setText("MOVIES: 192   WATCHED: 82");
         }
         else if (buttonName.matches("TV SHOWS"))
         {
-            int files = tvSeries.results.size()-1;
-            focusOptionItems.setText("FILES: " + files + " UNWATCHED: 2712");
+            int files = tvSeries.results.size();
+            int eps = tvSeries.getTotalEpisodes();
+            focusOptionItems.setText("TV SHOWS: " + files + "   EPISODES: " + eps);
         }
         else if (buttonName.matches("MUSIC"))
         {
-            focusOptionItems.setText("FILES: 521");
+            focusOptionItems.setText("SONGS: 521");
         } 
         else if (buttonName.matches("IMAGES"))
         {
-            focusOptionItems.setText("FILES: 125");
+            focusOptionItems.setText("IMAGES: 125");
         } 
     }
  
