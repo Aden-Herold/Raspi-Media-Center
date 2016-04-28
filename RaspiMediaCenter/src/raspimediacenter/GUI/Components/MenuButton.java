@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
+import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.MainMenuScene;
 
 public class MenuButton extends JButton {
@@ -46,7 +47,7 @@ public class MenuButton extends JButton {
         buttonName = s;
         
         loadFont();
-        Font menuFont = new Font("Bombard", Font.BOLD, 60);
+        Font menuFont = new Font("Bombard", Font.BOLD, (int)Math.floor(SceneManager.getScreenWidth()*0.0235));
 
         setFont(menuFont);
         setOpaque(false);

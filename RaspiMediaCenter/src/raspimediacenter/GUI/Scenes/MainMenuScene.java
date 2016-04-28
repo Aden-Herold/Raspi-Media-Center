@@ -31,7 +31,7 @@ public class MainMenuScene extends Scene {
     private JLabel dateLabel;
     
     private final double MENU_POSITION = 0.7; //Percentage value of the screen from the top
-    private final int MENU_HEIGHT = 120; //Height of the menu bar
+    private final int MENU_HEIGHT = (int)Math.floor(SceneManager.getScreenHeight()*0.084); //Height of the menu bar
     
     private final SceneManager sceneManager;
     private TVSeriesContainer tvSeries;

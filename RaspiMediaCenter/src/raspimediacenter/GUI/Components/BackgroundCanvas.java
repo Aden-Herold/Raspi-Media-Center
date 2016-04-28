@@ -8,16 +8,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.swing.*;
+import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
 
 public class BackgroundCanvas extends JPanel {
-
-    //SCREEN DIMENSIONS
-    private final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-    private final int screenWidth = dim.width;
-    private final int screenHeight = dim.height;
     
     //BACKGROUND GRADIENT - LOWEST PRIORITY
     private final Color[] backgroundGradient = {new Color(143,153,247),
@@ -107,33 +102,33 @@ public class BackgroundCanvas extends JPanel {
 
         //Start with default black canvas
         paint.setColor(Color.BLACK);
-        paint.fillRect(0, 0, screenWidth, screenHeight);
+        paint.fillRect(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
         
         //If only single image in array list
         if (backgroundImages.size() > 0 && backgroundImages.size() < 2)
         {
-            paint.drawImage(backgroundImages.get(0), 0, 0, screenWidth, screenHeight, this);
+            paint.drawImage(backgroundImages.get(0), 0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight(), this);
         }
         //If multiple images in array list and user or default images were found
         else if (imagePaths != null)
         {
             paint.setComposite(AlphaComposite.SrcOver.derive(alpha));
-            paint.drawImage(fadeInImage, 0, 0, screenWidth, screenHeight, this);
+            paint.drawImage(fadeInImage, 0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight(), this);
             
             paint.setComposite(AlphaComposite.SrcOver.derive(1f - alpha));
-            paint.drawImage(fadeOutImage, 0, 0, screenWidth, screenHeight, this); 
+            paint.drawImage(fadeOutImage, 0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight(), this); 
         }
         //Else - default to gradient
         else
         {
             LinearGradientPaint backgroundGrad = new LinearGradientPaint(
                                                     new Point2D.Double(0, 0),
-                                                    new Point2D.Double(0, screenHeight),
+                                                    new Point2D.Double(0, SceneManager.getScreenHeight()),
                                                     gradientFractions,
                                                     backgroundGradient);
 
             paint.setPaint(backgroundGrad);
-            paint.fillRect(0, 0, screenWidth, screenHeight);
+            paint.fillRect(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
         }
     }
     

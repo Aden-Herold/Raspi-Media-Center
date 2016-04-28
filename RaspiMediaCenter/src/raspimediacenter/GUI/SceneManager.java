@@ -24,9 +24,12 @@ public final class SceneManager {
     
     public SceneManager () {
        
+        screenWidth = 1920;//dim.width;
+        screenHeight = 1080;//dim.height;
+        /*
         screenWidth = dim.width;
         screenHeight = dim.height;
-        
+        */
         //Create a JFrame
         frame = new JFrame();
         frame.setBackground(Color.black);

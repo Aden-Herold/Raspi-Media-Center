@@ -176,11 +176,12 @@ public class FileBrowserScene extends Scene {
         gridLayout.setOpaque(false);
         JPanel labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 2));
         labelsPanel.setOpaque(false);
+        int fontSize = (int)Math.floor(SceneManager.getScreenWidth()*0.01);
         
         for (String label : labels)
         {
-            JLabel infoLabel = new StyledLabel(label, Font.PLAIN, 25, SwingConstants.RIGHT);
-            infoLabel.setPreferredSize(new Dimension(240, 45));
+            JLabel infoLabel = new StyledLabel(label, Font.PLAIN, fontSize, SwingConstants.RIGHT);
+            infoLabel.setPreferredSize(new Dimension(240, (int)Math.floor(SceneManager.getScreenHeight()*0.03)));
             gridLayout.add(infoLabel);
         }
 
@@ -197,12 +198,14 @@ public class FileBrowserScene extends Scene {
         gridLayout.setOpaque(false);
         JPanel labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 2));
         labelsPanel.setOpaque(false);
+        int fontSize = (int)Math.floor(SceneManager.getScreenWidth()*0.01);
         
         for (String info : labelValues)
         {
-            JLabel infoLabel = new StyledLabel(info, Font.PLAIN, 25, SwingConstants.LEFT);
+            
+            JLabel infoLabel = new StyledLabel(info, Font.PLAIN, fontSize, SwingConstants.LEFT);
             infoLabels.add(infoLabel);
-            infoLabel.setPreferredSize(new Dimension((int) Math.floor(SceneManager.getScreenWidth()*0.3), 45));
+            infoLabel.setPreferredSize(new Dimension((int) Math.floor(SceneManager.getScreenWidth()*0.3), (int)Math.floor(SceneManager.getScreenHeight()*0.03)));
             gridLayout.add(infoLabel);
         }
         
@@ -216,13 +219,14 @@ public class FileBrowserScene extends Scene {
     public void createOverviewDisplay (String description) 
     {
         Dimension descSize = new Dimension();
-        descSize.setSize(SceneManager.getScreenWidth()*0.4, 200);
+        descSize.setSize(SceneManager.getScreenWidth()*0.4, (int)Math.floor(SceneManager.getScreenHeight()*0.13));
 
         JPanel panel = new JPanel(new GridLayout(0,1));
         panel.setOpaque(false);
         panel.setFocusable(false);
-
-        descLabel = new StyledTextArea(description, Font.PLAIN, 25, SwingConstants.LEFT);
+        
+        int fontSize = (int)Math.floor(SceneManager.getScreenWidth()*0.01);
+        descLabel = new StyledTextArea(description, Font.PLAIN, fontSize, SwingConstants.LEFT);
         
         JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         flowPanel.setOpaque(false);

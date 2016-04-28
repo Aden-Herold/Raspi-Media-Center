@@ -60,7 +60,8 @@ public class ListItemButton extends JButton {
         this.linkNum = linkNum;
         
         loadFont();
-        Font menuFont = new Font("Bombard", Font.PLAIN, 25);
+        int fontSize = (int)Math.floor(SceneManager.getScreenWidth()*0.01);
+        Font menuFont = new Font("Bombard", Font.PLAIN, fontSize);
 
         this.setHorizontalAlignment(SwingConstants.RIGHT);
         setFont(menuFont);
