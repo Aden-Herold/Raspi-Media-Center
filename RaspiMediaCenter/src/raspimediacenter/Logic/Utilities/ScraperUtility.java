@@ -20,7 +20,7 @@ import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
 public class ScraperUtility {
 
-    public static final String BACKDROP_SIZE = "w1280";
+    public static final String BACKDROP_SIZE = "w1920";
     public static final String POSTER_SIZE = "w780";
     public static final String STILL_SIZE = "w300";
 
@@ -34,34 +34,41 @@ public class ScraperUtility {
     //Iterates through series directories and seasons directories within /TV Shows/, constructs a URI with a found series directory as a search term
     //and scrapes information about that series, as well as all of its seasons as JSON from The Movie Database. Images related to the series/seasons are also scraped
     //and saved in appropriate subdirectories.
-    public void beginTVScrape() {
-        File[] files = getTVDirectory("TV Shows");
-        BufferedImage backdropImage = null, posterImage = null, stillImage = null;
-        TVSeries series = null;
-        for (int i = 0; i < files.length; i++) {
-            String name = files[i].getName();
-            String jsonURI = constructSearchURI("tv", parser.encodeURLParameter(name), "");
-            tvSeries = parser.parseSeriesList(jsonURI, true);
-            parser.appendToSeriesList(tvSeries.results.get(0));
-            series = tvSeries.results.get(0);
-            name = renameDir("TV Shows/", name, series.getName());
-            requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", series.getBackdropPath(), "TV Shows/" + name + "/");
-            requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", series.getPosterPath(), "TV Shows/" + name + "/");
-            saveLocalSeriesJSON(tvSeries.results.get(0), "TV Shows/" + name + "/");
-            File[] subDirFiles = getTVDirectory("TV Shows/" + name);
-            for (int j = 0; j < subDirFiles.length; j++) {
-                String subDirName = subDirFiles[j].getName();
-                if (subDirName.toLowerCase().contains("season")) {
-                    int seasonNo = parser.trimFileName("season ", subDirFiles[j].getName().toLowerCase());
-                    jsonURI = constructSeasonURI(series.getID(), seasonNo);
-                    tvSeason = parser.parseSeason(jsonURI, true);
-                    requestImageScrape(POSTER_SIZE, posterImage, "season_poster.jpg", tvSeason.getPosterPath(), "TV Shows/" + name + "/" + subDirName + "/");
-                    makeDirectory("TV Shows/" + name + "/" + subDirFiles[j].getName() + "/Stills/");
-                    for (int k = 0; k < tvSeason.episodes.size(); k++) {
-                        requestImageScrape(BACKDROP_SIZE, backdropImage, "EP" + (k + 1) + "_still.jpg", tvSeason.episodes.get(k).getStillPath(),
-                                "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/Stills/");
+    public class ScraperThread implements Runnable {
+
+        public void run() {
+            startTVScrape();
+        }
+
+        public void startTVScrape() {
+            File[] files = getTVDirectory("TV Shows");
+            BufferedImage backdropImage = null, posterImage = null, stillImage = null;
+            TVSeries series = null;
+            for (int i = 0; i < files.length; i++) {
+                String name = files[i].getName();
+                String jsonURI = constructSearchURI("tv", parser.encodeURLParameter(name), "");
+                tvSeries = parser.parseSeriesList(jsonURI, true);
+                parser.appendToSeriesList(tvSeries.results.get(0));
+                series = tvSeries.results.get(0);
+                name = renameDir("TV Shows/", name, series.getName());
+                requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", series.getBackdropPath(), "TV Shows/" + name + "/");
+                requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", series.getPosterPath(), "TV Shows/" + name + "/");
+                saveLocalSeriesJSON(tvSeries.results.get(0), "TV Shows/" + name + "/");
+                File[] subDirFiles = getTVDirectory("TV Shows/" + name);
+                for (int j = 0; j < subDirFiles.length; j++) {
+                    String subDirName = subDirFiles[j].getName();
+                    if (subDirName.toLowerCase().contains("season")) {
+                        int seasonNo = parser.trimFileName("season ", subDirFiles[j].getName().toLowerCase());
+                        jsonURI = constructSeasonURI(series.getID(), seasonNo);
+                        tvSeason = parser.parseSeason(jsonURI, true);
+                        requestImageScrape(POSTER_SIZE, posterImage, "season_poster.jpg", tvSeason.getPosterPath(), "TV Shows/" + name + "/" + subDirName + "/");
+                        makeDirectory("TV Shows/" + name + "/" + subDirFiles[j].getName() + "/Stills/");
+                        for (int k = 0; k < tvSeason.episodes.size(); k++) {
+                            requestImageScrape(BACKDROP_SIZE, backdropImage, "EP" + (k + 1) + "_still.jpg", tvSeason.episodes.get(k).getStillPath(),
+                                    "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/Stills/");
+                        }
+                        saveLocalSeasonJSON(tvSeason, "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
                     }
-                    saveLocalSeasonJSON(tvSeason, "TV Shows/" + name + "/" + subDirFiles[j].getName() + "/");
                 }
             }
         }
@@ -157,12 +164,12 @@ public class ScraperUtility {
         return baseURI + "search/" + type + "?query=" + query + "&year=" + year
                 + "&api_key=" + apiKey;
     }
-    
+
     //constructs a URI to return a movie using the 'The Movie Database API'.
     public String constructMovieURI(int id) {
         return baseURI + "movie/" + id + "?api_key=" + apiKey;
     }
-    
+
     //constructs a URI to return a season using the 'The Movie Database API'.
     public String constructSeasonURI(int ID, int season) {
         return baseURI + "tv/" + ID + "/season/" + season + "?api_key=" + apiKey;
