@@ -10,6 +10,5 @@ public class MoviesScene extends FileBrowserScene {
     public MoviesScene(SceneManager sceneManager) {
         super(sceneManager);
         Scene.setCurrentScene("Movies");
-        createListDisplay("");
     }
 }

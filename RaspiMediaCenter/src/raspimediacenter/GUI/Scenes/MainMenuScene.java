@@ -19,6 +19,7 @@ import java.util.Date;
 import javax.swing.*;
 import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.GUI.Components.MenuButton;
+import raspimediacenter.GUI.Components.StyledLabel;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.Logic.Utilities.ParserUtility;
 
@@ -97,15 +98,8 @@ public class MainMenuScene extends Scene {
     
     private void createCategoryInfo () {
         
-        focusOptionInfo = new JLabel();
-        focusOptionInfo.setText("LIBRARY - MOVIES");
-        focusOptionInfo.setFont(new Font("Bombard", Font.BOLD, 25));
-        focusOptionInfo.setForeground(Color.white);
-        
-        focusOptionItems = new JLabel();
-        focusOptionItems.setText("MOVIES: 10 UNWATCHED: 3");
-        focusOptionItems.setFont(new Font("Bombard", Font.BOLD, 15));
-        focusOptionItems.setForeground(Color.white);
+        focusOptionInfo = new StyledLabel("LIBRARY - MOVIES", Font.BOLD, 25, SwingConstants.LEFT);
+        focusOptionItems = new StyledLabel("MOVIES: 10 UNWATCHED: 3", Font.BOLD, 15, SwingConstants.LEFT);
         
         this.add(focusOptionInfo);
         this.add(focusOptionItems);
@@ -116,17 +110,8 @@ public class MainMenuScene extends Scene {
     
     private void createTimeInfo () {
         
-        timeLabel = new JLabel();
-        timeLabel.setText("00:00 XX");
-        timeLabel.setFont(new Font("Bombard", Font.BOLD, 25));
-        timeLabel.setForeground(Color.white);
-        timeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        
-        dateLabel = new JLabel();
-        dateLabel.setText("XXX, XXX 00, 0000");
-        dateLabel.setFont(new Font("Bombard", Font.BOLD, 15));
-        dateLabel.setForeground(Color.white);
-        dateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        timeLabel = new StyledLabel("00:00 XX", Font.BOLD, 25, SwingConstants.RIGHT);
+        dateLabel = new StyledLabel("XXX, XXX 00, 0000", Font.BOLD, 15, SwingConstants.RIGHT);
         
         this.add(timeLabel);
         this.add(dateLabel);
