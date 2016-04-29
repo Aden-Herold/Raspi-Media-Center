@@ -108,6 +108,15 @@ public class ParserUtility {
             saveAmendedMovieList(container);
         }
     }
+    
+    //TODO: Check if directory still exists for series-list
+    public boolean directoryExists(String path, String name) {
+        File file = new File(path);
+        if(file.isDirectory() && file.exists()) {
+            return true;
+        }
+        return false;
+    }
 
     //When a new series is scraped, information about the series is appended as a JSON object to /Tv Shows/series-list.json's input
     public void appendToSeriesList(TVSeries series) {

@@ -16,6 +16,7 @@ public class MovieContainer {
         public List<MovieProductionCompany> production_companies;
         private String release_date;
         private int runtime;
+        public List<MovieSpokenLanguage> spoken_languages;
         private String tagline;
         private String title;
         private float vote_average;
@@ -75,6 +76,19 @@ public class MovieContainer {
             private String name;
             
             public String getCompany() {
+                return name;
+            }
+        }
+        
+        public class MovieSpokenLanguage {
+            private String iso_639_1;
+            private String name;
+            
+            public String getInitials() {
+                return iso_639_1;
+            }
+            
+            public String getFullName() {
                 return name;
             }
         }
