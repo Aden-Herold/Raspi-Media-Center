@@ -85,16 +85,24 @@ public class TVSeriesScene extends FileBrowserScene{
     public static ArrayList<String> generateTVSeriesInfo (int linkNum)
     {
         String genres = "";
+        String temp = "";
         
         for (int x = 0; x < tvSeries.results.get(linkNum).genres.size(); x++)
         {
+            temp = tvSeries.results.get(linkNum).genres.get(x).getGenre();
+            
+            if (temp.matches("Science Fiction"))
+            {
+                temp = "Sci-Fi";
+            }
+            
             if (x < tvSeries.results.get(linkNum).genres.size()-1)
             {
-                genres += tvSeries.results.get(linkNum).genres.get(x).getGenre() + ", ";
+                genres += temp + ", ";
             }
             else
             {
-                genres += tvSeries.results.get(linkNum).genres.get(x).getGenre();
+                genres += temp;
             }
         }
 

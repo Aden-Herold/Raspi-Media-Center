@@ -186,8 +186,8 @@ public class FileBrowserScene extends Scene {
         }
 
         labelsPanel.add(gridLayout);
-        labelsPanel.setBounds(285, 
-                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+5),
+        labelsPanel.setBounds((int)(Math.floor(SceneManager.getScreenWidth()*0.0196)*2)+320-(240/2), 
+                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+50),
                 300, 240);
         SceneManager.getContentPane().add(labelsPanel, 3, 0);
     }
@@ -205,13 +205,13 @@ public class FileBrowserScene extends Scene {
             
             JLabel infoLabel = new StyledLabel(info, Font.PLAIN, fontSize, SwingConstants.LEFT);
             infoLabels.add(infoLabel);
-            infoLabel.setPreferredSize(new Dimension((int) Math.floor(SceneManager.getScreenWidth()*0.3), (int)Math.floor(SceneManager.getScreenHeight()*0.03)));
+            infoLabel.setPreferredSize(new Dimension((int) Math.floor(SceneManager.getScreenWidth()*0.2), (int)Math.floor(SceneManager.getScreenHeight()*0.03)));
             gridLayout.add(infoLabel);
         }
         
         labelsPanel.add(gridLayout);
-        labelsPanel.setBounds(565, 
-                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+5),
+        labelsPanel.setBounds((int)(Math.floor(SceneManager.getScreenWidth()*0.0196)*3)+320+(240/2), 
+                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+50),
                 (int) Math.floor(SceneManager.getScreenWidth()*0.4), 240);
         SceneManager.getContentPane().add(labelsPanel, 3, 0);
     }
@@ -219,7 +219,7 @@ public class FileBrowserScene extends Scene {
     public void createOverviewDisplay (String description) 
     {
         Dimension descSize = new Dimension();
-        descSize.setSize(SceneManager.getScreenWidth()*0.4, (int)Math.floor(SceneManager.getScreenHeight()*0.13));
+        descSize.setSize(SceneManager.getScreenWidth()*0.45, (int)Math.floor(SceneManager.getScreenHeight()*0.18));
 
         JPanel panel = new JPanel(new GridLayout(0,1));
         panel.setOpaque(false);
@@ -235,7 +235,7 @@ public class FileBrowserScene extends Scene {
         
         ItemScrollPanel descPanel = new ItemScrollPanel(descLabel, this);
         descPanel.setBounds(SceneManager.getScreenWidth()-descSize.width-50,
-                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+75),
+                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+15),
                 descSize.width, descSize.height);
         
         SceneManager.getContentPane().add(descPanel, 3, 0); 
@@ -251,8 +251,8 @@ public class FileBrowserScene extends Scene {
         
         starRating.updateRating(rating);
         
-        ratingPanel.setBounds(SceneManager.getScreenWidth()-descSize.width-50,
-                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+20),
+        ratingPanel.setBounds((int)Math.floor(SceneManager.getScreenWidth()*0.0196)*2+320,
+                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))+15),
                 descSize.width, descSize.height);
         SceneManager.getContentPane().add(ratingPanel, 3, 0);
     }
@@ -272,23 +272,39 @@ public class FileBrowserScene extends Scene {
     
     protected void drawDetailsHUD(Graphics2D paint)
     {
-        //Paint solid back panel
-        paint.setComposite(AlphaComposite.SrcOver.derive(0.3f));
-        paint.setPaint(Scene.getMenuColor());
-        paint.fillRect(0, (int)(SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))),
-                       SceneManager.getScreenWidth(), (int)Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH));
+        int hudWidth = (int)(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH));
         
-        //Paint gradient sheen ontop of back panel
-        final Color[] backgroundGradient = {new Color(0, 0, 0, 0), Scene.getMenuColor().darker().darker().darker()};
-        final float[] gradientFractions = {0.0f, 1f};
-        LinearGradientPaint menuGrad = new LinearGradientPaint(
+        //Paint full back panel
+        paint.setComposite(AlphaComposite.SrcOver.derive(0.5f));
+        paint.setPaint(Scene.getMenuColor());
+        paint.fillRect(0, SceneManager.getScreenHeight()-hudWidth,
+                       SceneManager.getScreenWidth(), hudWidth);
+        
+        //Paint information background area
+        final Color[] informationPanelGradient = {Scene.getMenuColor().darker(), new Color(0, 0, 0, 0)};
+        final float[] infoGradFractions = {0.95f, 1f};
+        LinearGradientPaint infoGrad = new LinearGradientPaint(
+                                       new Point2D.Double(0, SceneManager.getScreenHeight()-hudWidth),
+                                       new Point2D.Double(SceneManager.getScreenWidth()/2, SceneManager.getScreenHeight()-hudWidth),
+                                                          infoGradFractions,
+                                                          informationPanelGradient);
+        
+        paint.setComposite(AlphaComposite.SrcOver.derive(0.95f));
+        paint.setPaint(infoGrad);
+        paint.fillRect(0, SceneManager.getScreenHeight()-hudWidth,
+                       SceneManager.getScreenWidth()/2, hudWidth);
+        
+        //Paint gradient sheen over back panel
+        final Color[] sheenGradient = {new Color(0, 0, 0, 0), Scene.getMenuColor().darker().darker().darker()};
+        final float[] sheenGradFractions = {0.0f, 1f};
+        LinearGradientPaint sheenGrad = new LinearGradientPaint(
                                        new Point2D.Double(0, (int)(SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH)))),
                                        new Point2D.Double(0, (int)Math.floor(SceneManager.getScreenHeight())),
-                                                          gradientFractions,
-                                                          backgroundGradient);
+                                                          sheenGradFractions,
+                                                          sheenGradient);
             
         paint.setComposite(AlphaComposite.SrcOver.derive(1f)); 
-        paint.setPaint(menuGrad);
+        paint.setPaint(sheenGrad);
         paint.fillRect(0, (int)(SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH))),
                        SceneManager.getScreenWidth(), (int)Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH));
         
@@ -302,11 +318,11 @@ public class FileBrowserScene extends Scene {
     {
         paint.setComposite(AlphaComposite.SrcOver.derive(0.5f));
         paint.setColor(Color.black);
-        paint.fillRect(45, SceneManager.getScreenHeight()-480-60,
+        paint.fillRect((int)Math.floor(SceneManager.getScreenWidth()*0.0196)-5, SceneManager.getScreenHeight()-480-(int)Math.floor(SceneManager.getScreenWidth()*0.0196)-5,
                 330, 490);
         
         paint.setComposite(AlphaComposite.SrcOver.derive(1f));
-        paint.drawImage(currentPoster, 50, SceneManager.getScreenHeight()-480-55,
+        paint.drawImage(currentPoster, (int)Math.floor(SceneManager.getScreenWidth()*0.0196), SceneManager.getScreenHeight()-480-(int)Math.floor(SceneManager.getScreenWidth()*0.0196),
                 320, 480, this);
     }
 }
