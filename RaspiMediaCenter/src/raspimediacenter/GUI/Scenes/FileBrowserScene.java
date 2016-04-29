@@ -39,7 +39,7 @@ public class FileBrowserScene extends Scene {
     
     public FileBrowserScene (SceneManager sceneManager) {
         
-        super();
+        super(sceneManager);
         this.sceneManager = sceneManager;
         
         //Add Background to Frame
@@ -60,17 +60,17 @@ public class FileBrowserScene extends Scene {
     {
         if (Scene.getCurrentScene().toLowerCase().matches("movies"))
         {
-            
+            currentPoster = MoviesScene.getPosterImage(linkNum);
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
         {
             currentPoster = TVSeriesScene.getPosterImage(linkNum);
-            repaint();
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("music"))
         {
             
         }
+        repaint();
     }
     
     public void setCurrentPoster (Image currentPoster)
@@ -91,7 +91,7 @@ public class FileBrowserScene extends Scene {
         
         if (Scene.getCurrentScene().toLowerCase().matches("movies"))
         {
-            labelInfo = TVSeriesScene.generateTVSeriesInfo(linkNum);
+            labelInfo = MoviesScene.generateMoviesInfo(linkNum);
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
         {
@@ -115,7 +115,7 @@ public class FileBrowserScene extends Scene {
     {
         if (Scene.getCurrentScene().toLowerCase().matches("movies"))
         {
-            
+            descLabel.setText(MoviesScene.getMovies().results.get(linkNum).getOverview());
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
         {
@@ -131,7 +131,7 @@ public class FileBrowserScene extends Scene {
     {
         if (Scene.getCurrentScene().toLowerCase().matches("movies"))
         {
-            
+            starRating.updateRating(MoviesScene.getMovies().results.get(linkNum).getVoteAverage());
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
         {
@@ -275,7 +275,7 @@ public class FileBrowserScene extends Scene {
         int hudWidth = (int)(Math.floor(SceneManager.getScreenHeight()*HUD_WIDTH));
         
         //Paint full back panel
-        paint.setComposite(AlphaComposite.SrcOver.derive(0.5f));
+        paint.setComposite(AlphaComposite.SrcOver.derive(0.75f));
         paint.setPaint(Scene.getMenuColor());
         paint.fillRect(0, SceneManager.getScreenHeight()-hudWidth,
                        SceneManager.getScreenWidth(), hudWidth);

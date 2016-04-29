@@ -1,8 +1,11 @@
 package raspimediacenter.GUI.Scenes;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JPanel;
 import raspimediacenter.GUI.Components.BackgroundCanvas;
+import raspimediacenter.GUI.SceneManager;
 
 public class Scene extends JPanel {
     
@@ -16,11 +19,12 @@ public class Scene extends JPanel {
     public static Color MENU_COLOR = new Color(0, 153, 204); //Color of menu elements
     
     public static String currentScene;
-    
+    private final SceneManager sceneManager;
     
     //BASE CONSTRUCTOR
-    public Scene ()
+    public Scene (SceneManager sceneManager)
     {
+        this.sceneManager = sceneManager;
         this.setLayout(null);
         bgCanvas = new BackgroundCanvas();
     }
@@ -58,11 +62,6 @@ public class Scene extends JPanel {
     }
     
     //FUNCTIONS
-    /*public void setBackground(Image image)
-    {
-        bgCanvas.setBackgroundImage(image);
-    }
-*/
     public void loadBackgrounds()
     {
         if (!bgCanvas.loadImagesFromDir(userImagesPath))

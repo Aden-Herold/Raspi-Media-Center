@@ -5,11 +5,16 @@ import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.GUI.Scenes.MainMenuScene;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import raspimediacenter.GUI.Scenes.MoviesScene;
 import raspimediacenter.GUI.Scenes.MusicScene;
+import static raspimediacenter.GUI.Scenes.Scene.currentScene;
 import raspimediacenter.GUI.Scenes.TVSeriesScene;
 
 public final class SceneManager {
@@ -26,10 +31,10 @@ public final class SceneManager {
        
         screenWidth = 1920;//dim.width;
         screenHeight = 1080;//dim.height;
-        
+        /*
         screenWidth = dim.width;
         screenHeight = dim.height;
-        
+        */
         //Create a JFrame
         frame = new JFrame();
         frame.setBackground(Color.black);
@@ -42,6 +47,9 @@ public final class SceneManager {
         
         loadScene("main menu");
         
+        //frame.addKeyListener(new KeyboardListener());
+        KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventDispatcher(new GlobalDispatcher());
         frame.getContentPane().add(contentPane);
         
         //set properties for the JFrame
@@ -71,23 +79,23 @@ public final class SceneManager {
     {
         unloadScene(currentScene);
         
-        if (scene.matches("main menu"))
+        if (scene.toLowerCase().matches("main menu"))
         {
             currentScene = new MainMenuScene(this);
         }
-        else if (scene.matches("movies"))
+        else if (scene.toLowerCase().matches("movies"))
         {
             currentScene = new MoviesScene(this);
         }
-        else if (scene.matches("tv shows"))
+        else if (scene.toLowerCase().matches("tv shows"))
         {
             currentScene = new TVSeriesScene(this);
         }
-        else if (scene.matches("music"))
+        else if (scene.toLowerCase().matches("music"))
         {
             currentScene = new MusicScene(this);
         }
-        else if (scene.matches("images"))
+        else if (scene.toLowerCase().matches("images"))
         {
             
         }
@@ -96,5 +104,62 @@ public final class SceneManager {
     public void unloadScene (Scene scene)
     {
         contentPane.removeAll();
+    }
+    
+    //EVENT LISTENERS
+    private class KeyboardListener implements KeyListener
+    {
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            int key = e.getKeyCode();
+
+            if (key == KeyEvent.VK_BACK_SPACE)
+            {
+                if (!Scene.getCurrentScene().toLowerCase().matches("main menu"))
+                {
+                    loadScene("Main Menu");
+                }
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+
+        } 
+    }
+    
+    private class GlobalDispatcher implements KeyEventDispatcher {
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent e) 
+        {
+            if (e.getID() == KeyEvent.KEY_PRESSED) 
+            {
+                System.out.println("KEY PRESSED");
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_BACK_SPACE)
+                {
+                    System.out.println("Current Scene: " + Scene.getCurrentScene().toLowerCase());
+                    if (!Scene.getCurrentScene().toLowerCase().matches("main menu"))
+                    {
+                        loadScene("Main Menu");
+                    }
+                }
+            } 
+            else if (e.getID() == KeyEvent.KEY_RELEASED) 
+            {
+                //System.out.println("2test2");
+            } 
+            else if (e.getID() == KeyEvent.KEY_TYPED) 
+            {
+                //System.out.println("3test3");
+            }
+            return false;
+        }
     }
 }

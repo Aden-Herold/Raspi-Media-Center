@@ -40,6 +40,13 @@ public class MovieContainer {
             return release_date;
         }
         
+        public String getReleaseYear ()
+        {
+            String year = "";
+            year = release_date.substring(0, 4);
+            return year;
+        }
+        
         public int getRuntime() {
             return runtime;
         }

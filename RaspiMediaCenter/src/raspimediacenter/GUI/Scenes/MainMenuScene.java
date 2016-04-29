@@ -49,9 +49,10 @@ public class MainMenuScene extends Scene {
     
     public MainMenuScene (SceneManager sceneManager) {
         
-        super();
+        super(sceneManager);
         
         this.sceneManager = sceneManager;
+        Scene.setCurrentScene("Main Menu");
         ParserUtility parser = new ParserUtility();
         tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
         
