@@ -30,7 +30,7 @@ public class TVSeriesScene extends FileBrowserScene{
         bgCanvas.setBackgroundImage(0);
 
         setupInfoLabels(infoLabels);
-        createInfoDisplay(generateTVSeriesInfo(1));
+        createInfoDisplay(generateTVSeriesInfo(0));
         createOverviewDisplay(tvSeries.results.get(0).getOverview());
         createLinkList();
         createListDisplay(seriesLinks);

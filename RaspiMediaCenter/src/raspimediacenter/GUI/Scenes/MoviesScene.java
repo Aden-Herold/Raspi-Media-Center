@@ -29,7 +29,7 @@ public class MoviesScene extends FileBrowserScene {
         bgCanvas.setBackgroundImage(0);
 
         setupInfoLabels(infoLabels);
-        createInfoDisplay(generateMoviesInfo(1));
+        createInfoDisplay(generateMoviesInfo(0));
         createOverviewDisplay(movies.results.get(0).getOverview());
         createLinkList();
         createListDisplay(seriesLinks);
