@@ -83,33 +83,14 @@ public class MoviesScene extends FileBrowserScene {
     
     public static ArrayList<String> generateMoviesInfo (int linkNum)
     {
-        String genres = "";
-        String temp = "";
-        
-        for (int x = 0; x < movies.results.get(linkNum).genres.size(); x++)
-        {
-            temp = movies.results.get(linkNum).genres.get(x).getGenre();
-            
-            if (temp.matches("Science Fiction"))
-            {
-                temp = "Sci-Fi";
-            }
-            
-            if (x < movies.results.get(linkNum).genres.size()-1)
-            {
-                genres += temp + ", ";
-            }
-            else
-            {
-                genres += temp;
-            }
-        }
+        String genres = movies.getGenresString(linkNum);
+        String langs = movies.getLanguagesString(linkNum);
 
         ArrayList<String> labelInfo = new ArrayList<>();
         labelInfo.add(movies.results.get(linkNum).getReleaseYear());
         labelInfo.add("PG-13");
         labelInfo.add(String.valueOf(movies.results.get(linkNum).getRuntime()) + " mins");
-        labelInfo.add("English");
+        labelInfo.add(langs);
         labelInfo.add(genres);
         
         return labelInfo;

@@ -16,6 +16,33 @@ public class TVSeriesContainer {
         return episodes;
     }
     
+    public String getGenresString (int resultsNum)
+    {
+        String genres = "";
+        String temp = "";
+        
+        for (int x = 0; x < results.get(resultsNum).genres.size(); x++)
+        {
+            temp = results.get(resultsNum).genres.get(x).getGenre();
+            
+            if (temp.matches("Science Fiction"))
+            {
+                temp = "Sci-Fi";
+            }
+            
+            if (x < results.get(resultsNum).genres.size()-1)
+            {
+                genres += temp + ", ";
+            }
+            else
+            {
+                genres += temp;
+            }
+        }
+        
+        return genres;
+    }
+    
     public static class TVSeries {
 
         private String backdrop_path;

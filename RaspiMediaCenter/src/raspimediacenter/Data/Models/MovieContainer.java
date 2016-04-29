@@ -6,6 +6,58 @@ public class MovieContainer {
 
     public List<Movie> results;
 
+    public String getGenresString (int resultsNum)
+    {
+        String genres = "";
+        String temp = "";
+        
+        for (int x = 0; x < results.get(resultsNum).genres.size(); x++)
+        {
+            temp = results.get(resultsNum).genres.get(x).getGenre();
+            
+            if (temp.matches("Science Fiction"))
+            {
+                temp = "Sci-Fi";
+            }
+            
+            if (x < results.get(resultsNum).genres.size()-1)
+            {
+                genres += temp + ", ";
+            }
+            else
+            {
+                genres += temp;
+            }
+        }
+        
+        return genres;
+    }
+    
+    public String getLanguagesString (int resultsNum)
+    {
+        String langs = "";
+        String temp = "";
+        
+        if (results != null)
+        {
+            for (int x = 0; x < results.get(resultsNum).spoken_languages.size(); x++)
+            {
+                temp = results.get(resultsNum).spoken_languages.get(x).getFullName();
+
+                if (x < results.get(resultsNum).spoken_languages.size()-1)
+                {
+                    langs += temp + ", ";
+                }
+                else
+                {
+                    langs += temp;
+                }
+            }
+        }
+        
+        return langs;
+    }
+    
     public static class Movie {
 
         private String backdrop_path;
