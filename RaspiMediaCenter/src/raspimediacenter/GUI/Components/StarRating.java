@@ -50,7 +50,7 @@ public class StarRating {
         }
         
         stars.get(10).setForeground(Color.white);
-        stars.get(10).setText(String.valueOf(rating));
+        stars.get(10).setText(String.valueOf(ratingRounded));
     }
     
     private void intialiseStars()

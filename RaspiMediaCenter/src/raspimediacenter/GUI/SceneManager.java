@@ -176,7 +176,7 @@ public final class SceneManager {
                         {
                             if (subScene.matches("episodes"))
                             {
-                                
+                                loadScene("seasons", TVEpisodesScene.getShow());
                             }
                             else if (subScene.matches("seasons"))
                             {

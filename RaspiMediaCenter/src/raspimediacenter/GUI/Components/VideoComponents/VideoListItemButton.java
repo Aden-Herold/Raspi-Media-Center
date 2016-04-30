@@ -18,7 +18,7 @@ public class VideoListItemButton extends ListItemButton {
         @Override
         public void focusGained(FocusEvent e) {
             isFocused = true;
-            if (subScene.toLowerCase().matches("seasons"))
+            if (subScene.toLowerCase().matches("seasons") || subScene.toLowerCase().matches("episodes"))
             {
                 menu.updateBackground();      
             }

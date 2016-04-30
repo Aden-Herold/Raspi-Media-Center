@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
 import raspimediacenter.GUI.Scenes.Scene;
+import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
@@ -75,6 +76,10 @@ public class VideoPreviewGraphics {
             if (Scene.getSubScene().toLowerCase().matches("seasons"))
             {
                 verifyImage(TVSeasonsScene.getPosterImage(linkNum));
+            }
+            else if (Scene.getSubScene().toLowerCase().matches("episodes"))
+            {
+                verifyImage(TVEpisodesScene.getPosterImage(linkNum));
             }
             else
             {

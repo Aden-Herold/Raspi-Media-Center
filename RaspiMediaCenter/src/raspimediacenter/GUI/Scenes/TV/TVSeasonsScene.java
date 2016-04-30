@@ -39,6 +39,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
         
         loadSeasonPosters();
         bgCanvas.loadFanartImagesIntoMemory("TV Shows/"+show.getName()+"/series_backdrop.jpg");
+        bgCanvas.setBackgroundImage(0);
         
         //Create informationPanelGraphics
         infoPanelGraphics = new InformationPanelGraphics();
@@ -61,7 +62,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
         ArrayList<TVSeasonContainer> seasonsList = new ArrayList<>();
         
         
-        for (int x = 1; x <= show.getNumberOfSeasons(); x++)
+        for (int x = 1; x <= 1; x++)
         {
             TVSeasonContainer season = parser.parseSeason("TV Shows/"+show.getName()+"/Season "+x+"/info.json", false);
             seasonsList.add(season);
@@ -72,7 +73,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
     
     private void createLinkList()
     {
-        for (int x = 0; x <= show.getNumberOfSeasons(); x++)
+        for (int x = 0; x <= 0; x++)
         {
             int seasonNumber = x+1;
             JButton button = new VideoListItemButton("Season "+seasonNumber, this, x);

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package raspimediacenter.GUI.Components.VideoComponents;
 
 import java.awt.Dimension;
@@ -20,14 +15,11 @@ import raspimediacenter.GUI.Components.StyledLabel;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
 import raspimediacenter.GUI.Scenes.Scene;
+import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
 import raspimediacenter.GUI.Scenes.VideoLibraryScene;
 
-/**
- *
- * @author Robert
- */
 public class VideoInformationPanel {
     
     private OverviewDisplay overview;
@@ -57,6 +49,10 @@ public class VideoInformationPanel {
             if (Scene.getSubScene().toLowerCase().matches("seasons"))
             {
                 labelInfo = TVSeasonsScene.generateShowInfo();
+            }
+            else if (Scene.getSubScene().toLowerCase().matches("episodes"))
+            {
+                labelInfo = TVEpisodesScene.generateEpisodeInfo(linkNum);
             }
             else
             {
@@ -94,6 +90,10 @@ public class VideoInformationPanel {
             {
                 overview.updateOverview(TVSeasonsScene.getTVSeasons().get(linkNum).getOverview());
             }
+            else if (Scene.getSubScene().toLowerCase().matches("episodes"))
+            {
+                overview.updateOverview(TVEpisodesScene.getTVSeasons().get(TVEpisodesScene.getSeasonNumber()).episodes.get(linkNum).getOverview());
+            }
             else
             {
                 overview.updateOverview(TVSeriesScene.getTVSeries().results.get(linkNum).getOverview());
@@ -116,6 +116,10 @@ public class VideoInformationPanel {
             if (Scene.getSubScene().toLowerCase().matches("seasons"))
             {
                 starRating.updateRating(TVSeasonsScene.getShow().getRatingAverage());
+            }
+            else if (Scene.getSubScene().toLowerCase().matches("episodes"))
+            {
+                starRating.updateRating(TVEpisodesScene.getTVSeasons().get(TVEpisodesScene.getSeasonNumber()).episodes.get(linkNum).getVoteAverage());
             }
             else
             {

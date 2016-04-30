@@ -75,15 +75,10 @@ public class Scene extends JPanel {
             bgCanvas.loadImagesFromDir(backgroundImagesPath);
         }
     }
-    
-    public void loadBackground(String path)
-    {
-        bgCanvas.loadImageFromPath(path);
-    }  
-    
+
     public void unloadBackgrounds ()    
     {
-        bgCanvas.unloadFanartFromMemory();
+        bgCanvas.unloadBackgrounds();
     }
     
     public void unloadScene ()

@@ -72,6 +72,17 @@ public class TVSeasonContainer {
         public String getStillPath() {
             return still_path;
         }
+        
+        public String getAirDate ()
+        {
+            String year = air_date.substring(0, 4);
+            String month = air_date.substring(5, 7);
+            String day = air_date.substring(8, 10);
+            
+            String date = day + " - " + month + " - " + year;
+            
+            return date;
+        }
 
         @Override
         public String toString() {

@@ -20,10 +20,10 @@ public class TVEpisodesScene extends VideoLibraryScene {
 
     private static TVSeriesContainer.TVSeries show;
     private static ArrayList<TVSeasonContainer> seasons;
-    private int seasonNumber = 1;
+    private static int seasonNumber = 1;
 
     private final ArrayList<JButton> episodeLinks = new ArrayList<>();
-    private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Director:", "Runtime:", "Air Date:", "Network:"));
+    private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Creator:", "Runtime:", "Air Date:", "Network:"));
     private static final ArrayList<BufferedImage> posters = new ArrayList<>();
     
     public TVEpisodesScene () {}
@@ -35,10 +35,11 @@ public class TVEpisodesScene extends VideoLibraryScene {
         seasonNumber = season;
         
         Scene.setCurrentScene("TV Shows");
-        Scene.setSubScene("Seasons");
+        Scene.setSubScene("Episodes");
         
         loadEpisodePreviews();
         bgCanvas.loadFanartImagesIntoMemory("TV Shows/"+show.getName()+"/series_backdrop.jpg");
+        bgCanvas.setBackgroundImage(0);
         
         //Create informationPanelGraphics
         infoPanelGraphics = new InformationPanelGraphics();
@@ -48,8 +49,8 @@ public class TVEpisodesScene extends VideoLibraryScene {
         VideoLibraryScene.setPreviewImageWidth(previewGraphics.getPosterWidth());
         VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
         
-        infoPanel.setupInfoPanel(infoLabels, generateShowInfo());
-        infoPanel.createStarRating(show.getRatingAverage());
+        infoPanel.setupInfoPanel(infoLabels, generateEpisodeInfo(0));
+        infoPanel.createStarRating(seasons.get(seasonNumber).episodes.get(0).getVoteAverage());
         infoPanel.createOverviewDisplay(seasons.get(season).episodes.get(0).getOverview());
         createLinkList();
         createListDisplay(episodeLinks);
@@ -72,7 +73,7 @@ public class TVEpisodesScene extends VideoLibraryScene {
     
     private void createLinkList()
     {
-        for (int x = 0; x < show.getNumberOfSeasons(); x++)
+        for (int x = 0; x < seasons.get(seasonNumber).episodes.size(); x++)
         {
             String epTitle = seasons.get(seasonNumber).episodes.get(x).getName();
             JButton button = new VideoListItemButton(epTitle, this, x);
@@ -101,6 +102,11 @@ public class TVEpisodesScene extends VideoLibraryScene {
         return seasons;
     }
     
+    public static int getSeasonNumber ()
+    {
+        return seasonNumber;
+    }
+    
     public static BufferedImage getPosterImage (int linkNum)
     {
         if (linkNum >= posters.size())
@@ -113,14 +119,25 @@ public class TVEpisodesScene extends VideoLibraryScene {
         }
     }
     
-    public static ArrayList<String> generateShowInfo ()
+    public static ArrayList<String> generateEpisodeInfo (int listNum)
     {
         String genres = show.getGenresString();
 
         ArrayList<String> labelInfo = new ArrayList<>();
-        labelInfo.add(show.networks.get(0).getNetwork());
-        labelInfo.add(show.getStartYear() + " - " + show.getEndYear());
-        labelInfo.add(show.getStatus());
+        labelInfo.add(show.created_by.get(0).getName());
+        
+        String[] runtimes = show.getEpisodeRunTime();
+        if (runtimes.length >= 2)
+        {
+            labelInfo.add(runtimes[0] + ", " + runtimes[1] + " mins");
+        }
+        else
+        {
+            labelInfo.add(runtimes[0] + " mins"); 
+        }
+        
+        
+        labelInfo.add(seasons.get(seasonNumber).episodes.get(listNum).getAirDate());
         labelInfo.add(show.networks.get(0).getNetwork());
         
         return labelInfo;

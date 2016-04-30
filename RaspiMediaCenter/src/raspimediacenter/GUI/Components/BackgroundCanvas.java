@@ -25,7 +25,7 @@ public class BackgroundCanvas extends JPanel {
     //BACKGROUND VARIABLES
     private ArrayList<String> imagePaths = new ArrayList<>();
     private ArrayList<BufferedImage> backgroundImages = new ArrayList<>();
-    private ArrayList<BufferedImage> fanartImages;
+    private ArrayList<BufferedImage> fanartImages = new ArrayList<>();
     
     //BACKGROUND TRANSITION SPEED VARIABLES
     private Timer timer;
@@ -78,28 +78,20 @@ public class BackgroundCanvas extends JPanel {
     {
         ArrayList<String> img = new ArrayList<>();
         img.add(imagePath);
-        fanartImages = new ArrayList<>();
+        fanartImages.clear();
         fanartImages = ImageUtilities.getImagesFromPaths(img);
     }
     
     public void loadFanartImagesIntoMemory (ArrayList<String> imagePaths)
     {
-        fanartImages = new ArrayList<>();
+        fanartImages.clear();
         fanartImages = ImageUtilities.getImagesFromPaths(imagePaths);
     }
     
-    public void unloadFanartFromMemory ()
+    public void unloadBackgrounds ()
     {
-        imagePaths = null;
-        fanartImages = null;
-        backgroundImages = null;
-    }
-    
-    public void loadImageFromPath(String path)
-    {
-        ArrayList<String> tmpList = new ArrayList<>();
-        tmpList.add(path);
-        loadImagesFromPaths(tmpList);
+        fanartImages.clear();
+        backgroundImages.clear();
     }
     
     private void loadImagesFromPaths (ArrayList<String> imagePaths)
@@ -180,27 +172,30 @@ public class BackgroundCanvas extends JPanel {
         @Override
         public void actionPerformed(ActionEvent event) {
 
-            //Increase image counter
-            userImageCounter++;
-            //Reset alpha opacity
-            alpha = 0f;
-            
-            //Ensure fadeOutImage position doesn't go below 0
-            if (userImageCounter == 0) {
-                fadeOutImage = backgroundImages.get(userImageCounter);
-            } else {
-                fadeOutImage = backgroundImages.get(userImageCounter-1);
-            }
+            if (backgroundImages.size() > 1)
+            {
+                //Increase image counter
+                userImageCounter++;
+                //Reset alpha opacity
+                alpha = 0f;
 
-            //Loop image counter when it reaches the end of the arraylist
-            if (userImageCounter > backgroundImages.size()-1) {
-                userImageCounter = 0;
-            }
+                //Ensure fadeOutImage position doesn't go below 0
+                if (userImageCounter == 0) {
+                    fadeOutImage = backgroundImages.get(userImageCounter);
+                } else {
+                    fadeOutImage = backgroundImages.get(userImageCounter-1);
+                }
 
-            //Set fadeInImage and start fadeTimer
-            fadeInImage = backgroundImages.get(userImageCounter);
-            fadeTimer.start();
-            repaint();
+                //Loop image counter when it reaches the end of the arraylist
+                if (userImageCounter > backgroundImages.size()-1) {
+                    userImageCounter = 0;
+                }
+
+                //Set fadeInImage and start fadeTimer
+                fadeInImage = backgroundImages.get(userImageCounter);
+                fadeTimer.start();
+                repaint();
+            }
         }
     }
 }
