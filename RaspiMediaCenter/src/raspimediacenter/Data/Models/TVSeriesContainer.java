@@ -53,6 +53,7 @@ public class TVSeriesContainer {
         private String last_air_date;
         private String name;
         public List<SeriesNetworks> networks;
+        private String[] episode_run_time;
         private int number_of_episodes;
         private int number_of_seasons;
         private String[] origin_country;
@@ -64,7 +65,11 @@ public class TVSeriesContainer {
 
         public TVSeries() {
         }
-
+        
+        public String[] getEpisodeRunTime() {
+            return episode_run_time;
+        }
+        
         public String getBackdropPath() {
             return backdrop_path;
         }
@@ -126,6 +131,33 @@ public class TVSeriesContainer {
 
         public float getRatingAverage() {
             return vote_average;
+        }
+        
+        public String getGenresString ()
+        {
+            String genresString = "";
+            String temp;
+
+            for (int x = 0; x < genres.size(); x++)
+            {
+                temp = genres.get(x).getGenre();
+
+                if (temp.matches("Science Fiction"))
+                {
+                    temp = "Sci-Fi";
+                }
+
+                if (x < genres.size()-1)
+                {
+                    genresString += temp + ", ";
+                }
+                else
+                {
+                    genresString += temp;
+                }
+            }
+
+            return genresString;
         }
         
         public static class SeriesCreator {

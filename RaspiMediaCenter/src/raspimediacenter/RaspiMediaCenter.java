@@ -4,7 +4,6 @@ import raspimediacenter.GUI.*;
 import raspimediacenter.Logic.ResourceHandler;
 import raspimediacenter.Logic.Utilities.ParserUtility;
 import raspimediacenter.Logic.Utilities.ScraperUtility;
-import raspimediacenter.Logic.Utilities.ScraperUtility.ScraperThread;
 
 public class RaspiMediaCenter {
 
@@ -14,7 +13,7 @@ public class RaspiMediaCenter {
         ScraperUtility scraper = new ScraperUtility();
         ScraperUtility.ScraperThread thread = scraper.new ScraperThread();
         Thread t = new Thread(thread);
-        t.start();
+        t.start();;
         ParserUtility parser = new ParserUtility();
         SceneManager sceneManager = new SceneManager();
     }

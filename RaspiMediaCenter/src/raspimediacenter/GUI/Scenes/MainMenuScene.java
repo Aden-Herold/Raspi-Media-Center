@@ -44,13 +44,13 @@ public class MainMenuScene extends Scene {
     private void createMenuButtons () {
         
         JButton moviesBtn = new MenuButton("MOVIES", this);
-        moviesBtn.addActionListener(new MainMenuScene.menuOptionSelected());
         JButton tvShowsBtn = new MenuButton("TV SHOWS", this);
-        tvShowsBtn.addActionListener(new MainMenuScene.menuOptionSelected());
         JButton musicBtn = new MenuButton("MUSIC", this);
-        musicBtn.addActionListener(new MainMenuScene.menuOptionSelected());
         JButton imagesBtn = new MenuButton("IMAGES", this);
-
+        
+        moviesBtn.addActionListener(new MainMenuScene.menuOptionSelected());
+        tvShowsBtn.addActionListener(new MainMenuScene.menuOptionSelected());
+        
         int menuOptionsWidth = (int)(SceneManager.getScreenWidth()/5);
         int menuPosY = (int)(SceneManager.getScreenHeight() * menuGraphics.getMenuPosition());
         

@@ -20,7 +20,9 @@ import raspimediacenter.GUI.Components.StyledLabel;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
 import raspimediacenter.GUI.Scenes.Scene;
+import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
+import raspimediacenter.GUI.Scenes.VideoLibraryScene;
 
 /**
  *
@@ -52,7 +54,14 @@ public class VideoInformationPanel {
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
         {
-            labelInfo = TVSeriesScene.generateTVSeriesInfo(linkNum);
+            if (Scene.getSubScene().toLowerCase().matches("seasons"))
+            {
+                labelInfo = TVSeasonsScene.generateShowInfo();
+            }
+            else
+            {
+                labelInfo = TVSeriesScene.generateTVSeriesInfo(linkNum);
+            }  
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("music"))
         {
@@ -81,7 +90,14 @@ public class VideoInformationPanel {
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
         {
-            overview.updateOverview(TVSeriesScene.getTVSeries().results.get(linkNum).getOverview());
+            if (Scene.getSubScene().toLowerCase().matches("seasons"))
+            {
+                overview.updateOverview(TVSeasonsScene.getTVSeasons().get(linkNum).getOverview());
+            }
+            else
+            {
+                overview.updateOverview(TVSeriesScene.getTVSeries().results.get(linkNum).getOverview());
+            }
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("music"))
         {
@@ -97,7 +113,14 @@ public class VideoInformationPanel {
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
         {
-            starRating.updateRating(TVSeriesScene.getTVSeries().results.get(linkNum).getRatingAverage());
+            if (Scene.getSubScene().toLowerCase().matches("seasons"))
+            {
+                starRating.updateRating(TVSeasonsScene.getShow().getRatingAverage());
+            }
+            else
+            {
+                starRating.updateRating(TVSeriesScene.getTVSeries().results.get(linkNum).getRatingAverage());
+            }   
         }
         else if (Scene.getCurrentScene().toLowerCase().matches("music"))
         {
@@ -119,7 +142,7 @@ public class VideoInformationPanel {
         infoPanel.add(labelInfoPanel);
         
 
-        infoPanel.setBounds((int)(Math.floor(SceneManager.getScreenWidth()*0.0196))+PosterGraphics.getPosterWidth(), 
+        infoPanel.setBounds((int)(Math.floor(SceneManager.getScreenWidth()*0.0196))+VideoLibraryScene.getPreviewImageWidth(), 
                 (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*InformationPanelGraphics.getPanelScreenPercent()))+50),
                 (int) Math.floor(SceneManager.getScreenWidth()*0.4),
                 240);
@@ -144,12 +167,6 @@ public class VideoInformationPanel {
         }
 
         labelsPanel.add(gridLayout);
-        /*
-        labelsPanel.setBounds((int)(Math.floor(SceneManager.getScreenWidth()*0.0196)*2)+320-(240/2), 
-                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*InformationPanelGraphics.getPanelScreenPercent()))+50),
-                300, 240);
-                */
-        //SceneManager.getContentPane().add(labelsPanel, 3, 0);
         return labelsPanel;
     }
     
@@ -168,19 +185,12 @@ public class VideoInformationPanel {
             infoLabels.add(infoLabel);
             Dimension bounds = infoLabel.getPreferredSize();
             bounds.height = (int)Math.floor(SceneManager.getScreenHeight()*0.03);
+            bounds.width = 400;
             infoLabel.setPreferredSize(bounds);
             gridLayout.add(infoLabel);
         }
         
-        labelsPanel.add(gridLayout);
-        //labelsPanel.setPreferredSize(new Dimension(200, 200));
-        /*
-        labelsPanel.setBounds((int)(Math.floor(SceneManager.getScreenWidth()*0.0196)*3)+320+(240/2), 
-                (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*InformationPanelGraphics.getPanelScreenPercent()))+50),
-                (int) Math.floor(SceneManager.getScreenWidth()*0.4), 240);
-                */
-        //SceneManager.getContentPane().add(labelsPanel, 3, 0);
-        
+        labelsPanel.add(gridLayout);      
         return labelsPanel;
     }
     
@@ -209,7 +219,7 @@ public class VideoInformationPanel {
         
         starRating.updateRating(rating);
         
-        ratingPanel.setBounds((int)Math.floor(SceneManager.getScreenWidth()*0.0196)*2+PosterGraphics.getPosterWidth(),
+        ratingPanel.setBounds((int)Math.floor(SceneManager.getScreenWidth()*0.0196)*2+VideoLibraryScene.getPreviewImageWidth(),
                 (int) (SceneManager.getScreenHeight()-(Math.floor(SceneManager.getScreenHeight()*InformationPanelGraphics.getPanelScreenPercent()))+15),
                 ratingSize.width, ratingSize.height);
         SceneManager.getContentPane().add(ratingPanel, 3, 0);

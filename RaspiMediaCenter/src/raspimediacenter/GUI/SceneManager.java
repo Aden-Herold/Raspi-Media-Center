@@ -11,7 +11,10 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
+import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
+import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
+import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
 
 public final class SceneManager {
@@ -72,6 +75,11 @@ public final class SceneManager {
         return screenHeight;
     }
     
+    public static Scene getCurrentScene()
+    {
+        return currentScene;
+    }
+    
     public static void loadScene (String scene)
     {
         unloadScene(currentScene);
@@ -98,8 +106,38 @@ public final class SceneManager {
         }
     }
     
+    public static void loadScene (String scene, Object obj)
+    {
+        unloadScene(currentScene);
+        
+        if (scene.toLowerCase().matches("main menu"))
+        {
+            currentScene = new MainMenuScene();
+        }
+        else if (scene.toLowerCase().matches("seasons"))
+        {
+            currentScene = new TVSeasonsScene((TVSeries)obj);
+        }
+        
+    }
+    
+    public static void loadScene (String scene, Object obj, int num)
+    {
+        unloadScene(currentScene);
+        
+        if (scene.toLowerCase().matches("episodes"))
+        {
+            currentScene = new TVEpisodesScene((TVSeries)obj, num);
+        }
+    }
+    
     public static void unloadScene (Scene scene)
     {
+        if (scene != null)
+        {
+            scene.unloadBackgrounds();
+            scene.unloadScene();
+        }
         contentPane.removeAll();
     }
     
@@ -116,7 +154,49 @@ public final class SceneManager {
                     System.out.println("Current Scene: " + Scene.getCurrentScene().toLowerCase());
                     if (!Scene.getCurrentScene().toLowerCase().matches("main menu"))
                     {
-                        loadScene("Main Menu");
+                        String currentScene = Scene.getCurrentScene().toLowerCase();
+                        String subScene = Scene.getSubScene().toLowerCase();
+                        
+                        if (currentScene.matches("movies"))
+                        {
+                            if (subScene.matches("episodes"))
+                            {
+                                
+                            }
+                            else if (subScene.matches("seasons"))
+                            {
+                                
+                            }
+                            else 
+                            {
+                                loadScene("Main Menu");
+                            }
+                        }
+                        else if (currentScene.matches("tv shows"))
+                        {
+                            if (subScene.matches("episodes"))
+                            {
+                                
+                            }
+                            else if (subScene.matches("seasons"))
+                            {
+                                loadScene("TV Shows");
+                            }
+                            else 
+                            {
+                                loadScene("Main Menu");
+                            }
+                        }
+                        else if (currentScene.matches("music"))
+                        {
+                            
+                        }
+                        else if (currentScene.matches("images"))
+                        {
+                            
+                        }
+
+                        
                     }
                 }
             } 

@@ -16,6 +16,7 @@ public class ImageUtilities {
         
         try 
         {
+            ImageIO.setUseCache(false);
             backgroundImage = ImageIO.read(new File(path));
         }
         catch (IOException e)

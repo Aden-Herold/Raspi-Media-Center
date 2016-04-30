@@ -59,7 +59,7 @@ public class BackgroundCanvas extends JPanel {
             return false;
         }
     }
-    
+
     public void setBackgroundImage (int imageNum)
     {
         backgroundImages.clear();
@@ -67,10 +67,32 @@ public class BackgroundCanvas extends JPanel {
         repaint();
     }
     
+    public void setBackgroundImage (BufferedImage img)
+    {
+        backgroundImages.clear();
+        backgroundImages.add(img);
+        repaint();
+    }
+    
+    public void loadFanartImagesIntoMemory (String imagePath)
+    {
+        ArrayList<String> img = new ArrayList<>();
+        img.add(imagePath);
+        fanartImages = new ArrayList<>();
+        fanartImages = ImageUtilities.getImagesFromPaths(img);
+    }
+    
     public void loadFanartImagesIntoMemory (ArrayList<String> imagePaths)
     {
         fanartImages = new ArrayList<>();
         fanartImages = ImageUtilities.getImagesFromPaths(imagePaths);
+    }
+    
+    public void unloadFanartFromMemory ()
+    {
+        imagePaths = null;
+        fanartImages = null;
+        backgroundImages = null;
     }
     
     public void loadImageFromPath(String path)

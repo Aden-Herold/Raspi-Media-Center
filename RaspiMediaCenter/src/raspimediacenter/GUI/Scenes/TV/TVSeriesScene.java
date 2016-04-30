@@ -1,14 +1,18 @@
 package raspimediacenter.GUI.Scenes.TV;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JButton;
 import raspimediacenter.Data.Models.TVSeriesContainer;
+import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.VideoComponents.InformationPanelGraphics;
 import raspimediacenter.GUI.Components.VideoComponents.PosterGraphics;
 import raspimediacenter.GUI.Components.VideoComponents.VideoInformationPanel;
 import raspimediacenter.GUI.Components.VideoComponents.VideoListItemButton;
+import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.GUI.Scenes.VideoLibraryScene;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
@@ -35,7 +39,10 @@ public class TVSeriesScene extends VideoLibraryScene{
         //Create informationPanelGraphics
         infoPanelGraphics = new InformationPanelGraphics();
         infoPanel = new VideoInformationPanel();
-        posterGraphics = new PosterGraphics();
+        previewGraphics = new PosterGraphics();
+        
+        VideoLibraryScene.setPreviewImageWidth(previewGraphics.getPosterWidth());
+        VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
 
         infoPanel.setupInfoPanel(infoLabels, generateTVSeriesInfo(0));
         infoPanel.createStarRating(tvSeries.results.get(0).getRatingAverage());
@@ -50,6 +57,7 @@ public class TVSeriesScene extends VideoLibraryScene{
         {
             if (!tvSeries.results.get(x).getName().matches("")){
                 JButton button = new VideoListItemButton(tvSeries.results.get(x).getName(), this, x);
+                button.addActionListener(new menuOptionSelected(tvSeries.results.get(x)));
                 seriesLinks.add(button);
             }
         }
@@ -105,6 +113,38 @@ public class TVSeriesScene extends VideoLibraryScene{
     
     public static BufferedImage getPosterImage (int linkNum)
     {
-        return posters.get(linkNum);
+        if (linkNum >= posters.size())
+        {
+            return null;
+        }
+        else
+        {
+           return posters.get(linkNum); 
+        }
+    }
+    
+    //EVENT LISTENERS
+    private class menuOptionSelected implements ActionListener {
+
+        private TVSeries show;
+        
+        public menuOptionSelected (TVSeries show)
+        {
+            this.show = show;
+        }
+        
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+             
+            try 
+            {   
+                String option = ((JButton)ae.getSource()).getText();
+                SceneManager.loadScene("seasons", show);
+            }
+            catch (UnsupportedOperationException e) {
+                
+                System.out.println(e.getMessage());
+            }
+        }   
     }
 }

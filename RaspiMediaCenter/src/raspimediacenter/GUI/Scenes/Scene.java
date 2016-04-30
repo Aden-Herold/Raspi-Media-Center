@@ -16,6 +16,7 @@ public class Scene extends JPanel {
     public static Color MENU_COLOR = new Color(0, 153, 204); //Color of menu elements
     
     public static String currentScene;
+    public static String subScene = "";
     
     //BASE CONSTRUCTOR
     public Scene ()
@@ -40,6 +41,11 @@ public class Scene extends JPanel {
         return currentScene;
     }
     
+    public static String getSubScene()
+    {
+        return subScene;
+    }
+    
     //SETTERS
     public static void setMenuTransparency(float transparency)
     {
@@ -56,6 +62,11 @@ public class Scene extends JPanel {
         currentScene = scene;
     }
     
+    public static void setSubScene(String scene)
+    {
+        subScene = scene;
+    }
+    
     //FUNCTIONS
     public void loadBackgrounds()
     {
@@ -69,4 +80,15 @@ public class Scene extends JPanel {
     {
         bgCanvas.loadImageFromPath(path);
     }  
+    
+    public void unloadBackgrounds ()    
+    {
+        bgCanvas.unloadFanartFromMemory();
+    }
+    
+    public void unloadScene ()
+    {
+        Scene.setCurrentScene("");
+        Scene.setSubScene("");
+    }
 }

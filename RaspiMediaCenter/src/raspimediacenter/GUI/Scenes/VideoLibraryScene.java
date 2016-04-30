@@ -12,22 +12,22 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import raspimediacenter.GUI.Components.ItemScrollPanel;
 import raspimediacenter.GUI.Components.VideoComponents.InformationPanelGraphics;
-import raspimediacenter.GUI.Components.VideoComponents.PosterGraphics;
 import raspimediacenter.GUI.Components.VideoComponents.VideoInformationPanel;
+import raspimediacenter.GUI.Components.VideoComponents.VideoPreviewGraphics;
 import raspimediacenter.GUI.SceneManager;
 
 public class VideoLibraryScene extends Scene {
 
     protected BufferedImage currentFanart;
+    protected final double LIST_LENGTH = 0.8; 
+    
+    private static int PREVIEW_IMG_WIDTH;
+    private static int PREVIEW_IMG_HEIGHT;
     
     //SCENE COMPONENTS
     protected InformationPanelGraphics infoPanelGraphics;
-    protected PosterGraphics posterGraphics;
+    protected VideoPreviewGraphics previewGraphics;
     protected VideoInformationPanel infoPanel;
-    
-    
-    protected final double LIST_LENGTH = 0.8;
-    
     
     public VideoLibraryScene () 
     {
@@ -37,9 +37,36 @@ public class VideoLibraryScene extends Scene {
         bgCanvas.setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
         SceneManager.getContentPane().add(bgCanvas, 0, 0);
 
-        this.setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
-        this.setOpaque(false);
+        setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
+        setOpaque(false);
         SceneManager.getContentPane().add(this, 2, 0);
+    }
+    
+    //STATIC GETTER AND SETTERS
+    public static int getPreviewImageWidth()
+    {
+        return PREVIEW_IMG_WIDTH;
+    }
+    
+    public static int getPreviewImageHeight()
+    {
+        return PREVIEW_IMG_HEIGHT;
+    }
+    
+    public static void setPreviewImageWidth (int width)
+    {
+        PREVIEW_IMG_WIDTH = width;
+    }
+    
+    public static void setPreviewImageHeight (int height)
+    {
+        PREVIEW_IMG_HEIGHT = height;
+    }
+    
+    //UPDATE METHODS
+    public void updateBackground ()
+    {
+        bgCanvas.setBackgroundImage(0);
     }
     
     public void updateBackground (int linkNum)
@@ -49,7 +76,7 @@ public class VideoLibraryScene extends Scene {
     
     public void updatePoster (int linkNum)
     {
-        posterGraphics.updatePoster(linkNum);
+        previewGraphics.updatePoster(linkNum);
         repaint();
     }
     
@@ -64,6 +91,7 @@ public class VideoLibraryScene extends Scene {
         infoPanel.updateOverview(linkNum);
     }
 
+    //CREATE METHDOS
     public void createListDisplay(ArrayList<JButton> linkList)
     {
         Dimension listSize = new Dimension();
@@ -84,13 +112,14 @@ public class VideoLibraryScene extends Scene {
         flowPanel.add(panel);
         
         ItemScrollPanel filesList = new ItemScrollPanel(flowPanel);
-        filesList.setBounds(SceneManager.getScreenWidth()-listSize.width+20, 0, listSize.width, listSize.height);
+        filesList.setBounds(SceneManager.getScreenWidth()-listSize.width+22, 0, listSize.width, listSize.height);
         
         SceneManager.getContentPane().add(filesList, 1, 0);
         
         linkList.get(0).requestFocus();
     }
     
+    //PAINT COMPONENT
     @Override
     public void paintComponent(Graphics g){
         
@@ -101,7 +130,7 @@ public class VideoLibraryScene extends Scene {
                                RenderingHints.VALUE_RENDER_QUALITY);
         
         infoPanelGraphics.createInformationPanel(paint);
-        posterGraphics.displayPoster(paint);
+        previewGraphics.displayPoster(paint);
     }
 
 }
