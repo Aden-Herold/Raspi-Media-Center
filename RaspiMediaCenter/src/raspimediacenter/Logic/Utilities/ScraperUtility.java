@@ -34,16 +34,34 @@ public class ScraperUtility {
     private TVSeasonContainer tvSeason;
     private ParserUtility parser = new ParserUtility();
 
-    public class ScraperThread implements Runnable {
+    public class TVScraperThread implements Runnable {
 
+        @Override
         public void run() {
             parser.cleanupSeriesList();
-            parser.cleanupMovieList();
             startTVScrape();
-            startMovieScrape();
             scrapeTVImages();
+        }
+    }
+    
+    public class MovieScraperThread implements Runnable {
+        
+        @Override
+        public void run()
+        {
+            parser.cleanupMovieList();
+            startMovieScrape();
             scrapeMovieImages();
         }
+    }
+
+    public void startScrapers ()
+    {
+        TVScraperThread tvScraper = new TVScraperThread();
+        MovieScraperThread movieScraper = new MovieScraperThread();
+        
+        new Thread(tvScraper).start();
+        new Thread(movieScraper).start();
     }
 
     //Iterates through series directories and seasons directories within /TV Shows/, constructs a URI with a found series directory as a search term
