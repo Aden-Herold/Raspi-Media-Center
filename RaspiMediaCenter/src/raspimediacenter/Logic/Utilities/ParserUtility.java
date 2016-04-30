@@ -108,11 +108,11 @@ public class ParserUtility {
             saveAmendedMovieList(container);
         }
     }
-    
+
     //TODO: Check if directory still exists for series-list
-    public boolean directoryExists(String path, String name) {
+    public boolean directoryExists(String path) {
         File file = new File(path);
-        if(file.isDirectory() && file.exists()) {
+        if (file.isDirectory() && file.exists()) {
             return true;
         }
         return false;
@@ -131,14 +131,44 @@ public class ParserUtility {
             container = parseSeriesList("TV Shows/series-list.json", false);
         }
         for (int i = 0; i < container.results.size(); i++) {
-            if (container.results.get(i).getID() == series.getID()) {
-                entryExists = true;
-                break;
-            }
+           if (container.results.get(i).getID() == series.getID()) {    
+               entryExists = true;     
+               break;
+           }
         }
         if (!entryExists) {
             container.results.add(series);
             saveAmendedSeriesList(container);
+        }
+    }
+    
+    public void cleanupSeriesList() {
+        File file = new File("TV Shows/series-list.json");
+        if(file.exists()) {
+            TVSeriesContainer oldList, newList;
+            oldList = parseSeriesList("TV Shows/series-list.json", false);
+            newList = oldList;
+            for(int i = 0; i < oldList.results.size(); i++) {
+                if(!directoryExists(oldList.results.get(i).getName())) {
+                    newList.results.remove(i);
+                }
+            }
+            saveAmendedSeriesList(newList);
+        }
+    }
+    
+    public void cleanupMovieList() {
+        File file = new File("Movies/movie-list.json");
+        if(file.exists()) {
+            MovieContainer oldList, newList;
+            oldList = parseMovieList("Movies/movie-list.json", false);
+            newList = oldList;
+            for(int i = 0; i < oldList.results.size(); i++) {
+                if(!directoryExists(oldList.results.get(i).getTitle())) {
+                    newList.results.remove(i);
+                }
+            }
+            saveAmendedMovieList(newList);
         }
     }
 
@@ -149,7 +179,7 @@ public class ParserUtility {
         String s = gson.toJson(container);
         beginJSONOutput(infoFile, s);
     }
-    
+
     //Called after appendtoMovieList, outputs modified JSON to /Movies/movie-list.json to save changes
     public void saveAmendedMovieList(MovieContainer container) {
         File infoFile = new File("Movies/movie-list.json");
@@ -220,4 +250,3 @@ public class ParserUtility {
     }
 
 }
-
