@@ -133,25 +133,22 @@ public class BackgroundCanvas extends JPanel {
     }
     
     //FADE TIMER - OVERWRITE DEFAULT TIMER BEHAVIOUR TO CHANGE OPACITY OVER TIME
-    final Timer fadeTimer = new Timer(40, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (startTime < 0) {
-                startTime = System.currentTimeMillis();
-            } 
-            else {
-                long time = System.currentTimeMillis();
-                long duration = time - startTime;
-                      
-                if (duration >= FADE_TIME) {
-                    startTime = -1;
-                    ((Timer) e.getSource()).stop();
-                } 
-                else {
-                    alpha = 0f + (((float)duration) / ((float)FADE_TIME));
-                }
-                repaint();
+    final Timer fadeTimer = new Timer(40, (ActionEvent e) -> {
+        if (startTime < 0) {
+            startTime = System.currentTimeMillis();
+        }
+        else {
+            long time = System.currentTimeMillis(); 
+            long duration = time - startTime;
+            
+            if (duration >= FADE_TIME) {
+                startTime = -1;
+                ((Timer) e.getSource()).stop();
             }
+            else {
+                alpha = 0f + (((float)duration) / ((float)FADE_TIME));
+            }
+            repaint();
         }
     });
     

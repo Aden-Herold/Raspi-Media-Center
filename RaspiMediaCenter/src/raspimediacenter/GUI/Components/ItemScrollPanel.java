@@ -19,13 +19,9 @@ import raspimediacenter.GUI.Scenes.Scene;
 
 public class ItemScrollPanel extends JScrollPane {
     
-    private Scene scene;
-    private boolean hasScrollBar = false;
-    
-    public ItemScrollPanel (Component c, Scene scene)
+    public ItemScrollPanel (Component c)
     {
         super(c);
-        this.scene = scene;
         setOpaque(false);
         this.getViewport().setOpaque(false);
         this.setViewportBorder(null);
@@ -36,20 +32,6 @@ public class ItemScrollPanel extends JScrollPane {
         this.getVerticalScrollBar().setUnitIncrement(16);
         this.setBorder(BorderFactory.createEmptyBorder());
         this.setFocusable(false);
-        
-        this.getVerticalScrollBar().addHierarchyListener(new HierarchyListener() {
-            @Override
-            public void hierarchyChanged(HierarchyEvent e) {
-                if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED && (e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-                    hasScrollBar = getVerticalScrollBar().isVisible();
-                }
-            }
-        });
-    }
-    
-    public boolean hasScrollBar ()
-    {
-        return hasScrollBar;
     }
     
     private class ScrollBarUI extends BasicScrollBarUI {
