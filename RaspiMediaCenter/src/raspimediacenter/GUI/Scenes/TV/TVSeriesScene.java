@@ -1,25 +1,28 @@
-package raspimediacenter.GUI.Scenes;
+package raspimediacenter.GUI.Scenes.TV;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JButton;
 import raspimediacenter.Data.Models.TVSeriesContainer;
-import raspimediacenter.GUI.Components.ListItemButton;
-import raspimediacenter.GUI.SceneManager;
+import raspimediacenter.GUI.Components.VideoComponents.InformationPanelGraphics;
+import raspimediacenter.GUI.Components.VideoComponents.PosterGraphics;
+import raspimediacenter.GUI.Components.VideoComponents.VideoInformationPanel;
+import raspimediacenter.GUI.Components.VideoComponents.VideoListItemButton;
+import raspimediacenter.GUI.Scenes.Scene;
+import raspimediacenter.GUI.Scenes.VideoLibraryScene;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
 import raspimediacenter.Logic.Utilities.ParserUtility;
 
-public class TVSeriesScene extends FileBrowserScene{
+public class TVSeriesScene extends VideoLibraryScene{
     
     private static TVSeriesContainer tvSeries;
-    private ArrayList<JButton> seriesLinks = new ArrayList<>();
+    private final ArrayList<JButton> seriesLinks = new ArrayList<>();
     private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
-    private static ArrayList<BufferedImage> posters = new ArrayList<>();
+    private static final ArrayList<BufferedImage> posters = new ArrayList<>();
     
-    public TVSeriesScene(SceneManager sceneManager) {
-        super(sceneManager);
+    public TVSeriesScene() {
+        super();
         Scene.setCurrentScene("TV Shows");
         
         ParserUtility parser = new ParserUtility();
@@ -28,13 +31,17 @@ public class TVSeriesScene extends FileBrowserScene{
         loadSeriesBackgrounds();
         loadSeriesPosters();
         bgCanvas.setBackgroundImage(0);
+        
+        //Create informationPanelGraphics
+        infoPanelGraphics = new InformationPanelGraphics();
+        infoPanel = new VideoInformationPanel();
+        posterGraphics = new PosterGraphics();
 
-        setupInfoLabels(infoLabels);
-        createInfoDisplay(generateTVSeriesInfo(0));
-        createOverviewDisplay(tvSeries.results.get(0).getOverview());
+        infoPanel.setupInfoPanel(infoLabels, generateTVSeriesInfo(0));
+        infoPanel.createStarRating(tvSeries.results.get(0).getRatingAverage());
+        infoPanel.createOverviewDisplay(tvSeries.results.get(0).getOverview());
         createLinkList();
         createListDisplay(seriesLinks);
-        createStarRating(tvSeries.results.get(0).getRatingAverage());
     }
     
     private void createLinkList()
@@ -42,7 +49,7 @@ public class TVSeriesScene extends FileBrowserScene{
         for (int x = 0; x < tvSeries.results.size(); x++)
         {
             if (!tvSeries.results.get(x).getName().matches("")){
-                JButton button = new ListItemButton(tvSeries.results.get(x).getName(), this, x);
+                JButton button = new VideoListItemButton(tvSeries.results.get(x).getName(), this, x);
                 seriesLinks.add(button);
             }
         }

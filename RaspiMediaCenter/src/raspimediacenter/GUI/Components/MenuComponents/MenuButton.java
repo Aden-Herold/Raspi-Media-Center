@@ -1,4 +1,4 @@
-package raspimediacenter.GUI.Components;
+package raspimediacenter.GUI.Components.MenuComponents;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -29,7 +29,7 @@ public class MenuButton extends JButton {
         @Override
         public void focusGained(FocusEvent e) {
             isFocused = true;
-            menu.updateInfoLabel(buttonName);
+            menu.updateInformation(buttonName);
         }
 
         @Override

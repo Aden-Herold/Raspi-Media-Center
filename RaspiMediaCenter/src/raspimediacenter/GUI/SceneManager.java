@@ -9,13 +9,10 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
-import raspimediacenter.GUI.Scenes.MoviesScene;
-import raspimediacenter.GUI.Scenes.MusicScene;
-import static raspimediacenter.GUI.Scenes.Scene.currentScene;
-import raspimediacenter.GUI.Scenes.TVSeriesScene;
+import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
+import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
 
 public final class SceneManager {
     
@@ -75,25 +72,25 @@ public final class SceneManager {
         return screenHeight;
     }
     
-    public void loadScene (String scene)
+    public static void loadScene (String scene)
     {
         unloadScene(currentScene);
         
         if (scene.toLowerCase().matches("main menu"))
         {
-            currentScene = new MainMenuScene(this);
+            currentScene = new MainMenuScene();
         }
         else if (scene.toLowerCase().matches("movies"))
         {
-            currentScene = new MoviesScene(this);
+            currentScene = new MoviesScene();
         }
         else if (scene.toLowerCase().matches("tv shows"))
         {
-            currentScene = new TVSeriesScene(this);
+            currentScene = new TVSeriesScene();
         }
         else if (scene.toLowerCase().matches("music"))
         {
-            currentScene = new MusicScene(this);
+            
         }
         else if (scene.toLowerCase().matches("images"))
         {
@@ -101,46 +98,18 @@ public final class SceneManager {
         }
     }
     
-    public void unloadScene (Scene scene)
+    public static void unloadScene (Scene scene)
     {
         contentPane.removeAll();
     }
     
-    //EVENT LISTENERS
-    private class KeyboardListener implements KeyListener
-    {
-
-        @Override
-        public void keyTyped(KeyEvent e) {
-
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            int key = e.getKeyCode();
-
-            if (key == KeyEvent.VK_BACK_SPACE)
-            {
-                if (!Scene.getCurrentScene().toLowerCase().matches("main menu"))
-                {
-                    loadScene("Main Menu");
-                }
-            }
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-
-        } 
-    }
-    
+    //EVENT LISTENERS  
     private class GlobalDispatcher implements KeyEventDispatcher {
         @Override
         public boolean dispatchKeyEvent(KeyEvent e) 
         {
             if (e.getID() == KeyEvent.KEY_PRESSED) 
             {
-                System.out.println("KEY PRESSED");
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_BACK_SPACE)
                 {

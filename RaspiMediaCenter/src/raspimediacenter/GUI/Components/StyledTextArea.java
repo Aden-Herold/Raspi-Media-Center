@@ -8,7 +8,7 @@ import java.awt.Graphics2D;
 import javax.swing.JTextArea;
 
 public class StyledTextArea extends JTextArea {
-    
+
     public StyledTextArea (String text, int fontWeight, int fontSize, int alignment)
     {
         //super (text);
@@ -19,6 +19,7 @@ public class StyledTextArea extends JTextArea {
         setFocusable(false);
         setWrapStyleWord(true);
         setLineWrap(true);
+        setEditable(false);
     }
     
     @Override
