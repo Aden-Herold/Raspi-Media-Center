@@ -239,6 +239,11 @@ public class ScraperUtility {
         });
         return files;
     }
+    
+    public int getNumberOfSeasons() {
+        //TODO
+        return 1;
+    }
 
     //constructs a URI for a search term for use with the 'The Movie Database API'.
     public String constructSearchURI(String type, String query, String year) {

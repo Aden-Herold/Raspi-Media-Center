@@ -1,0 +1,55 @@
+{
+	"results": [{
+		"backdrop_path": "/eSzpy96DwBujGFj0xMbXBcGcfxX.jpg",
+		"created_by": [{
+			"name": "Vince Gilligan"
+		}],
+		"first_air_date": "2008-01-19",
+		"genres": [{
+			"name": "Drama"
+		}],
+		"id": 1396,
+		"last_air_date": "2013-09-29",
+		"name": "Breaking Bad",
+		"networks": [{
+			"name": "AMC"
+		}],
+		"number_of_episodes": 62,
+		"number_of_seasons": 5,
+		"origin_country": ["US"],
+		"original_language": "en",
+		"overview": "Breaking Bad is an American crime drama television series created and produced by Vince Gilligan. Set and produced in Albuquerque, New Mexico, Breaking Bad is the story of Walter White, a struggling high school chemistry teacher who is diagnosed with inoperable lung cancer at the beginning of the series. He turns to a life of crime, producing and selling methamphetamine, in order to secure his family\u0027s financial future before he dies, teaming with his former student, Jesse Pinkman. Heavily serialized, the series is known for positioning its characters in seemingly inextricable corners and has been labeled a contemporary western by its creator.",
+		"poster_path": "/1yeVJox3rjo2jBKrrihIMj7uoS9.jpg",
+		"status": "Ended",
+		"vote_average": 8.4
+	}, {
+		"backdrop_path": "/jcoV9OkcUIO4Y7Zmx4HZu4vn4gi.jpg",
+		"created_by": [{
+			"name": "Satoshi Tajiri"
+		}, {
+			"name": "Ken Sugimori"
+		}, {
+			"name": "Junichi Masuda"
+		}],
+		"first_air_date": "1997-04-01",
+		"genres": [{
+			"name": "Adventure"
+		}, {
+			"name": "Animation"
+		}],
+		"id": 60572,
+		"last_air_date": "2016-05-28",
+		"name": "Pokémon",
+		"networks": [{
+			"name": "TV Tokyo"
+		}],
+		"number_of_episodes": 911,
+		"number_of_seasons": 19,
+		"origin_country": ["JP"],
+		"original_language": "ja",
+		"overview": "Join Ash Ketchum, accompanied by his partner Pikachu, as he travels through many regions, meets new friends and faces new challenges on his quest to become a Pokémon Master.",
+		"poster_path": "/eq2lq7vskvEz1NueAaSHiJdL7id.jpg",
+		"status": "Returning Series",
+		"vote_average": 6.9
+	}]
+}
