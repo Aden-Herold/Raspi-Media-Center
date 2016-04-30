@@ -53,6 +53,7 @@ public class TVSeriesContainer {
         private String last_air_date;
         private String name;
         public List<SeriesNetworks> networks;
+        private String[] episode_run_time;
         private int number_of_episodes;
         private int number_of_seasons;
         private String[] origin_country;
@@ -64,7 +65,11 @@ public class TVSeriesContainer {
 
         public TVSeries() {
         }
-
+        
+        public String[] getEpisodeRunTime() {
+            return episode_run_time;
+        }
+        
         public String getBackdropPath() {
             return backdrop_path;
         }

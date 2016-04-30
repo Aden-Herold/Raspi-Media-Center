@@ -6,12 +6,17 @@ public class TVSeasonContainer {
 
     public List<TVSeason> episodes;
 
+    private String air_date;
     private String name;
     private String overview;
     private int id;
     private String poster_path;
     private int season_number;
 
+    public String getAirDate() {
+        return air_date;
+    }
+    
     public String getName() {
         return name;
     }
@@ -34,6 +39,8 @@ public class TVSeasonContainer {
 
     public static class TVSeason {
 
+        private String air_date;
+        public List<EpisodeCrew> crew;
         private String name;
         private String overview;
         private int id;
@@ -74,6 +81,19 @@ public class TVSeasonContainer {
                     + "Season Number: " + this.season_number + "\n"
                     + "Path to Still: " + this.still_path + "\n"
                     + "Average Rating: " + this.vote_average;
+        }
+        
+        public static class EpisodeCrew {
+            private String name;
+            private String job;
+            
+            public String getName() {
+                return name;
+            }
+            
+            public String getJob() {
+                return job;
+            }
         }
     }
 
