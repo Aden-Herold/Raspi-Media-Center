@@ -247,7 +247,7 @@ public class ScraperUtility {
 
     //Gets all subdirectories inside of the specified parent directory. Ignores files which
     //are not directories.
-    public File[] getDirectories(String subDir, boolean dirOnly) {
+    public static File[] getDirectories(String subDir, boolean dirOnly) {
         File file = new File(subDir);
         File[] files;
         if (dirOnly) {
@@ -263,7 +263,7 @@ public class ScraperUtility {
         return files;
     }
 
-    public int getNumberOfSeasons(TVSeries series) {
+    public static int getNumberOfSeasons(TVSeries series) {
         File[] seasons = getDirectories("TV Shows/" + series.getName(), true);
         int number = 0;
         Matcher matcher;

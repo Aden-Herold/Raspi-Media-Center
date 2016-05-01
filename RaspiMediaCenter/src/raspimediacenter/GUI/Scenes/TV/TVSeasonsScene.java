@@ -17,11 +17,13 @@ import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.GUI.Scenes.VideoLibraryScene;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
 import raspimediacenter.Logic.Utilities.ParserUtility;
+import raspimediacenter.Logic.Utilities.ScraperUtility;
 
 public class TVSeasonsScene extends VideoLibraryScene{
     
     private static TVSeries show;
     private static ArrayList<TVSeasonContainer> seasons;
+    private static int numberOfSeasons = 0;
 
     private final ArrayList<JButton> seasonsLinks = new ArrayList<>();
     private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
@@ -33,6 +35,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
     {
         TVSeasonsScene.show = show;
         seasons = parseSeasonsList();
+        numberOfSeasons = ScraperUtility.getNumberOfSeasons(show);
         
         Scene.setCurrentScene("TV Shows");
         Scene.setSubScene("Seasons");
@@ -62,7 +65,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
         ArrayList<TVSeasonContainer> seasonsList = new ArrayList<>();
         
         
-        for (int x = 1; x <= 1; x++)
+        for (int x = 1; x <= numberOfSeasons; x++)
         {
             TVSeasonContainer season = parser.parseSeason("TV Shows/"+show.getName()+"/Season "+x+"/info.json", false);
             seasonsList.add(season);
@@ -73,7 +76,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
     
     private void createLinkList()
     {
-        for (int x = 0; x <= 0; x++)
+        for (int x = 0; x <= numberOfSeasons-1; x++)
         {
             int seasonNumber = x+1;
             JButton button = new VideoListItemButton("Season "+seasonNumber, this, x);
@@ -86,7 +89,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
     {
         posters.clear();
         
-        for (int x = 1; x <= show.getNumberOfSeasons(); x++)
+        for (int x = 1; x <= numberOfSeasons; x++)
         {
             String path = "TV Shows/"+show.getName()+"/Season " + x + "/season_poster.jpg";
             BufferedImage poster = ImageUtilities.getImageFromPath(path);
