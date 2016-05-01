@@ -10,6 +10,7 @@ import raspimediacenter.GUI.Components.MenuComponents.MenuButton;
 import raspimediacenter.GUI.Components.MenuComponents.MenuPanel;
 import raspimediacenter.GUI.Components.MenuComponents.MenuPanelGraphics;
 import raspimediacenter.GUI.SceneManager;
+import raspimediacenter.Logic.Utilities.ImageUtilities;
 
 public class MainMenuScene extends Scene {
 
@@ -21,6 +22,8 @@ public class MainMenuScene extends Scene {
         super();
         Scene.setCurrentScene("Main Menu");
 
+        bgCanvas.setBackgroundImage(ImageUtilities.getImageFromPath(backgroundImagesPath+"/background1.jpg"));
+        
         //Add Background to Frame
         loadBackgrounds();
         bgCanvas.setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());

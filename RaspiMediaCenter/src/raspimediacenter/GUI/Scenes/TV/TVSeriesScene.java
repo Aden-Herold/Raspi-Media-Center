@@ -8,6 +8,7 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.GUI.Components.TopCornerInfoPanel;
 import raspimediacenter.GUI.Components.VideoComponents.InformationPanelGraphics;
 import raspimediacenter.GUI.Components.VideoComponents.PosterGraphics;
 import raspimediacenter.GUI.Components.VideoComponents.VideoInformationPanel;
@@ -17,6 +18,7 @@ import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.GUI.Scenes.VideoLibraryScene;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
 import raspimediacenter.Logic.Utilities.ParserUtility;
+import raspimediacenter.Logic.Utilities.ScraperUtility;
 
 public class TVSeriesScene extends VideoLibraryScene{
     
@@ -44,6 +46,8 @@ public class TVSeriesScene extends VideoLibraryScene{
         VideoLibraryScene.setPreviewImageWidth(previewGraphics.getPosterWidth());
         VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
 
+        infoPanel.createTopCornerInfo("left", tvSeries.results.get(0).getName().toUpperCase(), 
+                "SEASONS: "+ScraperUtility.getNumberOfSeasons(tvSeries.results.get(0)));
         infoPanel.setupInfoPanel(infoLabels, generateTVSeriesInfo(0));
         infoPanel.createStarRating(tvSeries.results.get(0).getRatingAverage(), 10);
         infoPanel.createOverviewDisplay(tvSeries.results.get(0).getOverview());

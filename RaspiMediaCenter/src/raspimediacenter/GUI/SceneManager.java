@@ -1,6 +1,5 @@
 package raspimediacenter.GUI;
 
-import java.awt.Color;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.GUI.Scenes.MainMenuScene;
 import java.awt.Dimension;
@@ -11,7 +10,9 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.GUI.Components.BlackBasePanel;
 import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
 import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
@@ -37,13 +38,16 @@ public final class SceneManager {
         */
         //Create a JFrame
         frame = new JFrame();
-        frame.setBackground(Color.black);
-        //Start media center in full screen
         frame.setSize(screenWidth, screenHeight);
 
         //Define Panes - for overlapping elements
         contentPane = new JLayeredPane();
         contentPane.setBounds(0, 0, screenWidth, screenHeight);
+        contentPane.setOpaque(false);
+        
+        JPanel blackBasePanel = new BlackBasePanel();
+        blackBasePanel.setBounds(0, 0, screenWidth, screenHeight);
+        contentPane.add(blackBasePanel, 0, 0);
         
         loadScene("main menu");
         

@@ -35,10 +35,9 @@ public class VideoLibraryScene extends Scene {
         
         //Add Background to Frame
         bgCanvas.setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
-        SceneManager.getContentPane().add(bgCanvas, 0, 0);
+        SceneManager.getContentPane().add(bgCanvas, 1, 0);
 
         setBounds(0, 0, SceneManager.getScreenWidth(), SceneManager.getScreenHeight());
-        setOpaque(false);
         SceneManager.getContentPane().add(this, 2, 0);
     }
     
@@ -90,6 +89,11 @@ public class VideoLibraryScene extends Scene {
     {
         infoPanel.updateOverview(linkNum);
     }
+    
+    public void updateTopInfoPanel (int linkNum)
+    {
+        infoPanel.updateTopInfoPanel(linkNum);
+    }
 
     //CREATE METHDOS
     public void createListDisplay(ArrayList<JButton> linkList)
@@ -132,5 +136,4 @@ public class VideoLibraryScene extends Scene {
         infoPanelGraphics.createInformationPanel(paint);
         previewGraphics.displayPoster(paint);
     }
-
 }

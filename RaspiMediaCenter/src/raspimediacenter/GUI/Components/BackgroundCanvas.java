@@ -40,7 +40,9 @@ public class BackgroundCanvas extends JPanel {
     public static final long FADE_TIME = 2000;
     
     //BASE CONSTUCTOR
-    public BackgroundCanvas() {}
+    public BackgroundCanvas() {
+        setOpaque(false);
+    }
     
     //FUNCTIONS
     public boolean loadImagesFromDir(String path)

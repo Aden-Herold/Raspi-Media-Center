@@ -34,6 +34,7 @@ public class Scene extends JPanel {
     public Scene ()
     {
         this.setLayout(null);
+        setOpaque(false);
         bgCanvas = new BackgroundCanvas();
         INVERTED_COLOR = ColorUtilities.getInvertedColor(MENU_COLOR);
     }

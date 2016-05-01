@@ -4,9 +4,14 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
+import java.awt.MultipleGradientPaint;
+import java.awt.RadialGradientPaint;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Scene;
+import static raspimediacenter.GUI.Scenes.Scene.getMenuColor;
+import static raspimediacenter.GUI.Scenes.Scene.getMenuTransparency;
 
 public class InformationPanelGraphics {
     
@@ -34,6 +39,7 @@ public class InformationPanelGraphics {
         paintInformationArea(paint);
         paintGradientSheen(paint);
         paintSeparator(paint);
+        paintTopPanel(paint);
     }
     
     private void paintBackPanel(Graphics2D paint)
@@ -88,5 +94,22 @@ public class InformationPanelGraphics {
         paint.setColor(Scene.getMenuColor().darker().darker().darker());
         paint.drawLine(0, SceneManager.getScreenHeight()-PANEL_HEIGHT,
                        SceneManager.getScreenWidth(), SceneManager.getScreenHeight()-PANEL_HEIGHT);
+    }
+    
+    private void paintTopPanel (Graphics2D paint)
+    {
+        final Color[] backgroundGradient = {getMenuColor(), new Color(0, 0, 0, 0)};
+        final float[] gradientFractions = {0f, 1f};
+        Rectangle2D rect = new Rectangle2D.Double(-450, -120, 900, 240);
+        RadialGradientPaint menuGrad = new RadialGradientPaint(
+                                                    rect,
+                                                    gradientFractions,
+                                                    backgroundGradient,
+                                                    MultipleGradientPaint.CycleMethod.NO_CYCLE);
+        paint.setPaint(menuGrad);
+        paint.setComposite(AlphaComposite.SrcOver.derive(Scene.getMenuTransparency()));
+        paint.fillOval(-450, -120, 900, 240);
+        
+        paint.setComposite(AlphaComposite.SrcOver.derive(1f));
     }
 }

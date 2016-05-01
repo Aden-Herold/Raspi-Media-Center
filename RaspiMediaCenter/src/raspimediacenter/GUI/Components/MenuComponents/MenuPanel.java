@@ -15,18 +15,21 @@ import javax.swing.Timer;
 import raspimediacenter.Data.Models.MovieContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.GUI.Components.StyledLabel;
+import raspimediacenter.GUI.Components.TopCornerInfoPanel;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.Logic.Utilities.ParserUtility;
 
 public final class MenuPanel {
  
-    private JLabel focusOptionInfo;
-    private JLabel focusOptionItems;
-    private JLabel timeLabel;
-    private JLabel dateLabel;
+    private TopCornerInfoPanel focusOptionInfo;
+    private TopCornerInfoPanel timeDateInfo;
     
     private final TVSeriesContainer tvSeries;
     private final MovieContainer movies;
+    
+    //Date and Time Formats
+    private DateFormat timeFormat = new SimpleDateFormat("hh:mm a");
+    private DateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
     
     //Label Info
     private int totalShows;
@@ -39,11 +42,8 @@ public final class MenuPanel {
     Timer clockUpdateTimer = new Timer(1000, new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e) {
-            DateFormat timeFormat = new SimpleDateFormat("hh:mm a");
-            timeLabel.setText(timeFormat.format(new Date()));
-            
-            DateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
-            dateLabel.setText(dateFormat.format(new Date()).toUpperCase());
+            timeDateInfo.setHeaderInfo(timeFormat.format(new Date()).toUpperCase());
+            timeDateInfo.setContentInfo(dateFormat.format(new Date()).toUpperCase());
         }
     });
     
@@ -65,6 +65,9 @@ public final class MenuPanel {
 
     public void setupMainMenu ()
     {
+        focusOptionInfo = new TopCornerInfoPanel("left");
+        timeDateInfo = new TopCornerInfoPanel("right");
+        
         createCategoryInfo();
         createTimeInfo();
         clockUpdateTimer.start();
@@ -72,59 +75,42 @@ public final class MenuPanel {
     
     private void createCategoryInfo () {
         
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        panel.setOpaque(false);
+        String header = "LIBRARY - MOVIES";
+        String content = "MOVIES: "+ totalMovies +"  WATCHED: "+ totalWatched;
         
-        focusOptionInfo = new StyledLabel("LIBRARY - MOVIES", Font.BOLD, 25, SwingConstants.LEFT);
-        focusOptionItems = new StyledLabel("MOVIES: 10 UNWATCHED: 3", Font.BOLD, 15, SwingConstants.LEFT);
-        focusOptionInfo.setPreferredSize(new Dimension(400, 25));
-        focusOptionItems.setPreferredSize(new Dimension(400, 25));
-        
-        panel.add(focusOptionInfo);
-        panel.add(focusOptionItems);
-        
-        //focusOptionInfo.setBounds(20, 20, 400, 25);
-        panel.setBounds(20, 15, 400, 55);
+        JPanel panel = focusOptionInfo.createCategoryInfo(header, content);
         SceneManager.getContentPane().add(panel, 3, 0);
     }
     
     private void createTimeInfo () {
         
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        panel.setOpaque(false);
+        String header = timeFormat.format(new Date()).toUpperCase();
+        String content = dateFormat.format(new Date()).toUpperCase();
         
-        timeLabel = new StyledLabel("00:00 XX", Font.BOLD, 25, SwingConstants.RIGHT);
-        dateLabel = new StyledLabel("XXX, XXX 00, 0000", Font.BOLD, 15, SwingConstants.RIGHT);
-        timeLabel.setPreferredSize(new Dimension(400, 25));
-        dateLabel.setPreferredSize(new Dimension(400, 25));
+        JPanel panel = timeDateInfo.createCategoryInfo(header, content);
         
-        panel.add(timeLabel);
-        panel.add(dateLabel);
-        
-        //timeLabel.setBounds(SceneManager.getScreenWidth()-220, 20, 200, 25);
-        panel.setBounds(SceneManager.getScreenWidth()-420, 15, 400, 55);
         SceneManager.getContentPane().add(panel, 3, 0);
     }
     
     public void updateInfoLabel (String buttonName) {
         
-        focusOptionInfo.setText("LIBRARY - " + buttonName);
+        focusOptionInfo.setHeaderInfo("LIBRARY - " + buttonName);
         
         if (buttonName.matches("MOVIES"))
         {
-            focusOptionItems.setText("MOVIES: "+ totalMovies +"  WATCHED: "+ totalWatched);
+            focusOptionInfo.setContentInfo("MOVIES: "+ totalMovies +"  WATCHED: "+ totalWatched);
         }
         else if (buttonName.matches("TV SHOWS"))
         {
-            focusOptionItems.setText("SHOWS: " + totalShows + "  SEASONS: " + totalSeasons +"  EPISODES: " + totalEpisodes);
+            focusOptionInfo.setContentInfo("SHOWS: " + totalShows + "  SEASONS: " + totalSeasons +"  EPISODES: " + totalEpisodes);
         }
         else if (buttonName.matches("MUSIC"))
         {
-            focusOptionItems.setText("SONGS: 521");
+            focusOptionInfo.setContentInfo("SONGS: 521");
         } 
         else if (buttonName.matches("IMAGES"))
         {
-            focusOptionItems.setText("IMAGES: 125");
+            focusOptionInfo.setContentInfo("IMAGES: 125");
         } 
     }
 }

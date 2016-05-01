@@ -1,10 +1,13 @@
 package raspimediacenter.GUI.Components.VideoComponents;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -12,6 +15,7 @@ import raspimediacenter.GUI.Components.ItemScrollPanel;
 import raspimediacenter.GUI.Components.OverviewDisplay;
 import raspimediacenter.GUI.Components.StarRating;
 import raspimediacenter.GUI.Components.StyledLabel;
+import raspimediacenter.GUI.Components.TopCornerInfoPanel;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
 import raspimediacenter.GUI.Scenes.Scene;
@@ -19,12 +23,13 @@ import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
 import raspimediacenter.GUI.Scenes.VideoLibraryScene;
+import raspimediacenter.Logic.Utilities.ScraperUtility;
 
 public class VideoInformationPanel {
     
+    private TopCornerInfoPanel topInfoPanel;
     private OverviewDisplay overview;
     private StarRating starRating;
-    
     private JPanel infoPanel;
     private final ArrayList<JLabel> infoLabels = new ArrayList<>();
     
@@ -36,6 +41,11 @@ public class VideoInformationPanel {
         
     }
 
+    public TopCornerInfoPanel getTopInfoPanel ()
+    {
+        return topInfoPanel;
+    }
+    
     public void updateInformation (int linkNum)
     {
         ArrayList<String> labelInfo = null;
@@ -142,6 +152,34 @@ public class VideoInformationPanel {
         }
     }
     
+    public void updateTopInfoPanel (int linkNum)
+    {
+        if (Scene.getCurrentScene().toLowerCase().matches("movies"))
+        {
+
+        }
+        else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
+        {
+            if (Scene.getSubScene().toLowerCase().matches("seasons"))
+            {
+
+            }
+            else if (Scene.getSubScene().toLowerCase().matches("episodes"))
+            {
+
+            }
+            else
+            {
+                topInfoPanel.setHeaderInfo(TVSeriesScene.getTVSeries().results.get(linkNum).getName().toUpperCase());
+                topInfoPanel.setContentInfo("SEASONS: "+ScraperUtility.getNumberOfSeasons(TVSeriesScene.getTVSeries().results.get(linkNum)));
+            }   
+        }
+        else if (Scene.getCurrentScene().toLowerCase().matches("music"))
+        {
+            
+        } 
+    }
+    
     public void setupInfoPanel (ArrayList<String> labels, ArrayList<String> labelValues)
     {
         int spacing = (int)(Math.floor(SceneManager.getScreenWidth()*0.0196));
@@ -165,31 +203,34 @@ public class VideoInformationPanel {
     
     public JPanel setupInfoLabels (ArrayList<String> labels)
     {
-        JPanel gridLayout = new JPanel(new GridLayout(0,1));
-        gridLayout.setOpaque(false);
-        JPanel labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        labelsPanel.setOpaque(false);
+        JPanel boxPanel = new JPanel();
+        boxPanel.setOpaque(false);
+        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
         int fontSize = (int)Math.floor(SceneManager.getScreenWidth()*0.01);
         
         for (String label : labels)
         {
             JLabel infoLabel = new StyledLabel(label, Font.PLAIN, fontSize, SwingConstants.RIGHT);
-            Dimension bounds = infoLabel.getPreferredSize();
-            bounds.height = (int)Math.floor(SceneManager.getScreenHeight()*0.03);
-            infoLabel.setPreferredSize(bounds);
-            gridLayout.add(infoLabel);
+            infoLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+            boxPanel.add(infoLabel);
+            boxPanel.add(Box.createRigidArea(new Dimension(0,5)));
         }
 
-        labelsPanel.add(gridLayout);
-        return labelsPanel;
+        return boxPanel;
+    }
+    
+    public void createTopCornerInfo (String side, String header, String content) {
+        
+        topInfoPanel = new TopCornerInfoPanel(side);
+        JPanel panel = topInfoPanel.createCategoryInfo(header, content);
+        SceneManager.getContentPane().add(panel, 3, 0);
     }
     
     public JPanel createInfoDisplay (ArrayList<String> labelValues)
     {
-        JPanel gridLayout = new JPanel(new GridLayout(0,1));
-        gridLayout.setOpaque(false);
-        JPanel labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        labelsPanel.setOpaque(false);
+        JPanel boxPanel = new JPanel();
+        boxPanel.setOpaque(false);
+        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
         int fontSize = (int)Math.floor(SceneManager.getScreenWidth()*0.01);
         
         for (String info : labelValues)
@@ -197,15 +238,11 @@ public class VideoInformationPanel {
             
             JLabel infoLabel = new StyledLabel(info, Font.PLAIN, fontSize, SwingConstants.LEFT);
             infoLabels.add(infoLabel);
-            Dimension bounds = infoLabel.getPreferredSize();
-            bounds.height = (int)Math.floor(SceneManager.getScreenHeight()*0.03);
-            bounds.width = 400;
-            infoLabel.setPreferredSize(bounds);
-            gridLayout.add(infoLabel);
+            boxPanel.add(infoLabel);
+            boxPanel.add(Box.createRigidArea(new Dimension(0,5)));
         }
-        
-        labelsPanel.add(gridLayout);      
-        return labelsPanel;
+              
+        return boxPanel;
     }
     
     public void createOverviewDisplay (String description) 

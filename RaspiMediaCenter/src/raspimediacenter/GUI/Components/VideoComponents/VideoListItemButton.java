@@ -21,6 +21,7 @@ public class VideoListItemButton extends ListItemButton {
             menu.updatePoster(linkNum);
             menu.updateInformation(linkNum);
             menu.updateOverview(linkNum);
+            menu.updateTopInfoPanel(linkNum);
             
             if (subScene.toLowerCase().matches("seasons") || subScene.toLowerCase().matches("episodes"))
             {
