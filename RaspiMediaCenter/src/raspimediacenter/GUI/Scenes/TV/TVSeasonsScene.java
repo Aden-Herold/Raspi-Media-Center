@@ -53,7 +53,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
         VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
         
         infoPanel.setupInfoPanel(infoLabels, generateShowInfo());
-        infoPanel.createStarRating(show.getRatingAverage());
+        infoPanel.createStarRating(show.getRatingAverage(), 10);
         infoPanel.createOverviewDisplay(seasons.get(0).getOverview());
         createLinkList();
         createListDisplay(seasonsLinks);

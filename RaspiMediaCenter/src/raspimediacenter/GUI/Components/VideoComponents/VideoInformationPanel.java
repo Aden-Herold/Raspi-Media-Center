@@ -223,12 +223,12 @@ public class VideoInformationPanel {
         SceneManager.getContentPane().add(overviewPanel, 3, 0); 
     }
 
-    public void createStarRating (float rating)
+    public void createStarRating (float rating, int maxRating)
     {
         Dimension ratingSize = new Dimension();
         ratingSize.setSize(SceneManager.getScreenWidth()*0.4, 200);
         
-        starRating = new StarRating();
+        starRating = new StarRating(maxRating);
         JPanel ratingPanel = starRating.getStarRatingPanel();
         
         starRating.updateRating(rating);

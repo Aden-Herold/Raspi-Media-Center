@@ -45,7 +45,7 @@ public class TVSeriesScene extends VideoLibraryScene{
         VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
 
         infoPanel.setupInfoPanel(infoLabels, generateTVSeriesInfo(0));
-        infoPanel.createStarRating(tvSeries.results.get(0).getRatingAverage());
+        infoPanel.createStarRating(tvSeries.results.get(0).getRatingAverage(), 10);
         infoPanel.createOverviewDisplay(tvSeries.results.get(0).getOverview());
         createLinkList();
         createListDisplay(seriesLinks);

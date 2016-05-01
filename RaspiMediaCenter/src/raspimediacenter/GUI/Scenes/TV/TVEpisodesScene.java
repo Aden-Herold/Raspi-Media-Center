@@ -50,7 +50,7 @@ public class TVEpisodesScene extends VideoLibraryScene {
         VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
         
         infoPanel.setupInfoPanel(infoLabels, generateEpisodeInfo(0));
-        infoPanel.createStarRating(seasons.get(seasonNumber-1).episodes.get(0).getVoteAverage());
+        infoPanel.createStarRating(seasons.get(seasonNumber-1).episodes.get(0).getVoteAverage(), 5);
         infoPanel.createOverviewDisplay(seasons.get(seasonNumber-1).episodes.get(0).getOverview());
         createLinkList();
         createListDisplay(episodeLinks);
@@ -84,6 +84,8 @@ public class TVEpisodesScene extends VideoLibraryScene {
     
     private void loadEpisodePreviews()
     {
+        posters.clear();
+        
         for (int x = 1; x <= seasons.get(seasonNumber-1).episodes.size(); x++)
         {
             String path = "TV Shows/"+show.getName()+"/Season " + seasonNumber + "/Stills/EP"+x+"_still.jpg";

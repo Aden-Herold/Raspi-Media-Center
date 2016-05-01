@@ -8,8 +8,8 @@ public class EpisodePreviewGraphics extends VideoPreviewGraphics {
     
     public EpisodePreviewGraphics ()
     {
-        posterWidth = SceneManager.getScreenWidth()/6;
-        posterHeight = SceneManager.getScreenHeight()/5;
+        posterWidth = SceneManager.getScreenWidth()/4;
+        posterHeight = SceneManager.getScreenHeight()/4;
         defaultPreviewImagePath = defaultEpisodePreviewPath;
     }
 }

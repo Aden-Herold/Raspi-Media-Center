@@ -38,7 +38,7 @@ public class MoviesScene extends VideoLibraryScene {
         previewGraphics = new PosterGraphics();
 
         infoPanel.setupInfoPanel(infoLabels, generateMoviesInfo(0));
-        infoPanel.createStarRating(movies.results.get(0).getVoteAverage());
+        infoPanel.createStarRating(movies.results.get(0).getVoteAverage(), 10);
         infoPanel.createOverviewDisplay(movies.results.get(0).getOverview());
         createLinkList();
         createListDisplay(seriesLinks);

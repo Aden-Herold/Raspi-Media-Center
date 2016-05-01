@@ -8,8 +8,8 @@ public class PosterGraphics extends VideoPreviewGraphics {
     
     public PosterGraphics ()
     {
-        posterWidth = SceneManager.getScreenWidth()/8;
-        posterHeight = SceneManager.getScreenHeight()/3;
+        posterWidth = (int)Math.floor(SceneManager.getScreenWidth()/6.4);
+        posterHeight = (int)Math.floor(SceneManager.getScreenHeight()/2.4);
         defaultPreviewImagePath = defaultPosterPath;
     }
 }

@@ -7,16 +7,23 @@ import java.awt.Font;
 import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Scene;
 
 public class StarRating {
     
     private final ArrayList<JLabel> stars = new ArrayList<>();
     private final JPanel ratingPanel;
+    private final int maximumRating;
     
     public StarRating ()
     {
+        this(10);
+    }
+    
+    public StarRating (int maxRating)
+    {
+        maximumRating = maxRating;
+        
         intialiseStars();
         
         ratingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -34,8 +41,17 @@ public class StarRating {
     
     public void updateRating(float rating)
     {
-        int ratingRounded = Math.round(rating);
-        
+        int ratingRounded = 0;
+                
+        if (maximumRating == 5)
+        {
+            ratingRounded = Math.round((rating/10)*5);
+        }
+        else
+        {
+            ratingRounded = Math.round(rating);
+        }
+
         for (int x = 0; x < stars.size(); x++)
         {
             
@@ -49,15 +65,15 @@ public class StarRating {
             }
         }
         
-        stars.get(10).setForeground(Color.white);
-        stars.get(10).setText(String.valueOf(ratingRounded));
+        stars.get(maximumRating).setForeground(Color.white);
+        stars.get(maximumRating).setText(String.valueOf(ratingRounded));
     }
     
     private void intialiseStars()
     {
         int fontSize = 30;//(int)Math.floor(SceneManager.getScreenHeight()*0.021);
         
-        for (int x = 0; x < 11; x++)
+        for (int x = 0; x < maximumRating+1; x++)
         {
             JLabel star = new StyledLabel("\u2605");
             
@@ -68,8 +84,8 @@ public class StarRating {
             stars.add(star);
         }
         
-        stars.get(10).setText("0");
-        stars.get(10).setForeground(Color.white);
-        stars.get(10).setPreferredSize(new Dimension(100, 30));
+        stars.get(maximumRating).setText("0");
+        stars.get(maximumRating).setForeground(Color.white);
+        stars.get(maximumRating).setPreferredSize(new Dimension(100, 30));
     }
 }
