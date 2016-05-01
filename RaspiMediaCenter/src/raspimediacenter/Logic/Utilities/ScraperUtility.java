@@ -10,6 +10,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import raspimediacenter.Data.Models.MovieContainer;
 import raspimediacenter.Data.Models.MovieContainer.Movie;
@@ -43,23 +45,21 @@ public class ScraperUtility {
             scrapeTVImages();
         }
     }
-    
+
     public class MovieScraperThread implements Runnable {
-        
+
         @Override
-        public void run()
-        {
+        public void run() {
             parser.cleanupMovieList();
             startMovieScrape();
             scrapeMovieImages();
         }
     }
 
-    public void startScrapers ()
-    {
+    public void startScrapers() {
         TVScraperThread tvScraper = new TVScraperThread();
         MovieScraperThread movieScraper = new MovieScraperThread();
-        
+
         new Thread(tvScraper).start();
         new Thread(movieScraper).start();
     }
@@ -68,7 +68,7 @@ public class ScraperUtility {
     //and scrapes information about that series, as well as all of its seasons as JSON from The Movie Database. Images related to the series/seasons are also scraped
     //and saved in appropriate subdirectories.
     public void startTVScrape() {
-        File[] files = getDirectories("TV Shows");
+        File[] files = getDirectories("TV Shows", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String name = files[i].getName();
@@ -76,7 +76,7 @@ public class ScraperUtility {
                 series = scraperParseSeries(jsonURI, series);
                 name = renameDir("TV Shows/", name, series.getName());
                 saveLocalSeriesJSON(series, "TV Shows/" + name + "/");
-                File[] subDirFiles = getDirectories("TV Shows/" + name);
+                File[] subDirFiles = getDirectories("TV Shows/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
                     if (subDirName.toLowerCase().contains("season")) {
@@ -92,7 +92,7 @@ public class ScraperUtility {
     //and scrapes information about that movie from The Movie Database. Images related to the movie are also scraped
     //and saved in the movie's directory.
     public void startMovieScrape() {
-        File[] files = getDirectories("Movies");
+        File[] files = getDirectories("Movies", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String name = files[i].getName();
@@ -105,7 +105,7 @@ public class ScraperUtility {
     }
 
     public void scrapeTVImages() {
-        File[] files = getDirectories("TV Shows");
+        File[] files = getDirectories("TV Shows", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String path = "TV Shows/series-list.json";
@@ -113,7 +113,7 @@ public class ScraperUtility {
                 String name = tvSeries.results.get(i).getName();
                 requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", tvSeries.results.get(i).getBackdropPath(), "TV Shows/" + name + "/");
                 requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", tvSeries.results.get(i).getPosterPath(), "TV Shows/" + name + "/");
-                File[] subDirFiles = getDirectories("TV Shows/" + name);
+                File[] subDirFiles = getDirectories("TV Shows/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
                     requestImageScrape(POSTER_SIZE, posterImage, "season_poster.jpg", tvSeason.getPosterPath(), "TV Shows/" + name + "/" + subDirName + "/");
@@ -128,7 +128,7 @@ public class ScraperUtility {
     }
 
     public void scrapeMovieImages() {
-        File[] files = getDirectories("Movies");
+        File[] files = getDirectories("Movies", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String path = "Movies/movie-list.json";
@@ -247,20 +247,42 @@ public class ScraperUtility {
 
     //Gets all subdirectories inside of the specified parent directory. Ignores files which
     //are not directories.
-    public File[] getDirectories(String subDir) {
+    public File[] getDirectories(String subDir, boolean dirOnly) {
         File file = new File(subDir);
-        File[] files = file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.isDirectory();
-            }
-        });
+        File[] files;
+        if (dirOnly) {
+            files = file.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory();
+                }
+            });
+        } else {
+            files = file.listFiles();
+        }
         return files;
     }
-    
-    public int getNumberOfSeasons() {
-        //TODO
-        return 1;
+
+    public int getNumberOfSeasons(TVSeries series) {
+        File[] seasons = getDirectories("TV Shows/" + series.getName(), true);
+        int number = 0;
+        Matcher matcher;
+        for (int i = 0; i < seasons.length; i++) {
+            matcher = Pattern.compile("Season (\\d+)").matcher(seasons[i].getName());
+            int seasonNo = Integer.valueOf(matcher.group().substring(+7));
+            if (matcher.find() && seasonNo >= 1 && seasonNo <= series.getNumberOfSeasons()) {
+                number++;
+            }
+        }
+        return number;
+    }
+
+    public String getEpisodeTitles(TVSeasonContainer seasons) {
+        String names = null;
+        for (int i = 0; i < seasons.episodes.size(); i++) {
+            names += seasons.episodes.get(i).getName();
+        }
+        return names;
     }
 
     //constructs a URI for a search term for use with the 'The Movie Database API'.
