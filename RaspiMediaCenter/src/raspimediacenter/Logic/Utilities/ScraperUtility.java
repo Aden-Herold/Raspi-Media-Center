@@ -277,6 +277,29 @@ public class ScraperUtility {
         return number;
     }
 
+    public int getNumberOfEpisodes(TVSeries series, TVSeasonContainer season, int seasonNo) {
+        int number = 0;
+        Matcher matcher;
+        if (seasonNo >= 1 && seasonNo <= series.getNumberOfSeasons()) {
+            File[] episodes = getDirectories("TV Shows/" + series.getName() + "/Season " + seasonNo, false);
+            String episodeString = getEpisodeTitles(season);
+            for (int i = 0; i < episodes.length; i++) {
+                System.out.println(episodes[i].getName());
+                matcher = Pattern.compile("E(\\d+) - ").matcher(episodes[i].getName());
+                if (matcher.find()) {
+                    String episodeTitle = episodes[i].getName().substring(matcher.group().length());
+                    episodeTitle = episodeTitle.substring(0, episodeTitle.length() - 4);
+                    System.out.println(episodeTitle);
+                    matcher = Pattern.compile(episodeTitle).matcher(episodeString);
+                    if (matcher.find()) {
+                        number++;
+                    }
+                }
+            }
+        }
+        return number;
+    }
+
     public String getEpisodeTitles(TVSeasonContainer seasons) {
         String names = null;
         for (int i = 0; i < seasons.episodes.size(); i++) {
