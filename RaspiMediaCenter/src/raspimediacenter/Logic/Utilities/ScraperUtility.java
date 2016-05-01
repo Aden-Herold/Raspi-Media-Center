@@ -269,9 +269,12 @@ public class ScraperUtility {
         Matcher matcher;
         for (int i = 0; i < seasons.length; i++) {
             matcher = Pattern.compile("Season (\\d+)").matcher(seasons[i].getName());
-            int seasonNo = Integer.valueOf(matcher.group().substring(+7));
-            if (matcher.find() && seasonNo >= 1 && seasonNo <= series.getNumberOfSeasons()) {
-                number++;
+            if (matcher.find())
+            {
+                int seasonNo = Integer.valueOf(matcher.group().substring(+7));
+                if (seasonNo >= 1 && seasonNo <= series.getNumberOfSeasons()) {
+                    number++;
+                }
             }
         }
         return number;

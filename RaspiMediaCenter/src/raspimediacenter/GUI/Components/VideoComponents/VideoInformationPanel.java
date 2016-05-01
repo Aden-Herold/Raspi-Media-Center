@@ -88,11 +88,21 @@ public class VideoInformationPanel {
         {
             if (Scene.getSubScene().toLowerCase().matches("seasons"))
             {
-                overview.updateOverview(TVSeasonsScene.getTVSeasons().get(linkNum).getOverview());
+                String seasonOverview = TVSeasonsScene.getTVSeasons().get(linkNum).getOverview();
+                
+                if (seasonOverview != null)
+                {
+                    if (seasonOverview.matches(""))
+                    {
+                        seasonOverview = TVSeasonsScene.getShow().getOverview();
+                    }
+                }
+                
+                overview.updateOverview(seasonOverview);
             }
             else if (Scene.getSubScene().toLowerCase().matches("episodes"))
             {
-                overview.updateOverview(TVEpisodesScene.getTVSeasons().get(TVEpisodesScene.getSeasonNumber()).episodes.get(linkNum).getOverview());
+                overview.updateOverview(TVEpisodesScene.getTVSeasons().get(TVEpisodesScene.getSeasonNumber()-1).episodes.get(linkNum).getOverview());
             }
             else
             {
@@ -119,7 +129,7 @@ public class VideoInformationPanel {
             }
             else if (Scene.getSubScene().toLowerCase().matches("episodes"))
             {
-                starRating.updateRating(TVEpisodesScene.getTVSeasons().get(TVEpisodesScene.getSeasonNumber()).episodes.get(linkNum).getVoteAverage());
+                starRating.updateRating(TVEpisodesScene.getTVSeasons().get(TVEpisodesScene.getSeasonNumber()-1).episodes.get(linkNum).getVoteAverage());
             }
             else
             {

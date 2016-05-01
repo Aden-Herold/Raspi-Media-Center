@@ -50,8 +50,8 @@ public class TVEpisodesScene extends VideoLibraryScene {
         VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
         
         infoPanel.setupInfoPanel(infoLabels, generateEpisodeInfo(0));
-        infoPanel.createStarRating(seasons.get(seasonNumber).episodes.get(0).getVoteAverage());
-        infoPanel.createOverviewDisplay(seasons.get(season).episodes.get(0).getOverview());
+        infoPanel.createStarRating(seasons.get(seasonNumber-1).episodes.get(0).getVoteAverage());
+        infoPanel.createOverviewDisplay(seasons.get(seasonNumber-1).episodes.get(0).getOverview());
         createLinkList();
         createListDisplay(episodeLinks);
     }
@@ -73,9 +73,9 @@ public class TVEpisodesScene extends VideoLibraryScene {
     
     private void createLinkList()
     {
-        for (int x = 0; x < seasons.get(seasonNumber).episodes.size(); x++)
+        for (int x = 0; x < seasons.get(seasonNumber-1).episodes.size(); x++)
         {
-            String epTitle = seasons.get(seasonNumber).episodes.get(x).getName();
+            String epTitle = seasons.get(seasonNumber-1).episodes.get(x).getName();
             JButton button = new VideoListItemButton(epTitle, this, x);
             //button.addActionListener(new TVSeriesScene.menuOptionSelected(tvSeries.results.get(x)));
             episodeLinks.add(button);
@@ -84,7 +84,7 @@ public class TVEpisodesScene extends VideoLibraryScene {
     
     private void loadEpisodePreviews()
     {
-        for (int x = 1; x <= seasons.get(seasonNumber).episodes.size(); x++)
+        for (int x = 1; x <= seasons.get(seasonNumber-1).episodes.size(); x++)
         {
             String path = "TV Shows/"+show.getName()+"/Season " + seasonNumber + "/Stills/EP"+x+"_still.jpg";
             BufferedImage poster = ImageUtilities.getImageFromPath(path);
@@ -137,7 +137,7 @@ public class TVEpisodesScene extends VideoLibraryScene {
         }
         
         
-        labelInfo.add(seasons.get(seasonNumber).episodes.get(listNum).getAirDate());
+        labelInfo.add(seasons.get(seasonNumber-1).episodes.get(listNum).getAirDate());
         labelInfo.add(show.networks.get(0).getNetwork());
         
         return labelInfo;

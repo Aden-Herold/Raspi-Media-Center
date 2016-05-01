@@ -34,8 +34,8 @@ public class TVSeasonsScene extends VideoLibraryScene{
     public TVSeasonsScene (TVSeries show)
     {
         TVSeasonsScene.show = show;
-        seasons = parseSeasonsList();
         numberOfSeasons = ScraperUtility.getNumberOfSeasons(show);
+        seasons = parseSeasonsList();
         
         Scene.setCurrentScene("TV Shows");
         Scene.setSubScene("Seasons");
@@ -64,19 +64,17 @@ public class TVSeasonsScene extends VideoLibraryScene{
         ParserUtility parser = new ParserUtility();
         ArrayList<TVSeasonContainer> seasonsList = new ArrayList<>();
         
-        
         for (int x = 1; x <= numberOfSeasons; x++)
         {
-            TVSeasonContainer season = parser.parseSeason("TV Shows/"+show.getName()+"/Season "+x+"/info.json", false);
+            TVSeasonContainer season = parser.parseSeason("TV Shows/" + show.getName() + "/Season " + x + "/info.json", false);
             seasonsList.add(season);
         }
-        
         return seasonsList;
     }
     
     private void createLinkList()
     {
-        for (int x = 0; x <= numberOfSeasons-1; x++)
+        for (int x = 0; x < numberOfSeasons; x++)
         {
             int seasonNumber = x+1;
             JButton button = new VideoListItemButton("Season "+seasonNumber, this, x);
