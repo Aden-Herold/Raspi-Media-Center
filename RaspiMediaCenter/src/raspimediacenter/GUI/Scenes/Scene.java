@@ -23,7 +23,7 @@ public class Scene extends JPanel {
     protected final String userImagesPath = "src/raspimediacenter/GUI/Resources/UserBackgrounds/";
     
     //MENU SETTINGS
-    public static float MENU_TRANSPARENCY = 0.75f; //Percentage value of menu transparency
+    public static float MENU_TRANSPARENCY = 0.9f; //Percentage value of menu transparency
     public static Color INVERTED_COLOR;
     public static Color MENU_COLOR = darkblue; //Color of menu elements
     
@@ -58,6 +58,11 @@ public class Scene extends JPanel {
     public static Color getLighterMenuColor (int intensity)
     {
         return ColorUtilities.brighten(MENU_COLOR, intensity);
+    }
+    
+    public static Color getDarkerMenuColor (int intensity)
+    {
+        return ColorUtilities.darken(MENU_COLOR, intensity);
     }
     
     public static String getCurrentScene()

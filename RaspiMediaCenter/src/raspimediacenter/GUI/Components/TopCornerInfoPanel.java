@@ -1,26 +1,15 @@
 package raspimediacenter.GUI.Components;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.MultipleGradientPaint;
-import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import raspimediacenter.GUI.SceneManager;
-import static raspimediacenter.GUI.Scenes.Scene.getMenuColor;
-import static raspimediacenter.GUI.Scenes.Scene.getMenuTransparency;
 
-public class TopCornerInfoPanel {
+public class TopCornerInfoPanel extends JPanel {
     
     private final String side;
     private JLabel headerLabel;
@@ -29,6 +18,8 @@ public class TopCornerInfoPanel {
     public TopCornerInfoPanel (String side)
     {
         this.side = side;
+        setOpaque(false);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     }
     
     public String getHeaderInfo ()
@@ -70,10 +61,6 @@ public class TopCornerInfoPanel {
             bounds = new Rectangle(SceneManager.getScreenWidth()-420, 15, 400, 55);
         }
         
-        JPanel boxPanel = new JPanel();
-        boxPanel.setOpaque(false);
-        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.Y_AXIS));
-
         headerLabel = new StyledLabel(header, Font.BOLD, 25, textAlignment);
         contentLabel = new StyledLabel(content, Font.BOLD, 15, textAlignment);
         
@@ -82,11 +69,10 @@ public class TopCornerInfoPanel {
         headerLabel.setOpaque(false);
         contentLabel.setOpaque(false);
         
-        boxPanel.add(headerLabel);
-        boxPanel.add(contentLabel);
-        //panel.add(gridPanel);
+        this.add(headerLabel);
+        this.add(contentLabel);
         
-        boxPanel.setBounds(bounds);
-        return boxPanel;
+        this.setBounds(bounds);
+        return this;
     }
 }

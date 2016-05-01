@@ -24,4 +24,15 @@ public class ColorUtilities {
         
         return color;
     }
+    
+    public static Color darken(Color color, int intensity) {
+
+        while(intensity > 0)
+        {
+            color = color.darker();
+            intensity = intensity-1;
+        }
+        
+        return color;
+    }
 }

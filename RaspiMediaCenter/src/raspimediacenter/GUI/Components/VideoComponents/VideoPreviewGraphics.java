@@ -55,13 +55,39 @@ public class VideoPreviewGraphics {
     
     public void displayPoster (Graphics2D paint)
     {
-        paint.setComposite(AlphaComposite.SrcOver.derive(0.5f));
-        paint.setColor(Color.black);
-        paint.fillRect((int)Math.floor(SceneManager.getScreenWidth()*0.0196)-5, SceneManager.getScreenHeight()-posterHeight-(int)Math.floor(SceneManager.getScreenWidth()*0.0196)-5,
-                posterWidth+10, posterHeight+10);
+        //Menu Panel Fake Inset
+        paint.setComposite(AlphaComposite.SrcOver.derive(1f)); 
+        paint.setColor(Scene.getDarkerMenuColor(3));
+        paint.drawRect(
+                        (int)Math.floor(SceneManager.getScreenWidth()*0.0196)-16,
+                        SceneManager.getScreenHeight()-InformationPanelGraphics.getPanelHeight(),
+                        posterWidth+32, SceneManager.getScreenHeight()
+                      );
+        paint.drawRect(
+                        (int)Math.floor(SceneManager.getScreenWidth()*0.0196)-17,
+                        SceneManager.getScreenHeight()-InformationPanelGraphics.getPanelHeight(),
+                        posterWidth+32, SceneManager.getScreenHeight()
+                      );
         
         paint.setComposite(AlphaComposite.SrcOver.derive(1f));
-        paint.drawImage(currentPoster, (int)Math.floor(SceneManager.getScreenWidth()*0.0196), SceneManager.getScreenHeight()-posterHeight-(int)Math.floor(SceneManager.getScreenWidth()*0.0196),
+        paint.setColor(Scene.getDarkerMenuColor(2));
+        paint.fillRect(
+                        (int)Math.floor(SceneManager.getScreenWidth()*0.0196)-15,
+                        SceneManager.getScreenHeight()-InformationPanelGraphics.getPanelHeight(),
+                        posterWidth+30, SceneManager.getScreenHeight()
+                      );
+        
+        
+        
+        //Image Border
+        paint.setComposite(AlphaComposite.SrcOver.derive(0.5f));
+        paint.setColor(Color.black);
+        paint.fillRect((int)Math.floor(SceneManager.getScreenWidth()*0.0196)-5, SceneManager.getScreenHeight()-posterHeight-(int)Math.floor(SceneManager.getScreenWidth()/102)-5,
+              posterWidth+10, posterHeight+10);
+        
+        //Image
+        paint.setComposite(AlphaComposite.SrcOver.derive(1f));
+        paint.drawImage(currentPoster, (int)Math.floor(SceneManager.getScreenWidth()*0.0196), SceneManager.getScreenHeight()-posterHeight-(int)Math.floor(SceneManager.getScreenWidth()/102),
                 posterWidth, posterHeight, null);
     }
     
