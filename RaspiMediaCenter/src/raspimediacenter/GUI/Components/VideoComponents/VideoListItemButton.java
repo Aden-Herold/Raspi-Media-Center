@@ -18,6 +18,10 @@ public class VideoListItemButton extends ListItemButton {
         @Override
         public void focusGained(FocusEvent e) {
             isFocused = true;
+            menu.updatePoster(linkNum);
+            menu.updateInformation(linkNum);
+            menu.updateOverview(linkNum);
+            
             if (subScene.toLowerCase().matches("seasons") || subScene.toLowerCase().matches("episodes"))
             {
                 menu.updateBackground();      
@@ -26,10 +30,6 @@ public class VideoListItemButton extends ListItemButton {
             {
                 menu.updateBackground(linkNum);
             }
-
-            menu.updatePoster(linkNum);
-            menu.updateInformation(linkNum);
-            menu.updateOverview(linkNum);
         }
 
         @Override

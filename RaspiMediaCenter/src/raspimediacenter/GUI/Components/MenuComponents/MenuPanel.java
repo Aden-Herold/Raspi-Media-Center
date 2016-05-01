@@ -28,6 +28,14 @@ public final class MenuPanel {
     private final TVSeriesContainer tvSeries;
     private final MovieContainer movies;
     
+    //Label Info
+    private int totalShows;
+    private int totalSeasons;
+    private int totalEpisodes;
+    
+    private int totalMovies;
+    private int totalWatched;
+    
     Timer clockUpdateTimer = new Timer(1000, new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -44,6 +52,13 @@ public final class MenuPanel {
         ParserUtility parser = new ParserUtility();
         tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
         movies = parser.parseMovieList("Movies/movie-list.json", false);
+        
+        totalShows = tvSeries.results.size();
+        totalSeasons = tvSeries.getTotalSeasons();
+        totalEpisodes = tvSeries.getTotalEpisodes();
+        
+        totalMovies = movies.results.size();
+        totalWatched = 0;
         
         setupMainMenu();
     }
@@ -97,13 +112,11 @@ public final class MenuPanel {
         
         if (buttonName.matches("MOVIES"))
         {
-            focusOptionItems.setText("MOVIES: 192   WATCHED: 82");
+            focusOptionItems.setText("MOVIES: "+ totalMovies +"  WATCHED: "+ totalWatched);
         }
         else if (buttonName.matches("TV SHOWS"))
         {
-            int files = tvSeries.results.size();
-            int eps = tvSeries.getTotalEpisodes();
-            focusOptionItems.setText("TV SHOWS: " + files + "   EPISODES: " + eps);
+            focusOptionItems.setText("SHOWS: " + totalShows + "  SEASONS: " + totalSeasons +"  EPISODES: " + totalEpisodes);
         }
         else if (buttonName.matches("MUSIC"))
         {

@@ -39,7 +39,7 @@ public class InformationPanelGraphics {
     private void paintBackPanel(Graphics2D paint)
     {
         //Paint full back panel
-        paint.setComposite(AlphaComposite.SrcOver.derive(0.75f));
+        paint.setComposite(AlphaComposite.SrcOver.derive(Scene.getMenuTransparency()));
         paint.setPaint(Scene.getMenuColor().darker());
         paint.fillRect(0, SceneManager.getScreenHeight()-PANEL_HEIGHT,
                        SceneManager.getScreenWidth(), PANEL_HEIGHT);
@@ -59,7 +59,7 @@ public class InformationPanelGraphics {
                                                           infoGradFractions,
                                                           informationPanelGradient);
         
-        paint.setComposite(AlphaComposite.SrcOver.derive(0.95f));
+        paint.setComposite(AlphaComposite.SrcOver.derive(Scene.getMenuTransparency()+0.1f));
         paint.setPaint(infoGrad);
         paint.fillRect(0, SceneManager.getScreenHeight()-PANEL_HEIGHT,
                        SceneManager.getScreenWidth()/2, PANEL_HEIGHT);

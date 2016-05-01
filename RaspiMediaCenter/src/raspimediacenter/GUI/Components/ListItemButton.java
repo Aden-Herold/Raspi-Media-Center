@@ -48,7 +48,7 @@ public class ListItemButton extends JButton {
     public void paintComponent(Graphics g) 
     {       
         Graphics2D paint = (Graphics2D) g;
-        final float[] gradientFractions = {0.0f, 1f};
+        final float[] gradientFractions = {0f, 0.7f};
         
         if (!isFocused)
         {
@@ -59,25 +59,37 @@ public class ListItemButton extends JButton {
                                                         gradientFractions,
                                                         backgroundGradient);
             
-            paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f)); 
+            paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Scene.getMenuTransparency())); 
             paint.setPaint(menuGrad);
             paint.fillRect(0, 0, getWidth(), getHeight());
         }
         else 
         {
-            final Color[] backgroundGradient = {new Color(0, 0, 0, 0), Color.black};
+            final Color[] backgroundGradient = {new Color(0, 0, 0, 0), Scene.getLighterMenuColor(1)};
             LinearGradientPaint menuGrad = new LinearGradientPaint(
                                                         new Point2D.Double(0, 0),
                                                         new Point2D.Double(getWidth(), getHeight()),
                                                         gradientFractions,
                                                         backgroundGradient);
             
-            paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));
+            paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Scene.getMenuTransparency()));
             paint.setPaint(menuGrad);
             paint.fillRect(0, 0, getWidth(), getHeight());
         }
         
         paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        
+        //Paint separator line 
+        final Color[] backgroundGradient = {new Color(0, 0, 0, 0), Scene.getMenuColor().darker().darker().darker()};
+        LinearGradientPaint separatorGrad = new LinearGradientPaint(
+                                                    new Point2D.Double(0, getHeight()-1),
+                                                    new Point2D.Double(getWidth(), getHeight()-1),
+                                                    gradientFractions,
+                                                    backgroundGradient);
+        paint.setPaint(separatorGrad);
+        paint.drawLine(0, getHeight()-1, getWidth(), getHeight()-1);
+        
+        
         super.paintComponent(paint);
         paint.dispose();
     }

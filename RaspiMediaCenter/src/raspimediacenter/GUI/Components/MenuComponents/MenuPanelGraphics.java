@@ -38,10 +38,8 @@ public class MenuPanelGraphics {
     
     private void paintInfoPanel (Graphics2D paint)
     {
-        final Color[] backgroundGradient = {new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue()),
-                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 90), 
-                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 0)};
-        final float[] gradientFractions = {0.0f, 0.7f, 1f};
+        final Color[] backgroundGradient = {getMenuColor(), new Color(0, 0, 0, 0)};
+        final float[] gradientFractions = {0f, 1f};
         Rectangle2D rect = new Rectangle2D.Double(-450, -120, 900, 240);
         RadialGradientPaint menuGrad = new RadialGradientPaint(
                                                     rect,
@@ -49,7 +47,7 @@ public class MenuPanelGraphics {
                                                     backgroundGradient,
                                                     MultipleGradientPaint.CycleMethod.NO_CYCLE);
         paint.setPaint(menuGrad);
-        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, getMenuTransparency()));
         paint.fillOval(-450, -120, 900, 240);
         
         paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
@@ -57,10 +55,8 @@ public class MenuPanelGraphics {
     
     private void paintTimePanel (Graphics2D paint)
     {
-        final Color[] backgroundGradient = {new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue()),
-                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 90), 
-                                            new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 0)};
-        final float[] gradientFractions = {0.0f, 0.7f, 1f};
+        final Color[] backgroundGradient = {getMenuColor(), new Color(0, 0, 0, 0)};
+        final float[] gradientFractions = {0f, 1f};
         Rectangle2D rect = new Rectangle2D.Double(SceneManager.getScreenWidth()-450, -120, 900, 240);
         RadialGradientPaint menuGrad = new RadialGradientPaint(
                                                     rect,
@@ -68,7 +64,7 @@ public class MenuPanelGraphics {
                                                     backgroundGradient,
                                                     MultipleGradientPaint.CycleMethod.NO_CYCLE);
         paint.setPaint(menuGrad);
-        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+        paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, getMenuTransparency()));
         paint.fillOval(SceneManager.getScreenWidth()-450, -120, 900, 240);
         
         paint.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
@@ -79,8 +75,7 @@ public class MenuPanelGraphics {
         int menuPosY = (int)(SceneManager.getScreenHeight() * MENU_POSITION);
         
         //Create Menu Background
-        final Color[] backgroundGradient = {new Color(getMenuColor().getRed(), getMenuColor().getGreen(), getMenuColor().getBlue(), 150), 
-                                            new Color(20, 20, 20, 225)};
+        final Color[] backgroundGradient = {getMenuColor(), new Color(20, 20, 20)};
         final float[] gradientFractions = {0.0f, 1f};
         LinearGradientPaint menuGrad = new LinearGradientPaint(
                                                     new Point2D.Double(0, menuPosY),
