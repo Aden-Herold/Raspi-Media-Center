@@ -8,7 +8,6 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
-import raspimediacenter.GUI.Components.TopCornerInfoPanel;
 import raspimediacenter.GUI.Components.VideoComponents.InformationPanelGraphics;
 import raspimediacenter.GUI.Components.VideoComponents.PosterGraphics;
 import raspimediacenter.GUI.Components.VideoComponents.VideoInformationPanel;
