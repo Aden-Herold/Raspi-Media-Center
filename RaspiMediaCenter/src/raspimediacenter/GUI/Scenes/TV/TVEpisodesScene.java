@@ -15,22 +15,25 @@ import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.GUI.Scenes.VideoLibraryScene;
 import raspimediacenter.Logic.Utilities.ImageUtilities;
 import raspimediacenter.Logic.Utilities.ParserUtility;
+import raspimediacenter.Logic.Utilities.ScraperUtility;
 
 public class TVEpisodesScene extends VideoLibraryScene {
 
-    private static TVSeriesContainer.TVSeries show;
+    private static TVSeries show;
     private static ArrayList<TVSeasonContainer> seasons;
     private static int seasonNumber = 1;
+    private static int numberOfSeasons = 0;
 
-    private final ArrayList<JButton> episodeLinks = new ArrayList<>();
-    private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Creator:", "Runtime:", "Air Date:", "Network:"));
-    private static final ArrayList<BufferedImage> posters = new ArrayList<>();
+    private ArrayList<JButton> episodeLinks = new ArrayList<>();
+    private ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Creator:", "Runtime:", "Air Date:", "Network:"));
+    private static ArrayList<BufferedImage> posters;
     
     public TVEpisodesScene () {}
     
     public TVEpisodesScene (TVSeries show, int season)
     {
         TVEpisodesScene.show = show;
+        numberOfSeasons = ScraperUtility.getNumberOfSeasons(show);
         seasons = parseSeasonsList();
         seasonNumber = season;
         
@@ -62,7 +65,7 @@ public class TVEpisodesScene extends VideoLibraryScene {
         ArrayList<TVSeasonContainer> seasonsList = new ArrayList<>();
         
         
-        for (int x = 1; x <= show.getNumberOfSeasons(); x++)
+        for (int x = 1; x <= numberOfSeasons; x++)
         {
             TVSeasonContainer season = parser.parseSeason("TV Shows/"+show.getName()+"/Season "+x+"/info.json", false);
             seasonsList.add(season);
@@ -84,7 +87,7 @@ public class TVEpisodesScene extends VideoLibraryScene {
     
     private void loadEpisodePreviews()
     {
-        posters.clear();
+        posters = new ArrayList<>();
         
         for (int x = 1; x <= seasons.get(seasonNumber-1).episodes.size(); x++)
         {
@@ -94,6 +97,19 @@ public class TVEpisodesScene extends VideoLibraryScene {
         }
     }
     
+    @Override
+    public void unloadResources()
+    {
+        super.unloadResources();
+        
+        seasons = null;
+        episodeLinks = null;
+        infoLabels = null;
+        posters = null;
+        show = null;
+    }
+    
+    //STATIC FUNCTIONS
     public static TVSeriesContainer.TVSeries getShow ()
     {
         return show;

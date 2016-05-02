@@ -89,7 +89,7 @@ public class MenuPanelGraphics {
         int menuPosY = (int)(SceneManager.getScreenHeight() * MENU_POSITION);
         
         final Color[] backgroundGradient = {new Color(0, 0, 0, 0), getMenuColor().darker(), getMenuColor().darker(), new Color(0, 0, 0, 0)};
-        final float[] gradientFractions = {0f, 0.1f, 0.9f, 1f};
+        final float[] gradientFractions = {0f, 0.15f, 0.85f, 1f};
         LinearGradientPaint panelGrad = new LinearGradientPaint(
                                                     new Point2D.Double(0, 0),
                                                     new Point2D.Double(SceneManager.getScreenWidth(), 0),
@@ -101,19 +101,19 @@ public class MenuPanelGraphics {
         
         final Color[] separatorGradient = {new Color(0, 0, 0, 0), Scene.getDarkerMenuColor(3), Scene.getDarkerMenuColor(3), new Color(0, 0, 0, 0)};
         LinearGradientPaint separatorGrad = new LinearGradientPaint(
-                                                    new Point2D.Double(0, 0),
-                                                    new Point2D.Double(SceneManager.getScreenWidth(), 0),
+                                                    new Point2D.Double(100, 0),
+                                                    new Point2D.Double(SceneManager.getScreenWidth()-100, 0),
                                                     gradientFractions,
                                                     separatorGradient);
         paint.setPaint(separatorGrad);
         paint.setComposite(AlphaComposite.SrcOver.derive(1f));
         //Top Border
-        paint.drawLine(0, menuPosY, SceneManager.getScreenWidth(), menuPosY);
-        paint.drawLine(0, menuPosY+1, SceneManager.getScreenWidth(), menuPosY+1);
+        paint.drawLine(100, menuPosY, SceneManager.getScreenWidth()-100, menuPosY);
+        paint.drawLine(100, menuPosY+1, SceneManager.getScreenWidth()-100, menuPosY+1);
         
         //Bottom Border
-        paint.drawLine(0, menuPosY+MENU_HEIGHT, SceneManager.getScreenWidth(), menuPosY+MENU_HEIGHT);
-        paint.drawLine(0, menuPosY+MENU_HEIGHT-1, SceneManager.getScreenWidth(), menuPosY+MENU_HEIGHT-1);
+        paint.drawLine(100, menuPosY+MENU_HEIGHT, SceneManager.getScreenWidth()-100, menuPosY+MENU_HEIGHT);
+        paint.drawLine(100, menuPosY+MENU_HEIGHT-1, SceneManager.getScreenWidth()-100, menuPosY+MENU_HEIGHT-1);
         
         //OLD MENU
         /*

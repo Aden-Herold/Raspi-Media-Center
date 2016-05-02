@@ -62,6 +62,18 @@ public class VideoLibraryScene extends Scene {
         PREVIEW_IMG_HEIGHT = height;
     }
     
+    //FUNCTIONS
+    @Override
+    public void unloadResources()
+    {
+        super.unloadResources();
+        
+        infoPanelGraphics = null;
+        previewGraphics = null;
+        infoPanel = null;
+        currentFanart = null;
+    }
+    
     //UPDATE METHODS
     public void updateBackground ()
     {

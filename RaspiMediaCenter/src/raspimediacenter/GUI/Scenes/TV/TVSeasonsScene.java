@@ -25,9 +25,9 @@ public class TVSeasonsScene extends VideoLibraryScene{
     private static ArrayList<TVSeasonContainer> seasons;
     private static int numberOfSeasons = 0;
 
-    private final ArrayList<JButton> seasonsLinks = new ArrayList<>();
-    private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
-    private static final ArrayList<BufferedImage> posters = new ArrayList<>();
+    private ArrayList<JButton> seasonsLinks = new ArrayList<>();
+    private ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
+    private static ArrayList<BufferedImage> posters = new ArrayList<>();
     
     public TVSeasonsScene () {}
     
@@ -85,7 +85,7 @@ public class TVSeasonsScene extends VideoLibraryScene{
     
     private void loadSeasonPosters ()
     {
-        posters.clear();
+        posters = new ArrayList<>();
         
         for (int x = 1; x <= numberOfSeasons; x++)
         {
@@ -95,6 +95,19 @@ public class TVSeasonsScene extends VideoLibraryScene{
         }
     }
     
+    @Override
+    public void unloadResources()
+    {
+        super.unloadResources();
+        
+        seasons = null;
+        seasonsLinks = null;
+        infoLabels = null;
+        posters = null;
+        show = null;
+    }
+    
+    //STATIC FUNCTIONS
     public static TVSeries getShow ()
     {
         return show;

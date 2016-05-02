@@ -17,6 +17,7 @@ import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
 import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
+import raspimediacenter.Logic.ResourceHandler;
 
 public final class SceneManager {
     
@@ -86,7 +87,7 @@ public final class SceneManager {
     
     public static void loadScene (String scene)
     {
-        unloadScene(currentScene);
+        unloadScene();
         
         if (scene.toLowerCase().matches("main menu"))
         {
@@ -112,13 +113,9 @@ public final class SceneManager {
     
     public static void loadScene (String scene, Object obj)
     {
-        unloadScene(currentScene);
+        unloadScene();
         
-        if (scene.toLowerCase().matches("main menu"))
-        {
-            currentScene = new MainMenuScene();
-        }
-        else if (scene.toLowerCase().matches("seasons"))
+        if (scene.toLowerCase().matches("seasons"))
         {
             currentScene = new TVSeasonsScene((TVSeries)obj);
         }
@@ -127,7 +124,7 @@ public final class SceneManager {
     
     public static void loadScene (String scene, Object obj, int num)
     {
-        unloadScene(currentScene);
+        unloadScene();
         
         if (scene.toLowerCase().matches("episodes"))
         {
@@ -135,12 +132,12 @@ public final class SceneManager {
         }
     }
     
-    public static void unloadScene (Scene scene)
+    public static void unloadScene ()
     {
-        if (scene != null)
+        if (currentScene != null)
         {
-            scene.unloadBackgrounds();
-            scene.unloadScene();
+            ResourceHandler.unloadResources(currentScene);
+            currentScene = null;
         }
         contentPane.removeAll();
     }

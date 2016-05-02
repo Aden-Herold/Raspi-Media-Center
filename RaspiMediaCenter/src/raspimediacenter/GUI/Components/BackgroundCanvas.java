@@ -23,9 +23,9 @@ public class BackgroundCanvas extends JPanel {
     private final float[] gradientFractions = {0.0f, 0.25f, 0.5f, 0.9f};
 
     //BACKGROUND VARIABLES
-    private ArrayList<String> imagePaths = new ArrayList<>();
-    private ArrayList<BufferedImage> backgroundImages = new ArrayList<>();
-    private ArrayList<BufferedImage> fanartImages = new ArrayList<>();
+    private ArrayList<String> imagePaths;
+    private ArrayList<BufferedImage> backgroundImages;
+    private ArrayList<BufferedImage> fanartImages;
     
     //BACKGROUND TRANSITION SPEED VARIABLES
     private Timer timer;
@@ -42,6 +42,9 @@ public class BackgroundCanvas extends JPanel {
     //BASE CONSTUCTOR
     public BackgroundCanvas() {
         setOpaque(false);
+        imagePaths = new ArrayList<>();
+        backgroundImages = new ArrayList<>();
+        fanartImages = new ArrayList<>();
     }
     
     //FUNCTIONS
@@ -80,20 +83,22 @@ public class BackgroundCanvas extends JPanel {
     {
         ArrayList<String> img = new ArrayList<>();
         img.add(imagePath);
-        fanartImages.clear();
         fanartImages = ImageUtilities.getImagesFromPaths(img);
     }
     
     public void loadFanartImagesIntoMemory (ArrayList<String> imagePaths)
     {
-        fanartImages.clear();
         fanartImages = ImageUtilities.getImagesFromPaths(imagePaths);
     }
     
     public void unloadBackgrounds ()
     {
-        fanartImages.clear();
-        backgroundImages.clear();
+        imagePaths = null;
+        fanartImages = null;
+        backgroundImages = null;
+        fadeInImage = null;
+        fadeOutImage = null;
+        timer = null;
     }
     
     private void loadImagesFromPaths (ArrayList<String> imagePaths)

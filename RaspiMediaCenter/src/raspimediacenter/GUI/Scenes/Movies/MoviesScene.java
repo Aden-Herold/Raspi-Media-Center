@@ -17,9 +17,9 @@ import raspimediacenter.Logic.Utilities.ParserUtility;
 public class MoviesScene extends VideoLibraryScene {
 
     private static MovieContainer movies;
-    private final ArrayList<JButton> seriesLinks = new ArrayList<>();
-    private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Year:", "Rating:", "Runtime:", "Languages:", "Genres:"));
-    private static final ArrayList<BufferedImage> posters = new ArrayList<>();
+    private ArrayList<JButton> moviesLinks = new ArrayList<>();
+    private ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Year:", "Rating:", "Runtime:", "Languages:", "Genres:"));
+    private static ArrayList<BufferedImage> posters;
     
     public MoviesScene() {
         super();
@@ -44,7 +44,7 @@ public class MoviesScene extends VideoLibraryScene {
         infoPanel.createStarRating(movies.results.get(0).getVoteAverage(), 10);
         infoPanel.createOverviewDisplay(movies.results.get(0).getOverview());
         createLinkList();
-        createListDisplay(seriesLinks);
+        createListDisplay(moviesLinks);
     }
     
     private void createLinkList()
@@ -53,7 +53,7 @@ public class MoviesScene extends VideoLibraryScene {
         {
             if (!movies.results.get(x).getTitle().matches("")){
                 JButton button = new VideoListItemButton(movies.results.get(x).getTitle(), this, x);
-                seriesLinks.add(button);
+                moviesLinks.add(button);
             }
         }
     }
@@ -76,6 +76,8 @@ public class MoviesScene extends VideoLibraryScene {
     
     private void loadMoviePosters ()
     {
+        posters = new ArrayList<>();
+        
         for (int x = 0; x < movies.results.size(); x++)
         {
             if (!movies.results.get(x).getTitle().matches(""))
@@ -87,6 +89,18 @@ public class MoviesScene extends VideoLibraryScene {
         }
     }
     
+    @Override
+    public void unloadResources()
+    {
+        super.unloadResources();
+        
+        moviesLinks = null;
+        infoLabels = null;
+        posters = null;
+        movies = null;
+    }
+    
+    //STATIC FUNCTIONS
     public static MovieContainer getMovies ()
     {
         return movies;
@@ -99,7 +113,7 @@ public class MoviesScene extends VideoLibraryScene {
 
         ArrayList<String> labelInfo = new ArrayList<>();
         labelInfo.add(movies.results.get(linkNum).getReleaseYear());
-        labelInfo.add("PG-13");
+        labelInfo.add("FEATURE NOT ADDED");
         labelInfo.add(String.valueOf(movies.results.get(linkNum).getRuntime()) + " mins");
         labelInfo.add(langs);
         labelInfo.add(genres);

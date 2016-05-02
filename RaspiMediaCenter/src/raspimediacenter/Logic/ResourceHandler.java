@@ -5,6 +5,11 @@ import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
+import raspimediacenter.GUI.Scenes.Movies.MoviesScene;
+import raspimediacenter.GUI.Scenes.Scene;
+import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
+import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
+import raspimediacenter.GUI.Scenes.TV.TVSeriesScene;
 
 public final class ResourceHandler {
     
@@ -20,9 +25,35 @@ public final class ResourceHandler {
         loadFonts();
     }
     
-    public void unloadResources ()
+    public static void unloadResources (Scene scene)
     {
-        
+        if (Scene.getCurrentScene().toLowerCase().matches("movies"))
+        {
+            ((MoviesScene)scene).unloadResources();
+        }
+        else if (Scene.getCurrentScene().toLowerCase().matches("tv shows"))
+        {
+            if (Scene.getSubScene().toLowerCase().matches("seasons"))
+            {
+                ((TVSeasonsScene)scene).unloadResources();
+            }
+            else if (Scene.getSubScene().toLowerCase().matches("episodes"))
+            {
+                ((TVEpisodesScene)scene).unloadResources();
+            }
+            else
+            {
+                ((TVSeriesScene)scene).unloadResources();
+            }  
+        }
+        else if (Scene.getCurrentScene().toLowerCase().matches("music"))
+        {
+            
+        }
+        else if (Scene.getCurrentScene().toLowerCase().matches("images"))
+        {
+            
+        }
     }
     
     private void loadFonts ()

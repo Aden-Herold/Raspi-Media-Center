@@ -22,9 +22,9 @@ import raspimediacenter.Logic.Utilities.ScraperUtility;
 public class TVSeriesScene extends VideoLibraryScene{
     
     private static TVSeriesContainer tvSeries;
-    private final ArrayList<JButton> seriesLinks = new ArrayList<>();
-    private final ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
-    private static final ArrayList<BufferedImage> posters = new ArrayList<>();
+    private ArrayList<JButton> seriesLinks = new ArrayList<>();
+    private ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
+    private static ArrayList<BufferedImage> posters;
     
     public TVSeriesScene() {
         super();
@@ -84,6 +84,8 @@ public class TVSeriesScene extends VideoLibraryScene{
     
     private void loadSeriesPosters ()
     {
+        posters = new ArrayList<>();
+        
         for (int x = 0; x < tvSeries.results.size(); x++)
         {
             if (!tvSeries.results.get(x).getName().matches(""))
@@ -95,6 +97,18 @@ public class TVSeriesScene extends VideoLibraryScene{
         }
     }
     
+    @Override
+    public void unloadResources()
+    {
+        super.unloadResources();
+        
+        seriesLinks = null;
+        infoLabels = null;
+        posters = null;
+        tvSeries = null;
+    }
+    
+    //STATIC FUNCTIONS
     public static TVSeriesContainer getTVSeries ()
     {
         return tvSeries;

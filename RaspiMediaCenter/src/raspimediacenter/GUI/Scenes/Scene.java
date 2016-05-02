@@ -105,9 +105,16 @@ public class Scene extends JPanel {
         }
     }
 
+    public void unloadResources()
+    {
+        unloadBackgrounds();
+        unloadScene();
+    }
+    
     public void unloadBackgrounds ()    
     {
         bgCanvas.unloadBackgrounds();
+        bgCanvas = null;
     }
     
     public void unloadScene ()
