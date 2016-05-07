@@ -12,7 +12,7 @@ import raspimediacenter.Data.Models.TVSeasonContainer;
 import raspimediacenter.Data.Models.TVSeasonContainer.TVSeason;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
-public class LocalParserUtility {
+public class LocalParserUtils {
 
     private TVSeries series;
     private TVSeasonContainer season;
@@ -23,9 +23,9 @@ public class LocalParserUtility {
             String json = readUrl(filePath);
             series = gson.fromJson(json, TVSeries.class);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(LocalParserUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LocalParserUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return series;
     }
@@ -37,9 +37,9 @@ public class LocalParserUtility {
             season = gson.fromJson(json, TVSeasonContainer.class);
             System.out.println(season.getName());
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(LocalParserUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LocalParserUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return season;
     }

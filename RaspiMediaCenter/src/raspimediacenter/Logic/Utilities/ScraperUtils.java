@@ -19,7 +19,7 @@ import raspimediacenter.Data.Models.TVSeasonContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
-public class ScraperUtility {
+public class ScraperUtils {
 
     public static final String BACKDROP_SIZE = "w1920";
     public static final String POSTER_SIZE = "w780";
@@ -34,7 +34,7 @@ public class ScraperUtility {
     private TVSeries series;
     private TVSeriesContainer tvSeries;
     private TVSeasonContainer tvSeason;
-    private ParserUtility parser = new ParserUtility();
+    private ParserUtils parser = new ParserUtils();
 
     public class TVScraperThread implements Runnable {
 
@@ -185,9 +185,9 @@ public class ScraperUtility {
             url = new URL(baseImageURL + imageSize + "/" + imageURL);
             image = ImageIO.read(url);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return image;
     }
@@ -198,7 +198,7 @@ public class ScraperUtility {
         try {
             ImageIO.write(image, "jpg", file);
         } catch (IOException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

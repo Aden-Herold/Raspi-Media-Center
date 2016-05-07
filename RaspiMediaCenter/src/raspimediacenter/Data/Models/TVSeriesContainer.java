@@ -1,7 +1,7 @@
 package raspimediacenter.Data.Models;
 
 import java.util.List;
-import raspimediacenter.Logic.Utilities.ScraperUtility;
+import raspimediacenter.Logic.Utilities.ScraperUtils;
 
 public class TVSeriesContainer {
 
@@ -23,7 +23,7 @@ public class TVSeriesContainer {
         
         for (TVSeries show : results)
         {
-            totalSeasons += ScraperUtility.getNumberOfSeasons(show);
+            totalSeasons += ScraperUtils.getNumberOfSeasons(show);
         }
         
         return totalSeasons;

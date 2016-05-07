@@ -1,18 +1,16 @@
 package raspimediacenter;
 
 import raspimediacenter.GUI.*;
-import raspimediacenter.Logic.ResourceHandler;
-import raspimediacenter.Logic.Utilities.ParserUtility;
-import raspimediacenter.Logic.Utilities.ScraperUtility;
+import raspimediacenter.Logic.Utilities.ParserUtils;
+import raspimediacenter.Logic.Utilities.ScraperUtils;
 
 public class RaspiMediaCenter {
 
     public static void main(String[] args) {
 
-        ResourceHandler resourceHandler = new ResourceHandler();
-        ScraperUtility scraper = new ScraperUtility();
+        ScraperUtils scraper = new ScraperUtils();
         //scraper.startScrapers();
         //ParserUtility parser = new ParserUtility();
-        SceneManager sceneManager = new SceneManager();
+        GUI gui = new GUI();
     }
 }

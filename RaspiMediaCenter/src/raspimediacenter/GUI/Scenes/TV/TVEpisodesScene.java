@@ -1,143 +1,77 @@
 package raspimediacenter.GUI.Scenes.TV;
 
+import raspimediacenter.Data.Models.TVSeasonContainer;
+import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.GUI.Components.Background;
+import raspimediacenter.GUI.Components.FileLibrary;
+import raspimediacenter.GUI.Components.SceneMenu;
+import raspimediacenter.GUI.Components.Video.VideoInformationPanel;
+import raspimediacenter.GUI.GUI;
+import raspimediacenter.GUI.Scenes.Scene;
+import raspimediacenter.Logic.Utilities.ImageUtils;
+import raspimediacenter.Logic.Utilities.ParserUtils;
+import raspimediacenter.Logic.Utilities.ScraperUtils;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import javax.swing.JButton;
-import raspimediacenter.Data.Models.TVSeasonContainer;
-import raspimediacenter.Data.Models.TVSeriesContainer;
-import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
-import raspimediacenter.GUI.Components.VideoComponents.EpisodePreviewGraphics;
-import raspimediacenter.GUI.Components.VideoComponents.InformationPanelGraphics;
-import raspimediacenter.GUI.Components.VideoComponents.VideoInformationPanel;
-import raspimediacenter.GUI.Components.VideoComponents.VideoListItemButton;
-import raspimediacenter.GUI.Scenes.Scene;
-import raspimediacenter.GUI.Scenes.VideoLibraryScene;
-import raspimediacenter.Logic.Utilities.ImageUtilities;
-import raspimediacenter.Logic.Utilities.ParserUtility;
-import raspimediacenter.Logic.Utilities.ScraperUtility;
 
-public class TVEpisodesScene extends VideoLibraryScene {
+public class TVEpisodesScene extends Scene {
 
-    private static TVSeries show;
+    //SCENE VARIABLES
+    private final ArrayList<String> labelHeaders = new ArrayList<>(Arrays.asList("Creator:", "Runtime:", "Air Date:", "Network:"));
+    private boolean painting = false;
+    
+    //SCENE COMPONENTS
+    private Background background;
+    private SceneMenu sceneMenu;
+    private VideoInformationPanel infoPanel;
+    
+    //DATA MODEL VARIABLES
+    private static TVSeries show;  
     private static ArrayList<TVSeasonContainer> seasons;
     private static int seasonNumber = 1;
-    private static int numberOfSeasons = 0;
-
-    private ArrayList<JButton> episodeLinks = new ArrayList<>();
-    private ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Creator:", "Runtime:", "Air Date:", "Network:"));
-    private static ArrayList<BufferedImage> posters;
+    private int numberOfSeasons = 0;
     
-    public TVEpisodesScene () {}
-    
-    public TVEpisodesScene (TVSeries show, int season)
+    public TVEpisodesScene (TVSeries show, int seasonNumber)
     {
         TVEpisodesScene.show = show;
-        numberOfSeasons = ScraperUtility.getNumberOfSeasons(show);
-        seasons = parseSeasonsList();
-        seasonNumber = season;
-        
-        Scene.setCurrentScene("TV Shows");
-        Scene.setSubScene("Episodes");
-        
-        loadEpisodePreviews();
-        bgCanvas.loadFanartImagesIntoMemory("TV Shows/"+show.getName()+"/series_backdrop.jpg");
-        bgCanvas.setBackgroundImage(0);
-        
-        //Create informationPanelGraphics
-        infoPanelGraphics = new InformationPanelGraphics();
-        infoPanel = new VideoInformationPanel();
-        previewGraphics = new EpisodePreviewGraphics();
-        
-        VideoLibraryScene.setPreviewImageWidth(previewGraphics.getPosterWidth());
-        VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
-        
-        infoPanel.setupInfoPanel(infoLabels, generateEpisodeInfo(0));
-        infoPanel.createStarRating(seasons.get(seasonNumber-1).episodes.get(0).getVoteAverage(), 5);
-        infoPanel.createOverviewDisplay(seasons.get(seasonNumber-1).episodes.get(0).getOverview());
-        createLinkList();
-        createListDisplay(episodeLinks);
+        TVEpisodesScene.seasonNumber = seasonNumber-1;
     }
     
+    // TV SEASONS METHODS
     private ArrayList<TVSeasonContainer> parseSeasonsList ()
     {
-        ParserUtility parser = new ParserUtility();
+        ParserUtils parser = new ParserUtils();
         ArrayList<TVSeasonContainer> seasonsList = new ArrayList<>();
-        
         
         for (int x = 1; x <= numberOfSeasons; x++)
         {
-            TVSeasonContainer season = parser.parseSeason("TV Shows/"+show.getName()+"/Season "+x+"/info.json", false);
+            TVSeasonContainer season = parser.parseSeason("TV Shows/" + show.getName() + "/Season " + x + "/info.json", false);
             seasonsList.add(season);
         }
-        
         return seasonsList;
     }
     
-    private void createLinkList()
-    {
-        for (int x = 0; x < seasons.get(seasonNumber-1).episodes.size(); x++)
+    // SCENE FUNCTIONS
+    //GETTERS
+    @Override
+    public SceneMenu getMenu() {
+
+        if (sceneMenu != null)
         {
-            String epTitle = seasons.get(seasonNumber-1).episodes.get(x).getName();
-            JButton button = new VideoListItemButton(epTitle, this, x);
-            //button.addActionListener(new TVSeriesScene.menuOptionSelected(tvSeries.results.get(x)));
-            episodeLinks.add(button);
+            return sceneMenu;
         }
-    }
-    
-    private void loadEpisodePreviews()
-    {
-        posters = new ArrayList<>();
-        
-        for (int x = 1; x <= seasons.get(seasonNumber-1).episodes.size(); x++)
+        else
         {
-            String path = "TV Shows/"+show.getName()+"/Season " + seasonNumber + "/Stills/EP"+x+"_still.jpg";
-            BufferedImage poster = ImageUtilities.getImageFromPath(path);
-            posters.add(poster);
+            return null;
         }
     }
     
     @Override
-    public void unloadResources()
-    {
-        super.unloadResources();
-        
-        seasons = null;
-        episodeLinks = null;
-        infoLabels = null;
-        posters = null;
-        show = null;
-    }
-    
-    //STATIC FUNCTIONS
-    public static TVSeriesContainer.TVSeries getShow ()
-    {
-        return show;
-    }
-    
-    public static ArrayList<TVSeasonContainer> getTVSeasons ()
-    {
-        return seasons;
-    }
-    
-    public static int getSeasonNumber ()
-    {
-        return seasonNumber;
-    }
-    
-    public static BufferedImage getPosterImage (int linkNum)
-    {
-        if (linkNum >= posters.size())
-        {
-            return null;
-        }
-        else
-        {
-           return posters.get(linkNum); 
-        }
-    }
-    
-    public static ArrayList<String> generateEpisodeInfo (int listNum)
+    public ArrayList<String> getLabelContents (int linkNum)
     {
         String genres = show.getGenresString();
 
@@ -155,9 +89,144 @@ public class TVEpisodesScene extends VideoLibraryScene {
         }
         
         
-        labelInfo.add(seasons.get(seasonNumber-1).episodes.get(listNum).getAirDate());
+        labelInfo.add(seasons.get(seasonNumber).episodes.get(linkNum).getAirDate());
         labelInfo.add(show.networks.get(0).getNetwork());
         
         return labelInfo;
+    }  
+    
+    // SETUP/TEARDOWN FUNCTIONS
+    @Override
+    public void setupScene() {
+        numberOfSeasons = ScraperUtils.getNumberOfSeasons(show);
+        seasons = parseSeasonsList();
+        
+        //Create Background
+        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+show.getName()+"/series_backdrop.jpg");
+        background = new Background(false);
+        background.setBackgroundImage(backdrop);
+        
+        //Create Library List
+        sceneMenu = new FileLibrary();
+        sceneMenu.setupLibraryList(createMenuList());
+        
+        //Create Information Panel
+        infoPanel = new VideoInformationPanel();
+        infoPanel.setupInformationPanel("episode");
+        
+        //Create Preview Display
+        int season = seasonNumber + 1;
+        BufferedImage previewImage = ImageUtils.getImageFromPath("TV Shows/"+show.getName()+"/Season " + season + "/Stills/EP"+1+"_still.jpg");
+        infoPanel.getPreviewGraphics().setCurrentPoster(previewImage);
+        
+        //Create Information Labels
+        infoPanel.setupInformationLabels(labelHeaders);
+        
+        //Create Star Rating
+        infoPanel.setupStarRating(show.getRatingAverage());
+        
+        //Create Top Corner HUD
+        infoPanel.setupHUDPanel(show.getName(), 
+                "Seasons: "+ScraperUtils.getNumberOfSeasons(show));
+        
+        //Create Overview
+        infoPanel.setupOverview(show.getOverview());
+        
+        //setupRenderingThread();
+        paintScene();
+    }
+    
+    @Override 
+    public ArrayList<String> createMenuList()
+    {
+        ArrayList<String> menuList = new ArrayList<>();
+        
+        for (int x = 0; x < seasons.get(seasonNumber).episodes.size(); x++)
+        {
+            String epTitle = seasons.get(seasonNumber).episodes.get(x).getName();
+            menuList.add(epTitle);
+        }
+        
+        return menuList;
+    }
+    
+    @Override
+    public void unloadScene() {
+        background = null;
+        sceneMenu = null;
+        infoPanel = null;
+        show = null;  
+        seasons = null;
+        numberOfSeasons = 0;
+    }
+    
+    // EVENT FUNCTIONS
+    @Override
+    public void buttonClicked ()
+    {
+        int focusedBtn = sceneMenu.getFocusedButtonPos();
+    }
+    
+    //UPDATE FUNCTIONS
+    @Override
+    public void updateBackground (int linkNum)
+    {
+        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+show.getName()+"/series_backdrop.jpg");
+        background.setBackgroundImage(backdrop);
+    }
+    
+    @Override 
+    public void updatePreviewImage (int linkNum)
+    {
+        linkNum+=1;
+        int season = seasonNumber + 1;
+        BufferedImage poster = ImageUtils.getImageFromPath("TV Shows/"+show.getName()+"/Season " + season + "/Stills/EP"+linkNum+"_still.jpg");
+        infoPanel.getPreviewGraphics().setCurrentPoster(poster);
+    }
+    
+    @Override
+    public void updateInformationLabels(int linkNum)
+    {
+        infoPanel.getInfoLabels().updateLabelContent(getLabelContents(linkNum));
+        infoPanel.getStarRating().updateRating(seasons.get(seasonNumber).episodes.get(linkNum).getVoteAverage());
+        infoPanel.getHUD().updateHUD(show.getName(), 
+                "Seasons: "+ScraperUtils.getNumberOfSeasons(show));
+        infoPanel.getOverview().setText(seasons.get(seasonNumber).episodes.get(linkNum).getOverview());
+    }
+    
+    //DRAW FUNCTIONS
+    @Override
+    public void paintScene() {
+        
+        if (!painting)
+        {
+            painting = true;
+            BufferStrategy buffer = GUI.getScreen().getBufferStrategy();
+            Graphics2D g2d = (Graphics2D)(buffer.getDrawGraphics());
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            try 
+            {
+                background.paintSceneComponent(g2d);
+                sceneMenu.drawMenu(g2d);
+                infoPanel.getPanelGraphics().createInformationPanel(g2d);
+                infoPanel.getPreviewGraphics().displayPoster(g2d);
+                infoPanel.getInfoLabels().drawLabels(g2d);
+                infoPanel.getStarRating().drawStarRating(g2d);
+                infoPanel.getHUD().drawHUD(g2d);
+                infoPanel.getOverview().paintSceneComponent(g2d);
+
+                if (!buffer.contentsLost())
+                {
+                    buffer.show();
+                }
+            }
+            finally 
+            {
+                g2d.dispose();
+                painting = false;
+            }
+        }
     }
 }

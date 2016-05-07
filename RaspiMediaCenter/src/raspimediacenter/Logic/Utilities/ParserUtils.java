@@ -23,7 +23,7 @@ import raspimediacenter.Data.Models.TVSeasonContainer.TVSeason;
 import raspimediacenter.Data.Models.TVSeriesContainer;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 
-public class ParserUtility {
+public class ParserUtils {
 
     private Movie movie;
     private MovieContainer movieContainer;
@@ -78,9 +78,9 @@ public class ParserUtility {
         try {
             json = readUrl(filePath, remote);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            Logger.getLogger(ParserUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ParserUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return json;
     }
@@ -198,10 +198,10 @@ public class ParserUtility {
             fos.close();
 
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ScraperUtility.class
+            Logger.getLogger(ScraperUtils.class
                     .getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(ScraperUtility.class
+            Logger.getLogger(ScraperUtils.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -220,7 +220,7 @@ public class ParserUtility {
         try {
             encodedName = URLEncoder.encode(parameter, "UTF-8");
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(ScraperUtility.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return encodedName;
     }

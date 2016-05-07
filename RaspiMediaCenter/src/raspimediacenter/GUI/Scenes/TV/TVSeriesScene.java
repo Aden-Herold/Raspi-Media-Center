@@ -1,120 +1,58 @@
 package raspimediacenter.GUI.Scenes.TV;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import raspimediacenter.Data.Models.TVSeriesContainer;
+import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.GUI.Components.Background;
+import raspimediacenter.GUI.Components.FileLibrary;
+import raspimediacenter.GUI.Components.SceneMenu;
+import raspimediacenter.GUI.Components.Video.VideoInformationPanel;
+import raspimediacenter.GUI.GUI;
+import raspimediacenter.GUI.SceneManager;
+import raspimediacenter.GUI.Scenes.Scene;
+import raspimediacenter.Logic.Utilities.ImageUtils;
+import raspimediacenter.Logic.Utilities.ParserUtils;
+import raspimediacenter.Logic.Utilities.ScraperUtils;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import javax.swing.JButton;
-import raspimediacenter.Data.Models.TVSeriesContainer;
-import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
-import raspimediacenter.GUI.Components.VideoComponents.InformationPanelGraphics;
-import raspimediacenter.GUI.Components.VideoComponents.PosterGraphics;
-import raspimediacenter.GUI.Components.VideoComponents.VideoInformationPanel;
-import raspimediacenter.GUI.Components.VideoComponents.VideoListItemButton;
-import raspimediacenter.GUI.SceneManager;
-import raspimediacenter.GUI.Scenes.Scene;
-import raspimediacenter.GUI.Scenes.VideoLibraryScene;
-import raspimediacenter.Logic.Utilities.ImageUtilities;
-import raspimediacenter.Logic.Utilities.ParserUtility;
-import raspimediacenter.Logic.Utilities.ScraperUtility;
 
-public class TVSeriesScene extends VideoLibraryScene{
+public class TVSeriesScene extends Scene {
+
+    //SCENE VARIABLES
+    private final ArrayList<String> labelHeaders = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
+    private boolean painting = false;
     
+    //SCENE COMPONENTS
+    private Background background;
+    private SceneMenu sceneMenu;
+    private VideoInformationPanel infoPanel;
+    
+    // DATA MODEL VARIABLES
     private static TVSeriesContainer tvSeries;
-    private ArrayList<JButton> seriesLinks = new ArrayList<>();
-    private ArrayList<String> infoLabels = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
-    private static ArrayList<BufferedImage> posters;
     
-    public TVSeriesScene() {
-        super();
-        Scene.setCurrentScene("TV Shows");
-        
-        ParserUtility parser = new ParserUtility();
-        tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
-        
-        loadSeriesBackgrounds();
-        loadSeriesPosters();
-        bgCanvas.setBackgroundImage(0);
-        
-        //Create informationPanelGraphics
-        infoPanelGraphics = new InformationPanelGraphics();
-        infoPanel = new VideoInformationPanel();
-        previewGraphics = new PosterGraphics();
-        
-        VideoLibraryScene.setPreviewImageWidth(previewGraphics.getPosterWidth());
-        VideoLibraryScene.setPreviewImageHeight(previewGraphics.getPosterHeight());
+    // TV SERIES SCENE FUNCTIONS
+    public TVSeriesScene (){}
+    
+    // SCENE FUNCTIONS
+    //GETTERS
+    @Override
+    public SceneMenu getMenu() {
 
-        infoPanel.createTopCornerInfo("left", tvSeries.results.get(0).getName().toUpperCase(), 
-                "SEASONS: "+ScraperUtility.getNumberOfSeasons(tvSeries.results.get(0)));
-        infoPanel.setupInfoPanel(infoLabels, generateTVSeriesInfo(0));
-        infoPanel.createStarRating(tvSeries.results.get(0).getRatingAverage(), 10);
-        infoPanel.createOverviewDisplay(tvSeries.results.get(0).getOverview());
-        createLinkList();
-        createListDisplay(seriesLinks);
-    }
-    
-    private void createLinkList()
-    {
-        for (int x = 0; x < tvSeries.results.size(); x++)
+        if (sceneMenu != null)
         {
-            if (!tvSeries.results.get(x).getName().matches("")){
-                JButton button = new VideoListItemButton(tvSeries.results.get(x).getName(), this, x);
-                button.addActionListener(new menuOptionSelected(tvSeries.results.get(x)));
-                seriesLinks.add(button);
-            }
+            return sceneMenu;
         }
-    }
-    
-    private void loadSeriesBackgrounds ()
-    {
-        ArrayList<String> backgroundPaths = new ArrayList<>();
-        
-        for (int x = 0; x < tvSeries.results.size(); x++)
+        else
         {
-            if (!tvSeries.results.get(x).getName().matches(""))
-            {
-                String path = "TV Shows/" + tvSeries.results.get(x).getName() + "/series_backdrop.jpg";
-                backgroundPaths.add(path);
-            }
-        }
-        
-        bgCanvas.loadFanartImagesIntoMemory(backgroundPaths);
-    }
-    
-    private void loadSeriesPosters ()
-    {
-        posters = new ArrayList<>();
-        
-        for (int x = 0; x < tvSeries.results.size(); x++)
-        {
-            if (!tvSeries.results.get(x).getName().matches(""))
-            {
-                String path = "TV Shows/" + tvSeries.results.get(x).getName() + "/series_poster.jpg";
-                BufferedImage poster = ImageUtilities.getImageFromPath(path);
-                posters.add(poster);
-            }
+            return null;
         }
     }
     
     @Override
-    public void unloadResources()
-    {
-        super.unloadResources();
-        
-        seriesLinks = null;
-        infoLabels = null;
-        posters = null;
-        tvSeries = null;
-    }
-    
-    //STATIC FUNCTIONS
-    public static TVSeriesContainer getTVSeries ()
-    {
-        return tvSeries;
-    }
-    
-    public static ArrayList<String> generateTVSeriesInfo (int linkNum)
+    public ArrayList<String> getLabelContents (int linkNum)
     {
         String genres = tvSeries.getGenresString(linkNum);
 
@@ -128,40 +66,124 @@ public class TVSeriesScene extends VideoLibraryScene{
         return labelInfo;
     }
     
-    public static BufferedImage getPosterImage (int linkNum)
-    {
-        if (linkNum >= posters.size())
-        {
-            return null;
-        }
-        else
-        {
-           return posters.get(linkNum); 
-        }
+    // SETUP/TEARDOWN FUNCTIONS
+    @Override
+    public void setupScene() {
+        ParserUtils parser = new ParserUtils();
+        tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
+        
+        //Create Background
+        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(0).getName()+"/series_backdrop.jpg");
+        background = new Background(false);
+        background.setBackgroundImage(backdrop);
+        
+        //Create Library List
+        sceneMenu = new FileLibrary();
+        sceneMenu.setupLibraryList(createMenuList());
+        
+        //Create Information Panel
+        infoPanel = new VideoInformationPanel();
+        infoPanel.setupInformationPanel("poster");
+        BufferedImage previewImage = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(0).getName()+"/series_poster.jpg");
+        infoPanel.getPreviewGraphics().setCurrentPoster(previewImage);
+        infoPanel.setupInformationLabels(labelHeaders);
+        infoPanel.setupStarRating(tvSeries.results.get(0).getRatingAverage());
+        infoPanel.setupHUDPanel(tvSeries.results.get(0).getName(), 
+                "Seasons: "+ScraperUtils.getNumberOfSeasons(tvSeries.results.get(0)));
+        infoPanel.setupOverview(tvSeries.results.get(0).getOverview());
+        
+        paintScene();
     }
     
-    //EVENT LISTENERS
-    private class menuOptionSelected implements ActionListener {
-
-        private TVSeries show;
+    @Override 
+    public ArrayList<String> createMenuList()
+    {
+        ArrayList<String> menuList = new ArrayList<>();
         
-        public menuOptionSelected (TVSeries show)
+        for (TVSeries show : tvSeries.results)
         {
-            this.show = show;
+            menuList.add(show.getName());
         }
         
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-             
-            try 
-            {   
-                String option = ((JButton)ae.getSource()).getText();
-                SceneManager.loadScene("seasons", show);
-            }
-            catch (UnsupportedOperationException e) {
-                
-                System.out.println(e.getMessage());
-            }
-        }   
+        return menuList;
     }
+    
+    @Override
+    public void unloadScene() {
+        background = null;
+        sceneMenu.unloadMenu();
+        sceneMenu = null;
+        infoPanel = null;
+    }
+    
+    // EVENT FUNCTIONS
+    @Override
+    public void buttonClicked ()
+    {
+        int focusedBtn = sceneMenu.getFocusedButtonPos();
+        SceneManager.loadSeasons(tvSeries.results.get(focusedBtn));
+    }
+    
+    //UPDATE FUNCTIONS
+    @Override
+    public void updateBackground (int linkNum)
+    {
+        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(linkNum).getName()+"/series_backdrop.jpg");
+        background.setBackgroundImage(backdrop);
+    }
+    
+    @Override 
+    public void updatePreviewImage (int linkNum)
+    {
+        BufferedImage poster = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(linkNum).getName()+"/series_poster.jpg");
+        infoPanel.getPreviewGraphics().setCurrentPoster(poster);
+    }
+    
+    @Override
+    public void updateInformationLabels(int linkNum)
+    {
+        infoPanel.getInfoLabels().updateLabelContent(getLabelContents(linkNum));
+        infoPanel.getStarRating().updateRating(tvSeries.results.get(linkNum).getRatingAverage());
+        infoPanel.getHUD().updateHUD(tvSeries.results.get(linkNum).getName(), 
+                "Seasons: "+ScraperUtils.getNumberOfSeasons(tvSeries.results.get(linkNum)));
+        infoPanel.getOverview().setText(tvSeries.results.get(linkNum).getOverview());
+    }
+    
+    //DRAW FUNCTIONS
+    @Override
+    public void paintScene() {
+        
+        if (!painting)
+        {
+            painting = true;
+            BufferStrategy buffer = GUI.getScreen().getBufferStrategy();
+            Graphics2D g2d = (Graphics2D)(buffer.getDrawGraphics());
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            try 
+            {
+                background.paintSceneComponent(g2d);
+                sceneMenu.drawMenu(g2d);
+                infoPanel.getPanelGraphics().createInformationPanel(g2d);
+                infoPanel.getPreviewGraphics().displayPoster(g2d);
+                infoPanel.getInfoLabels().drawLabels(g2d);
+                infoPanel.getStarRating().drawStarRating(g2d);
+                infoPanel.getHUD().drawHUD(g2d);
+                infoPanel.getOverview().paintSceneComponent(g2d);
+
+                if (!buffer.contentsLost())
+                {
+                    buffer.show();
+                }
+            }
+            finally 
+            {
+                g2d.dispose();
+                painting = false;
+            }
+        }
+    }
+
+    
 }

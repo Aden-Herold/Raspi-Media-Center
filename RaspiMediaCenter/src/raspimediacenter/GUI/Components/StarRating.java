@@ -1,47 +1,39 @@
 package raspimediacenter.GUI.Components;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import raspimediacenter.GUI.GUI;
 import java.util.ArrayList;
+import raspimediacenter.Logic.Utilities.TextUtils;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import raspimediacenter.GUI.Scenes.Scene;
 
 public class StarRating {
     
-    private final ArrayList<JLabel> stars = new ArrayList<>();
-    private final JPanel ratingPanel;
+    private final ArrayList<MLabel> stars = new ArrayList<>();
     private final int maximumRating;
+    private final int starGap = (int)Math.floor(GUI.getScreenWidth()/56.8);
+    private final int width = 400;
     
-    public StarRating ()
+    private Rectangle bounds;
+    
+    public StarRating (int x, int y)
     {
-        this(10);
+        this(10, x, y);
     }
     
-    public StarRating (int maxRating)
+    public StarRating (int maxRating, int x, int y)
     {
         maximumRating = maxRating;
         
-        intialiseStars();
+        bounds = new Rectangle(x, y, width, 50);
         
-        ratingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        for (JLabel star : stars)
-        {
-            ratingPanel.add(star);
-        }
-        ratingPanel.setOpaque(false);
+        intialiseStars();
     }
-    
-    public JPanel getStarRatingPanel()
-    {
-        return ratingPanel;
-    }
-    
+
     public void updateRating(float rating)
     {
-        int ratingRounded = 0;
+        int ratingRounded;
                 
         if (maximumRating == 5)
         {
@@ -57,35 +49,50 @@ public class StarRating {
             
             if (x < ratingRounded)
             {
-                stars.get(x).setForeground(Color.white);
+                stars.get(x).setSpecial(true);
+                stars.get(x).setOpacity(1f);
             }
             else
             {
-                stars.get(x).setForeground(new Color(116,118,117));
+                stars.get(x).setSpecial(false);
+                stars.get(x).setOpacity(0.5f);
             }
         }
         
-        stars.get(maximumRating).setForeground(Color.white);
-        stars.get(maximumRating).setText(String.valueOf(ratingRounded));
+        stars.get(maximumRating).setOpacity(1f);
+        stars.get(maximumRating).setText(String.valueOf(rating));
     }
     
     private void intialiseStars()
     {
-        int fontSize = 30;//(int)Math.floor(SceneManager.getScreenHeight()*0.021);
-        
+        Font defaultFont = new JLabel().getFont();
+        defaultFont = defaultFont.deriveFont(Font.PLAIN, TextUtils.STAR_RATING_FONT_SIZE);
+        int gap = 0;
         for (int x = 0; x < maximumRating+1; x++)
         {
-            JLabel star = new StyledLabel("\u2605");
+            MLabel star = new MLabel("\u2605", TextUtils.LEFT_ALIGN, bounds.x+gap, bounds.y, 50, true);
+            star.setFont(defaultFont);
             
-            star.setFont(new Font("Bombard", Font.BOLD, fontSize));
-            star.setForeground(Scene.getMenuColor().brighter());
-            star.setPreferredSize(new Dimension(fontSize+10, 30));
+            //star.setFont(new Font("Bombard", Font.BOLD, fontSize));
+            //star.setForeground(Scene.getMenuColor().brighter());
+            //star.setPreferredSize(new Dimension(fontSize+10, 30));
             
             stars.add(star);
+            gap += starGap;
         }
         
+        Font numFont = TextUtils.STANDARD_FONT;
+        numFont = numFont.deriveFont(Font.PLAIN, TextUtils.STAR_RATING_FONT_SIZE-5);
+        
+        stars.get(maximumRating).setFont(numFont);
+        stars.get(maximumRating).setSpecial(false);
         stars.get(maximumRating).setText("0");
-        stars.get(maximumRating).setForeground(Color.white);
-        stars.get(maximumRating).setPreferredSize(new Dimension(100, 30));
+    }
+    
+    public void drawStarRating(Graphics2D g2d)
+    {
+        for (MLabel star : stars) {
+            star.paintSceneComponent(g2d);
+        }
     }
 }
