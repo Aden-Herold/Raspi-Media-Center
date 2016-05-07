@@ -16,14 +16,13 @@ public class ImageUtilitiesTest {
      */
     @Test
     public void testGetAllImagesPathsInDir() throws Exception {
-        System.out.println("getAllImagesPathsInDir");
-        String dir = "src/raspimediacenter/GUI/Resources/UserBackgrounds/";
+
+        String dir = "Resources/UserBackgrounds/";
         ArrayList<String> imagePaths = new ArrayList<>();
         ArrayList<String> expectedPaths = new ArrayList<>();
-        
-        File directory = new File(dir);
+
         try {
-            imagePaths = ImageUtilities.getAllImagesPathsInDir(directory, true);
+            imagePaths = ImageUtils.getAllImagesPathsInDir(dir, true);
         } catch (IOException e) {
             System.out.println(e.getMessage());;
         }

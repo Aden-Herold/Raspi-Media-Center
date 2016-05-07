@@ -95,11 +95,11 @@ public class GUI {
                 
                 int key = e.getKeyCode();
                 
-                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_DOWN)
+                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S || key == KeyEvent.VK_D)
                 {
                     currentScene.getMenu().focusNextButton();
                 } 
-                else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_UP)
+                else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_UP || key == KeyEvent.VK_W || key == KeyEvent.VK_A)
                 {
                     currentScene.getMenu().focusPreviousButton();
                 }
