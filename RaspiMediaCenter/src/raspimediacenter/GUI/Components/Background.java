@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 
 public class Background extends SceneComponent {
 
-    private final String backgroundImagesPath = "src/raspimediacenter/GUI/Resources";
-    private final String userImagesPath = "src/raspimediacenter/GUI/Resources/UserBackgrounds/";
+    private final String backgroundImagesPath = "Resources/";
+    private final String userImagesPath = "Resources/UserBackgrounds/";
     private ArrayList<String> imagePaths = null; 
 
     private BufferedImage currentBackground;

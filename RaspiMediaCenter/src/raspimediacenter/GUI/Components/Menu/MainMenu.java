@@ -178,7 +178,7 @@ public class MainMenu extends SceneMenu {
         
         //DRAW MENU SHADOW
         Color invis = new Color(0, 0, 0, 0);
-        final float[] shadowFrac = {0f, 0.07f, 0.11f, 0.88f, 0.92f, 1f};
+        final float[] shadowFrac = {0f, 0.07f, 0.15f, 0.86f, 0.92f, 1f};
         final Color[] shadowGrad = {invis, Color.BLACK, invis, invis, Color.BLACK, invis};
         LinearGradientPaint shadowGradPaint = new LinearGradientPaint(
                                                             new Point2D.Double(0, MENU_Y_POSITION-10),
