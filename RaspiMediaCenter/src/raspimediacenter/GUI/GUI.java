@@ -48,6 +48,7 @@ public class GUI {
             screen.addMouseListener(new mouseListener());
             screen.addMouseWheelListener(new mouseListener());
             screen.addMouseMotionListener(new mouseListener());
+            screen.addKeyListener(new keyboardListener());
             window.addKeyListener(new keyboardListener());
             window.add(screen);
             
