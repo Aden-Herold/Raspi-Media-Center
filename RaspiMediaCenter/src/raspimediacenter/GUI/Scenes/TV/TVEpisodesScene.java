@@ -102,7 +102,7 @@ public class TVEpisodesScene extends Scene {
         seasons = parseSeasonsList();
         
         //Create Background
-        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+show.getName()+"/series_backdrop.jpg");
+        BufferedImage backdrop = ImageUtils.getImageFromPath(System.getProperty("user.dir") + "/TV Shows/"+show.getName()+"/series_backdrop.jpg");
         background = new Background(false);
         background.setBackgroundImage(backdrop);
         
@@ -171,7 +171,7 @@ public class TVEpisodesScene extends Scene {
     @Override
     public void updateBackground (int linkNum)
     {
-        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+show.getName()+"/series_backdrop.jpg");
+        BufferedImage backdrop = ImageUtils.getImageFromPath(System.getProperty("user.dir") + "/TV Shows/"+show.getName()+"/series_backdrop.jpg");
         background.setBackgroundImage(backdrop);
     }
     
@@ -180,7 +180,7 @@ public class TVEpisodesScene extends Scene {
     {
         linkNum+=1;
         int season = seasonNumber + 1;
-        BufferedImage poster = ImageUtils.getImageFromPath("TV Shows/"+show.getName()+"/Season " + season + "/Stills/EP"+linkNum+"_still.jpg");
+        BufferedImage poster = ImageUtils.getImageFromPath(System.getProperty("user.dir") + "/TV Shows/"+show.getName()+"/Season " + season + "/Stills/EP"+linkNum+"_still.jpg");
         infoPanel.getPreviewGraphics().setCurrentPoster(poster);
     }
     

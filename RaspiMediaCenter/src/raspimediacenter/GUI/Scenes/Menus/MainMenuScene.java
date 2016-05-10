@@ -143,14 +143,14 @@ public class MainMenuScene extends Scene {
     // UPDATE FUNCTIONS
     @Override
     public void updateBackground(int linkNum) {
-        BufferedImage backdrop = ImageUtils.getImageFromPath("Movies/"+movies.results.get(linkNum).getTitle()+"/movie_backdrop.jpg");
-        background.setBackgroundImage(backdrop);
+        //BufferedImage backdrop = ImageUtils.getImageFromPath("Movies/"+movies.results.get(linkNum).getTitle()+"/movie_backdrop.jpg");
+        //background.setBackgroundImage(backdrop);
     }
 
     @Override
     public void updatePreviewImage(int linkNum) {
-        BufferedImage poster = ImageUtils.getImageFromPath("Movies/"+movies.results.get(linkNum).getTitle()+"/movie_poster.jpg");
-        background.setBackgroundImage(poster);
+        //BufferedImage poster = ImageUtils.getImageFromPath("Movies/"+movies.results.get(linkNum).getTitle()+"/movie_poster.jpg");
+        //background.setBackgroundImage(poster);
     }
 
     @Override

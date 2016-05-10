@@ -73,7 +73,7 @@ public class TVSeriesScene extends Scene {
         tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
         
         //Create Background
-        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(0).getName()+"/series_backdrop.jpg");
+        BufferedImage backdrop = ImageUtils.getImageFromPath(System.getProperty("user.dir") + "/TV Shows/"+tvSeries.results.get(0).getName()+"/series_backdrop.jpg");
         background = new Background(false);
         background.setBackgroundImage(backdrop);
         
@@ -84,7 +84,7 @@ public class TVSeriesScene extends Scene {
         //Create Information Panel
         infoPanel = new VideoInformationPanel();
         infoPanel.setupInformationPanel("poster");
-        BufferedImage previewImage = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(0).getName()+"/series_poster.jpg");
+        BufferedImage previewImage = ImageUtils.getImageFromPath(System.getProperty("user.dir") + "/TV Shows/"+tvSeries.results.get(0).getName()+"/series_poster.jpg");
         infoPanel.getPreviewGraphics().setCurrentPoster(previewImage);
         infoPanel.setupInformationLabels(labelHeaders);
         infoPanel.setupStarRating(tvSeries.results.get(0).getRatingAverage());
@@ -128,14 +128,14 @@ public class TVSeriesScene extends Scene {
     @Override
     public void updateBackground (int linkNum)
     {
-        BufferedImage backdrop = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(linkNum).getName()+"/series_backdrop.jpg");
+        BufferedImage backdrop = ImageUtils.getImageFromPath(System.getProperty("user.dir") + "/TV Shows/"+tvSeries.results.get(linkNum).getName()+"/series_backdrop.jpg");
         background.setBackgroundImage(backdrop);
     }
     
     @Override 
     public void updatePreviewImage (int linkNum)
     {
-        BufferedImage poster = ImageUtils.getImageFromPath("TV Shows/"+tvSeries.results.get(linkNum).getName()+"/series_poster.jpg");
+        BufferedImage poster = ImageUtils.getImageFromPath(System.getProperty("user.dir") + "/TV Shows/"+tvSeries.results.get(linkNum).getName()+"/series_poster.jpg");
         infoPanel.getPreviewGraphics().setCurrentPoster(poster);
     }
     

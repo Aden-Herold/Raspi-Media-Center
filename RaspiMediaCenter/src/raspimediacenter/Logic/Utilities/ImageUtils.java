@@ -57,7 +57,7 @@ public class ImageUtils {
     //CAN SEARCH SUB-DIRECTORIES FOR IMAGES AND ADD THEM TO THE ARRAYLIST
     public static ArrayList<String> getAllImagesPathsInDir (String directory, boolean descendIntoSubDirs) throws IOException
     {
-        File dir = new File(directory);
+        File dir = new File(System.getProperty("user.dir") + "/" + directory);
         ArrayList<String> imageList = new ArrayList<String>();
         File[] files = dir.listFiles();
         
@@ -65,7 +65,7 @@ public class ImageUtils {
         {
             if (file != null && (file.getName().toLowerCase().endsWith(".jpg")))
             {
-                imageList.add(file.getCanonicalPath());
+                imageList.add(file.getPath());
             }
             if (descendIntoSubDirs && file.isDirectory())
             {

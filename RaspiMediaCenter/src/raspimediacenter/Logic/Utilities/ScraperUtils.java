@@ -76,7 +76,7 @@ public class ScraperUtils {
                 series = scraperParseSeries(jsonURI, series);
                 name = renameDir("TV Shows/", name, series.getName());
                 saveLocalSeriesJSON(series, "TV Shows/" + name + "/");
-                File[] subDirFiles = getDirectories("TV Shows/" + name, true);
+                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
                     if (subDirName.toLowerCase().contains("season")) {
@@ -113,11 +113,11 @@ public class ScraperUtils {
                 String name = tvSeries.results.get(i).getName();
                 requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", tvSeries.results.get(i).getBackdropPath(), "TV Shows/" + name + "/");
                 requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", tvSeries.results.get(i).getPosterPath(), "TV Shows/" + name + "/");
-                File[] subDirFiles = getDirectories("TV Shows/" + name, true);
+                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
                     requestImageScrape(POSTER_SIZE, posterImage, "season_poster.jpg", tvSeason.getPosterPath(), "TV Shows/" + name + "/" + subDirName + "/");
-                    makeDirectory("TV Shows/" + name + "/" + subDirName + "/Stills/");
+                    makeDirectory(System.getProperty("user.dir") + "/TV Shows/" + name + "/" + subDirName + "/Stills/");
                     for (int k = 0; k < tvSeason.episodes.size(); k++) {
                         requestImageScrape(BACKDROP_SIZE, backdropImage, "EP" + (k + 1) + "_still.jpg", tvSeason.episodes.get(k).getStillPath(),
                                 "TV Shows/" + name + "/" + subDirName + "/Stills/");
@@ -194,7 +194,7 @@ public class ScraperUtils {
 
     //Saves newly read image into the specified directory
     public void saveImage(BufferedImage image, String imageName, String destination) {
-        File file = new File(destination + imageName);
+        File file = new File(System.getProperty("user.dir") + "/" + destination + imageName);
         try {
             ImageIO.write(image, "jpg", file);
         } catch (IOException ex) {
@@ -264,7 +264,7 @@ public class ScraperUtils {
     }
 
     public static int getNumberOfSeasons(TVSeries series) {
-        File[] seasons = getDirectories("TV Shows/" + series.getName(), true);
+        File[] seasons = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + series.getName(), true);
         int number = 0;
         Matcher matcher;
         for (int i = 0; i < seasons.length; i++) {
@@ -284,7 +284,7 @@ public class ScraperUtils {
         int number = 0;
         Matcher matcher;
         if (seasonNo >= 1 && seasonNo <= series.getNumberOfSeasons()) {
-            File[] episodes = getDirectories("TV Shows/" + series.getName() + "/Season " + seasonNo, false);
+            File[] episodes = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + series.getName() + "/Season " + seasonNo, false);
             String episodeString = getEpisodeTitles(season);
             for (int i = 0; i < episodes.length; i++) {
                 System.out.println(episodes[i].getName());

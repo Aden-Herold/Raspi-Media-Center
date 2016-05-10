@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class ResourceManager {
 
-    private final String menuFontPath = "Resources/Fonts/AeroMatics.ttf";
+    private final String menuFontPath = System.getProperty("user.dir") + "/Resources/Fonts/AeroMatics.ttf";
     
     public ResourceManager()
     {
