@@ -9,6 +9,7 @@ import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import java.awt.Color;
 import java.util.ArrayList;
+import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 
 public class SceneManager {
 
@@ -97,6 +98,15 @@ public class SceneManager {
         
         currentScene = new TVEpisodesScene(series, seasonNumber);
         currentScene.setupScene(); 
+    }
+    
+    public static void loadVideo (TVSeries series, int seasonNumber, String episode)
+    {
+        previousScenes.add(currentScene);
+        unloadCurrentScene();
+        
+        currentScene = new VideoPlayerScene(series, seasonNumber, episode);
+        currentScene.setupScene();
     }
     
     private static void unloadCurrentScene()

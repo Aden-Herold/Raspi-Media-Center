@@ -76,7 +76,7 @@ public class ParserUtils {
     public String prepareJSON(String filePath, boolean remote) {
         String json = null;
         try {
-            json = readUrl(System.getProperty("user.dir") + "/" + filePath, remote);
+            json = readUrl(filePath, remote);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {

@@ -10,7 +10,6 @@ public class RaspiMediaCenter {
 
         ScraperUtils scraper = new ScraperUtils();
         //scraper.startScrapers();
-        //ParserUtility parser = new ParserUtility();
         GUI gui = new GUI();
     }
 }

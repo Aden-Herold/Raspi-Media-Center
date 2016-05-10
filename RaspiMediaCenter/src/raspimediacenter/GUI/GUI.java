@@ -1,5 +1,6 @@
 package raspimediacenter.GUI;
 
+import java.awt.BufferCapabilities;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.ResourceManager;
@@ -20,7 +21,7 @@ public class GUI {
 
     private static int screenWidth;
     private static int screenHeight;
-    private JFrame window;
+    private static JFrame window;
     private static Canvas screen;
     private SceneManager sceneManager;
     
@@ -49,10 +50,17 @@ public class GUI {
             screen.addMouseWheelListener(new mouseListener());
             screen.addMouseMotionListener(new mouseListener());
             screen.addKeyListener(new keyboardListener());
-            window.addKeyListener(new keyboardListener());
-            window.add(screen);
             
+            window.getContentPane().add(screen);
+
             screen.createBufferStrategy(2);   
+            
+            BufferCapabilities cap = screen.getBufferStrategy().getCapabilities();
+            System.out.println("Page Flipping: "+cap.isPageFlipping());
+            System.out.println("MultiBuffer: "+cap.isMultiBufferAvailable());
+            System.out.println("Fullscreen: "+cap.isFullScreenRequired());
+            System.out.println("Backbuffer Accel: "+cap.getBackBufferCapabilities().isAccelerated());
+            
             sceneManager = new SceneManager();
             SceneManager.loadScene("main menu");
         }
@@ -72,7 +80,7 @@ public class GUI {
     {
         return screenHeight;
     }
-    
+
     public static Canvas getScreen()
     {
         return screen;

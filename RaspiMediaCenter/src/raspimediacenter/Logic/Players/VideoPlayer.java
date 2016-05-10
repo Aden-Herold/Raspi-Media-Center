@@ -4,20 +4,43 @@ import com.sun.jna.Native;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 import com.sun.jna.NativeLibrary;
 import java.awt.Dimension;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.GraphicsEnvironment;
+import java.awt.image.BufferedImage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import raspimediacenter.GUI.GUI;
+import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 import uk.co.caprica.vlcj.binding.LibVlc;
-import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
+import uk.co.caprica.vlcj.component.DirectMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.direct.BufferFormatCallback;
+import uk.co.caprica.vlcj.player.direct.DirectMediaPlayer;
+import uk.co.caprica.vlcj.player.direct.RenderCallback;
+import uk.co.caprica.vlcj.player.direct.RenderCallbackAdapter;
+import uk.co.caprica.vlcj.player.direct.format.RV32BufferFormat;
 
 public class VideoPlayer {
 
+    private class VideoRenderCallbackAdapter extends RenderCallbackAdapter {
+
+        private VideoRenderCallbackAdapter() {
+            super(new int[GUI.getScreenWidth() * GUI.getScreenHeight()]);
+        }
+
+        @Override
+        protected void onDisplay(DirectMediaPlayer mediaPlayer, int[] rgbBuffer) {
+            // Simply copy buffer to the image and repaint
+            image.setRGB(0, 0, GUI.getScreenWidth(), GUI.getScreenHeight(), rgbBuffer, 0, GUI.getScreenWidth());
+            playerScene.updateVideo(image);
+        }
+    }
+    
     private final int MAX_RATE = 32;
     
-    private EmbeddedMediaPlayerComponent playerComponent;
-    private MediaPlayer player;
+    private final DirectMediaPlayerComponent playerComponent;
+    private final MediaPlayer player;
+    private final BufferedImage image;
+    
     private String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
 
     private boolean isPaused;
@@ -25,17 +48,36 @@ public class VideoPlayer {
     private int rate = 1;
 
     private TrackThread trackThread;
+    private VideoPlayerScene playerScene;
 
     //Searches for the VLC libraries and plugins folder, 
-    public VideoPlayer() {
+    public VideoPlayer(VideoPlayerScene playerScene) 
+    {
+        this.playerScene = playerScene;
+        
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), VLCLibPath);
         Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
-        playerComponent = new EmbeddedMediaPlayerComponent();
+        
+        BufferFormatCallback bufferFormatCallback = (int sourceWidth, int sourceHeight) -> new RV32BufferFormat(GUI.getScreenWidth(), GUI.getScreenHeight());
+        
+        playerComponent = new DirectMediaPlayerComponent(bufferFormatCallback) {
+            @Override
+            protected RenderCallback onGetRenderCallback() {
+                return new VideoRenderCallbackAdapter();
+            }
+        };
+        
         player = playerComponent.getMediaPlayer();
+        
+        image = GraphicsEnvironment
+            .getLocalGraphicsEnvironment()
+            .getDefaultScreenDevice()
+            .getDefaultConfiguration()
+            .createCompatibleImage(GUI.getScreenWidth(), GUI.getScreenHeight());
     }
 
     //Returns the EmbeddedMediaPlayerComponent, to attach to the GUI
-    public EmbeddedMediaPlayerComponent getPlayer() {
+    public DirectMediaPlayerComponent getPlayer() {
         return playerComponent;
     }
 

@@ -17,6 +17,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import raspimediacenter.GUI.SceneManager;
 
 public class TVEpisodesScene extends Scene {
 
@@ -165,6 +166,7 @@ public class TVEpisodesScene extends Scene {
     public void buttonClicked ()
     {
         int focusedBtn = sceneMenu.getFocusedButtonPos();
+        SceneManager.loadVideo(show, seasonNumber, seasons.get(seasonNumber).episodes.get(focusedBtn).getName());
     }
     
     //UPDATE FUNCTIONS
