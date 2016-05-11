@@ -5,7 +5,7 @@ import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.ResourceManager;
 import java.awt.Canvas;
-import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyEvent;
@@ -15,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferStrategy;
 import javax.swing.JFrame;
 
 public class GUI {
@@ -23,6 +24,7 @@ public class GUI {
     private static int screenHeight;
     private static JFrame window;
     private static Canvas screen;
+    private static BufferStrategy buffer;
     private SceneManager sceneManager;
     
     public GUI ()
@@ -42,24 +44,22 @@ public class GUI {
             screenWidth = device.getFullScreenWindow().getSize().width;
             screenHeight = device.getFullScreenWindow().getSize().height;
             ResourceManager resources = new ResourceManager();
-            
+
             screen = new Canvas();
             screen.setIgnoreRepaint(true);
-            screen.setSize(new Dimension(screenWidth, screenHeight));
+            screen.setBounds(0, 0, screenWidth, screenHeight);
             screen.addMouseListener(new mouseListener());
             screen.addMouseWheelListener(new mouseListener());
             screen.addMouseMotionListener(new mouseListener());
             screen.addKeyListener(new keyboardListener());
-            
-            window.getContentPane().add(screen);
 
-            screen.createBufferStrategy(2);   
+            window.getContentPane().add(screen);
             
-            BufferCapabilities cap = screen.getBufferStrategy().getCapabilities();
-            System.out.println("Page Flipping: "+cap.isPageFlipping());
-            System.out.println("MultiBuffer: "+cap.isMultiBufferAvailable());
-            System.out.println("Fullscreen: "+cap.isFullScreenRequired());
-            System.out.println("Backbuffer Accel: "+cap.getBackBufferCapabilities().isAccelerated());
+            screen.createBufferStrategy(2);   
+            buffer = screen.getBufferStrategy();
+
+            window.setVisible(true);
+            screen.setVisible(true);
             
             sceneManager = new SceneManager();
             SceneManager.loadScene("main menu");
@@ -80,10 +80,20 @@ public class GUI {
     {
         return screenHeight;
     }
-
+    
+    public static JFrame getWindow()
+    {
+        return window;
+    }
+    
     public static Canvas getScreen()
     {
         return screen;
+    }
+    
+    public static BufferStrategy getBuffer()
+    {
+        return buffer;
     }
     
     // EVENT LISTENERS

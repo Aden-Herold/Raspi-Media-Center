@@ -2,11 +2,11 @@ package raspimediacenter.GUI.Scenes;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
-import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
+import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.GUI;
@@ -19,31 +19,17 @@ public class VideoPlayerScene extends Scene {
     private final int seasonNumber;
     private final String episodeName;
     
-    private final VideoPlayer player;
-    private BufferedImage image;
-   
-    
+    private VideoPlayer player;
+
     public VideoPlayerScene (TVSeries show, int seasonNumber, String episodeName)
     {
         this.show = show;
         this.seasonNumber = seasonNumber+1;
         this.episodeName = episodeName;
 
-        player = new VideoPlayer(this);
-        
-        image = GraphicsEnvironment
-            .getLocalGraphicsEnvironment()
-            .getDefaultScreenDevice()
-            .getDefaultConfiguration()
-            .createCompatibleImage(GUI.getScreenWidth(), GUI.getScreenHeight());
+        player = new VideoPlayer();
     }
-    
-    public void updateVideo(BufferedImage img)
-    {
-        image = img;
-        paintScene();
-    }
-    
+
     @Override
     public SceneMenu getMenu() {
         return null;
@@ -57,8 +43,19 @@ public class VideoPlayerScene extends Scene {
     @Override
     public void setupScene() {
 
+        Thread thread = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                paintScene();
+            }
+        };
+        
         String file = "TV Shows/"+show.getName()+"/Season "+seasonNumber+"/Dexter S01E01 - Dexter.avi";
         player.play(file);
+        
+        thread.start();
     }
 
     @Override
@@ -93,24 +90,21 @@ public class VideoPlayerScene extends Scene {
 
     @Override
     public void paintScene() {
-        
+
         if (!painting)
         {
             painting = true;
-            BufferStrategy buffer = GUI.getScreen().getBufferStrategy();
-            Graphics2D g2d = (Graphics2D)(buffer.getDrawGraphics());
-            //g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            //g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            Graphics2D g2d = (Graphics2D)(GUI.getBuffer().getDrawGraphics());
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             try 
             {
-                g2d.setPaint(Color.BLACK);
-                g2d.drawRect(0, 0, GUI.getScreenWidth(), GUI.getScreenHeight());
-                g2d.drawImage(image, 0, 0, GUI.getScreen());
+                player.paintFrame(g2d);
                 
-                if (!buffer.contentsLost())
+                if (!GUI.getBuffer().contentsLost())
                 {
-                    buffer.show();
+                    GUI.getBuffer().show();
                 }
             }
             finally 
@@ -118,6 +112,12 @@ public class VideoPlayerScene extends Scene {
                 g2d.dispose();
                 painting = false;
             }
+            
+            try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(VideoPlayerScene.class.getName()).log(Level.SEVERE, null, ex);
+                }
         }
     }
 }

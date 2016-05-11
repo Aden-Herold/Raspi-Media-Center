@@ -168,8 +168,7 @@ public class MainMenuScene extends Scene {
         if (!painting)
         {
             painting = true;
-            BufferStrategy buffer = GUI.getScreen().getBufferStrategy();
-            Graphics2D g2d = (Graphics2D)(buffer.getDrawGraphics());
+            Graphics2D g2d = (Graphics2D)(GUI.getBuffer().getDrawGraphics());
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -179,9 +178,9 @@ public class MainMenuScene extends Scene {
                 sceneMenu.drawMenu(g2d);
                 menuHUD.paintSceneComponent(g2d);
 
-                if (!buffer.contentsLost())
+                if (!GUI.getBuffer().contentsLost())
                 {
-                    buffer.show();
+                    GUI.getBuffer().show();
                 }
             }
             finally 

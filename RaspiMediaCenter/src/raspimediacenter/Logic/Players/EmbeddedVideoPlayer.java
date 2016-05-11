@@ -1,34 +1,26 @@
 package raspimediacenter.Logic.Players;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 import com.sun.jna.NativeLibrary;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import raspimediacenter.GUI.GUI;
+import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 import uk.co.caprica.vlcj.binding.LibVlc;
-import uk.co.caprica.vlcj.component.DirectMediaPlayerComponent;
+import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
-import uk.co.caprica.vlcj.player.direct.BufferFormat;
-import uk.co.caprica.vlcj.player.direct.BufferFormatCallback;
-import uk.co.caprica.vlcj.player.direct.DirectMediaPlayer;
 
-public class VideoPlayer implements BufferFormatCallback {
-    
-    private final int width = GUI.getScreenWidth();
-    private final int height = GUI.getScreenHeight();
+public class EmbeddedVideoPlayer {
+   
     private final int MAX_RATE = 32;
     
-    private final DirectMediaPlayerComponent playerComponent;
+    private final EmbeddedMediaPlayerComponent playerComponent;
     private final MediaPlayer player;
-    private BufferedImage image;
-    private long callbacks;
+    private final BufferedImage image;
     
     private String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
 
@@ -37,59 +29,28 @@ public class VideoPlayer implements BufferFormatCallback {
     private int rate = 1;
 
     private TrackThread trackThread;
+    private VideoPlayerScene playerScene;
 
     //Searches for the VLC libraries and plugins folder, 
-    public VideoPlayer() 
+    public EmbeddedVideoPlayer() 
     {
+        this.playerScene = playerScene;
+        
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), VLCLibPath);
         Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
+
+        playerComponent = new EmbeddedMediaPlayerComponent();
+        player = playerComponent.getMediaPlayer();
         
         image = GraphicsEnvironment
             .getLocalGraphicsEnvironment()
             .getDefaultScreenDevice()
             .getDefaultConfiguration()
-            .createCompatibleImage(width, height);
-
-        playerComponent = new DirectMediaPlayerComponent(this){
-            @Override
-            public void display (DirectMediaPlayer player, Memory[] nativeBuffers, BufferFormat bufferFormat)
-            {
-                final Memory currentBuffer = nativeBuffers[0];
-                final int pixels = (width * height);
-
-                ++callbacks;
-
-                currentBuffer.
-                  getByteBuffer(0L, currentBuffer.size()).asIntBuffer().
-                      get(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, pixels);    
-            }
-        };
-        
-        player = playerComponent.getMediaPlayer();
+            .createCompatibleImage(GUI.getScreenWidth(), GUI.getScreenHeight());
     }
 
-    @Override
-    public BufferFormat getBufferFormat(int w, int h) {
-        
-        image = new BufferedImage(
-        width, height, BufferedImage.TYPE_INT_RGB);
-
-      return new BufferFormat(
-        "RV32",
-        width,
-        height,
-        new int[]{width * 4},
-        new int[]{height});
-    }
-    
-    //Paint Method
-    public void paintFrame(Graphics2D g2d)
-    {
-        g2d.drawImage(image, 0, 0, null);
-    }
-    
     //Returns the EmbeddedMediaPlayerComponent, to attach to the GUI
-    public DirectMediaPlayerComponent getPlayer() {
+    public EmbeddedMediaPlayerComponent getPlayer() {
         return playerComponent;
     }
 
@@ -249,7 +210,7 @@ public class VideoPlayer implements BufferFormatCallback {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException ex) {
-                Logger.getLogger(VideoPlayer.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(EmbeddedVideoPlayer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
