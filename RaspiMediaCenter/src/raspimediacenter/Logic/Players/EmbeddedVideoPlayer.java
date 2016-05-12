@@ -11,15 +11,16 @@ import java.util.logging.Logger;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 import uk.co.caprica.vlcj.binding.LibVlc;
-import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
-import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.MediaPlayerFactory;
+import uk.co.caprica.vlcj.player.embedded.DefaultFullScreenStrategy;
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+import uk.co.caprica.vlcj.player.embedded.FullScreenStrategy;
 
 public class EmbeddedVideoPlayer {
    
     private final int MAX_RATE = 32;
     
-    private final EmbeddedMediaPlayerComponent playerComponent;
-    private final MediaPlayer player;
+    private final EmbeddedMediaPlayer player;
     private final BufferedImage image;
     
     private String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
@@ -39,8 +40,10 @@ public class EmbeddedVideoPlayer {
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), VLCLibPath);
         Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
 
-        playerComponent = new EmbeddedMediaPlayerComponent();
-        player = playerComponent.getMediaPlayer();
+        MediaPlayerFactory mFactory = new MediaPlayerFactory();
+        FullScreenStrategy fullScreenStrategy = new DefaultFullScreenStrategy(GUI.getWindow());
+        player = mFactory.newEmbeddedMediaPlayer(fullScreenStrategy);
+        player.setVideoSurface(mFactory.newVideoSurface(GUI.getScreen()));
         
         image = GraphicsEnvironment
             .getLocalGraphicsEnvironment()
@@ -50,8 +53,8 @@ public class EmbeddedVideoPlayer {
     }
 
     //Returns the EmbeddedMediaPlayerComponent, to attach to the GUI
-    public EmbeddedMediaPlayerComponent getPlayer() {
-        return playerComponent;
+    public EmbeddedMediaPlayer getPlayer() {
+        return player;
     }
 
     //Gets the length of the current media in seconds

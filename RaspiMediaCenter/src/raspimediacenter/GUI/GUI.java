@@ -1,13 +1,13 @@
 package raspimediacenter.GUI;
 
-import java.awt.BufferCapabilities;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.ResourceManager;
 import java.awt.Canvas;
-import java.awt.Frame;
+import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -20,8 +20,9 @@ import javax.swing.JFrame;
 
 public class GUI {
 
-    private static int screenWidth;
-    private static int screenHeight;
+    private static final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    private static final int screenWidth = dim.width;
+    private static final int screenHeight = dim.height;
     private static JFrame window;
     private static Canvas screen;
     private static BufferStrategy buffer;
@@ -35,14 +36,12 @@ public class GUI {
         if (device.isFullScreenSupported())
         {
             window = new JFrame();
+            window.setSize(screenWidth, screenHeight);
             window.setIgnoreRepaint(true);
             window.setUndecorated(true);
             window.setResizable(false);
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             
-            device.setFullScreenWindow(window);
-            screenWidth = device.getFullScreenWindow().getSize().width;
-            screenHeight = device.getFullScreenWindow().getSize().height;
             ResourceManager resources = new ResourceManager();
 
             screen = new Canvas();
@@ -55,12 +54,12 @@ public class GUI {
 
             window.getContentPane().add(screen);
             
-            screen.createBufferStrategy(2);   
-            buffer = screen.getBufferStrategy();
-
             window.setVisible(true);
             screen.setVisible(true);
             
+            screen.createBufferStrategy(2);   
+            buffer = screen.getBufferStrategy();
+
             sceneManager = new SceneManager();
             SceneManager.loadScene("main menu");
         }

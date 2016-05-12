@@ -155,8 +155,7 @@ public class TVEpisodesScene extends Scene {
     public void unloadScene() {
         background = null;
         sceneMenu = null;
-        infoPanel = null;
-        show = null;  
+        infoPanel = null; 
         seasons = null;
         numberOfSeasons = 0;
     }
