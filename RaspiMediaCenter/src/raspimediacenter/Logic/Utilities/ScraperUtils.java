@@ -8,16 +8,30 @@ import java.io.IOException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
-import raspimediacenter.Data.Models.MovieContainer;
-import raspimediacenter.Data.Models.MovieContainer.Movie;
-import raspimediacenter.Data.Models.TVSeasonContainer;
-import raspimediacenter.Data.Models.TVSeriesContainer;
-import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.Data.Models.Movies.MovieContainer;
+import raspimediacenter.Data.Models.Movies.MovieContainer.Movie;
+import raspimediacenter.Data.Models.Music.MusicAlbumContainer;
+import raspimediacenter.Data.Models.Music.MusicAlbumContainer.MusicAlbum;
+import raspimediacenter.Data.Models.Music.MusicArtistContainer;
+import raspimediacenter.Data.Models.Music.MusicArtistContainer.MusicArtist;
+import raspimediacenter.Data.Models.Music.MusicArtistSearchContainer;
+import raspimediacenter.Data.Models.Music.MusicArtistSearchContainer.MusicArtistResult.ArtistMatches.FoundArtist;
+import raspimediacenter.Data.Models.Music.MusicTrackContainer;
+import raspimediacenter.Data.Models.Music.MusicTrackContainer.MusicTrack;
+import raspimediacenter.Data.Models.Music.MusicTrackSearchContainer;
+import raspimediacenter.Data.Models.Music.MusicTrackSearchContainer.MusicTrackResult.TrackMatches.FoundTrack;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer;
+import raspimediacenter.Data.Models.TV.TVSeriesContainer;
+import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
+import uk.co.caprica.vlcj.filter.AudioFileFilter;
 
 public class ScraperUtils {
 
@@ -25,16 +39,36 @@ public class ScraperUtils {
     public static final String POSTER_SIZE = "w780";
     public static final String STILL_SIZE = "w300";
 
-    private String apiKey = System.getenv("API_KEY");
-    private String baseURI = "http://api.themoviedb.org/3/";
-    private String baseImageURL = "http://image.tmdb.org/t/p/";
-    BufferedImage backdropImage = null, posterImage = null, stillImage = null;
+    private String tmbdApiKey = System.getenv("API_KEY");
+    private String tmdbBaseURI = "http://api.themoviedb.org/3/";
+    private String tmdbBaseImageURI = "http://image.tmdb.org/t/p/";
+
+    private String lastFMApiKey = System.getenv("LAST_FM");
+    private String lastFMBaseURI = "http://ws.audioscrobbler.com/2.0/";
+
+    BufferedImage backdropImage = null, posterImage = null, stillImage = null, artistImage = null, albumImage = null;
+
     private Movie movie;
     private MovieContainer movieContainer;
     private TVSeries series;
     private TVSeriesContainer tvSeries;
     private TVSeasonContainer tvSeason;
+
+    private MusicAlbum album;
+    private MusicAlbumContainer albumContainer;
+    private MusicArtist artist;
+    private MusicArtistContainer artistContainer;
+    private FoundArtist foundArtist;
+    private MusicArtistSearchContainer artistSearchContainer;
+    private MusicTrack track;
+    private MusicTrackContainer trackContainer;
+    private FoundTrack foundTrack;
+    private MusicTrackSearchContainer trackSearchContainer;
+    private MusicArtistContainer artistList;
+
     private ParserUtils parser = new ParserUtils();
+    private AudioFileFilter filter = new AudioFileFilter();
+    private String[] audioFormats = filter.getExtensions();
 
     public class TVScraperThread implements Runnable {
 
@@ -56,12 +90,24 @@ public class ScraperUtils {
         }
     }
 
+    public class MusicScraperThread implements Runnable {
+
+        @Override
+        public void run() {
+            parser.cleanupArtistList();
+            startMusicScrape();
+            scrapeMusicImages();
+        }
+    }
+
     public void startScrapers() {
         TVScraperThread tvScraper = new TVScraperThread();
         MovieScraperThread movieScraper = new MovieScraperThread();
+        MusicScraperThread musicScraper = new MusicScraperThread();
 
         new Thread(tvScraper).start();
         new Thread(movieScraper).start();
+        new Thread(musicScraper).start();
     }
 
     //Iterates through series directories and seasons directories within /TV Shows/, constructs a URI with a found series directory as a search term
@@ -72,7 +118,7 @@ public class ScraperUtils {
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String name = files[i].getName();
-                String jsonURI = constructSearchURI("tv", parser.encodeURLParameter(name), "");
+                String jsonURI = constructTMDBSearchURI("tv", parser.encodeURLParameter(name), "");
                 series = scraperParseSeries(jsonURI, series);
                 name = renameDir("TV Shows/", name, series.getName());
                 saveLocalSeriesJSON(series, "TV Shows/" + name + "/");
@@ -96,10 +142,53 @@ public class ScraperUtils {
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String name = files[i].getName();
-                String jsonURI = constructSearchURI("movie", parser.encodeURLParameter(name), "");
+                String jsonURI = constructTMDBSearchURI("movie", parser.encodeURLParameter(name), "");
                 movie = scraperParseMovie(jsonURI, movie);
                 name = renameDir("Movies/", name, movie.getTitle());
                 saveLocalMovieJSON(movie, "Movies/" + name + "/");
+            }
+        }
+    }
+
+    public void startMusicScrape() {
+        File[] files = getDirectories("Music", true);
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                String name = files[i].getName();
+                String jsonURI = constructArtistSearchURI(parser.encodeURLParameter(name));
+                artist = scraperParseArtist(jsonURI, artist);
+                name = renameDir("Music/", name, artist.artist.getName());
+                //saveLocalArtistJSON(artist, "Music/" + name + "/");
+                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/Music/" + name + "/", false);
+                for (int j = 0; j < subDirFiles.length; j++) {
+                    String subDirName = subDirFiles[j].getName();
+                    if (subDirFiles[j].isDirectory()) {
+                        File[] existingAlbum = getDirectories("Music/" + name + "/" + subDirName, false);
+                        for (int k = 0; k < existingAlbum.length; k++) {
+                            if (isMusicExtension(existingAlbum[k].getName())) {
+                                String existingAlbumName = existingAlbum[k].getName();
+                                existingAlbumName = existingAlbumName.replaceFirst("[.][^.]+$", "");
+                                jsonURI = constructTrackSearchURI(parser.encodeURLParameter(existingAlbumName), parser.encodeURLParameter(name));
+                                track = scraperParseTrack(jsonURI, artist);
+                                album = scraperParseAlbum(jsonURI, album, track, k);
+                                saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
+                                parser.appendToTrackList(track, name, album.getName());
+                            }
+                        }
+                    } else if (isMusicExtension(subDirFiles[j].getName())) {
+                        subDirName = subDirName.replaceFirst("[.][^.]+$", "");
+                        jsonURI = constructTrackSearchURI(parser.encodeURLParameter(subDirName), parser.encodeURLParameter(name));
+                        track = scraperParseTrack(jsonURI, artist);
+                        album = scraperParseAlbum(jsonURI, album, track, j);
+                        makeDirectory(System.getProperty("user.dir") + "/Music/" + name + "/" + album.getName());
+                        moveFile(subDirFiles[j], Paths.get("Music/" + name + "/" + album.getName() + "/"));
+                        subDirFiles[j].renameTo(new File(System.getProperty("user.dir") + "/Music/" + name + "/"
+                                + album.getName() + "/" + subDirName));
+                        saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
+                        parser.appendToTrackList(track, name, album.getName());
+                    }
+                }
+
             }
         }
     }
@@ -122,6 +211,26 @@ public class ScraperUtils {
                         requestImageScrape(BACKDROP_SIZE, backdropImage, "EP" + (k + 1) + "_still.jpg", tvSeason.episodes.get(k).getStillPath(),
                                 "TV Shows/" + name + "/" + subDirName + "/Stills/");
                     }
+                }
+            }
+        }
+    }
+
+    public void scrapeMusicImages() {
+        File[] files = getDirectories("Music", true);
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                String path = "Music/artist-list.json";
+                artistList = parser.parseArtistList(path, false);
+                String name = artistList.artists.get(i).artist.getName();
+                requestMusicImageScrape(artistImage, "artist_portrait.jpg", artistList.artists.get(i).artist.image.get(artistList.artists.get(i).artist.image.size() - 2).getPath(),
+                        "Music/" + name + "/");
+                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/Music/" + name, true);
+                for (int j = 0; j < subDirFiles.length; j++) {
+                    String subDirName = subDirFiles[j].getName();
+                    album = parser.parseLocalAlbum("Music/" + name + "/" + subDirName + "/info.json");
+                    System.out.println(album.getName());
+                    requestMusicImageScrape(albumImage, "album_art.jpg", album.image.get(album.image.size() - 2).getText(), "Music/" + name + "/" + subDirName + "/");
                 }
             }
         }
@@ -165,6 +274,29 @@ public class ScraperUtils {
         return tvSeason;
     }
 
+    public MusicArtist scraperParseArtist(String jsonURI, MusicArtist artist) {
+        artistSearchContainer = parser.parseArtistResults(jsonURI, true);
+        foundArtist = artistSearchContainer.results.artistmatches.artist.get(0);
+        jsonURI = constructGetInfoURI("artist", foundArtist.getMBID());
+        artist = parser.parseArtist(jsonURI, true);
+        parser.appendToArtistList(artist);
+        return artist;
+    }
+
+    public MusicTrack scraperParseTrack(String jsonURI, MusicArtist artist) {
+        trackSearchContainer = parser.parseTrackResults(jsonURI, true);
+        foundTrack = trackSearchContainer.results.trackmatches.track.get(0);
+        jsonURI = constructGetInfoURI("track", foundTrack.getMBID());
+        track = parser.parseTrack(jsonURI, true);
+        return track;
+    }
+
+    public MusicAlbum scraperParseAlbum(String jsonURI, MusicAlbum album, MusicTrack track, int index) {
+        jsonURI = constructGetInfoURI("album", track.track.album.getMBID());
+        album = parser.parseRemoteAlbum(jsonURI, true);
+        return album;
+    }
+
     //Prepares to scrape an image by first verifying if the image already exists in the chosen directory, and then
     //reading + saving the image. Checks that the imageURL given is not null, for cases when a still image path isn't provided by The Movie Database. 
     public void requestImageScrape(String size, BufferedImage image, String name, String imageURL, String path) {
@@ -176,13 +308,36 @@ public class ScraperUtils {
         }
     }
 
+    public void requestMusicImageScrape(BufferedImage image, String name, String imageURL, String path) {
+        File file = new File(path + "/" + name);
+        if (!file.exists() && imageURL != null) {
+            System.out.println("Downloading " + name + " to " + path + ".");
+            image = scrapeMusicImage(imageURL);
+            saveImage(image, name, path);
+        }
+    }
+
+    public BufferedImage scrapeMusicImage(String imageURL) {
+        URL url = null;
+        BufferedImage image = null;
+        try {
+            url = new URL(imageURL);
+            image = ImageIO.read(url);
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return image;
+    }
+
     //Reads in an image from http://image.tmdb.org/t/p/ using the path to either the backdrop, poster or still image belonging
     //to the series/season/episode.
     public BufferedImage scrapeImage(String imageSize, String imageURL) {
         URL url = null;
         BufferedImage image = null;
         try {
-            url = new URL(baseImageURL + imageSize + "/" + imageURL);
+            url = new URL(tmdbBaseImageURI + imageSize + "/" + imageURL);
             image = ImageIO.read(url);
         } catch (MalformedURLException ex) {
             Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
@@ -245,6 +400,20 @@ public class ScraperUtils {
         parser.beginJSONOutput(infoFile, s);
     }
 
+    public void saveLocalArtistJSON(MusicArtist artist, String filePath) {
+        File infoFile = new File(filePath + "info.json");
+        Gson gson = new Gson();
+        String s = gson.toJson(artist);
+        parser.beginJSONOutput(infoFile, s);
+    }
+
+    public void saveLocalAlbumJSON(MusicAlbum album, MusicTrack track, String filePath) {
+        File infoFile = new File(filePath + "info.json");
+        Gson gson = new Gson();
+        String s = gson.toJson(album);
+        parser.beginJSONOutput(infoFile, s);
+    }
+
     //Gets all subdirectories inside of the specified parent directory. Ignores files which
     //are not directories.
     public static File[] getDirectories(String subDir, boolean dirOnly) {
@@ -263,14 +432,25 @@ public class ScraperUtils {
         return files;
     }
 
+    public static File[] getTracks(String subDir) {
+        File file = new File(subDir);
+        File[] files;
+        files = file.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return !file.isDirectory();
+            }
+        });
+        return files;
+    }
+
     public static int getNumberOfSeasons(TVSeries series) {
         File[] seasons = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + series.getName(), true);
         int number = 0;
         Matcher matcher;
         for (int i = 0; i < seasons.length; i++) {
             matcher = Pattern.compile("Season (\\d+)").matcher(seasons[i].getName());
-            if (matcher.find())
-            {
+            if (matcher.find()) {
                 int seasonNo = Integer.valueOf(matcher.group().substring(+7));
                 if (seasonNo >= 1 && seasonNo <= series.getNumberOfSeasons()) {
                     number++;
@@ -311,24 +491,58 @@ public class ScraperUtils {
         return names;
     }
 
+    public boolean isMusicExtension(String fileName) {
+        fileName = fileName.substring(fileName.length() - 3, fileName.length());
+        for (int i = 0; i < audioFormats.length; i++) {
+            if (fileName.equalsIgnoreCase(audioFormats[i])) {
+                System.out.println(fileName + "=" + audioFormats[i]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void moveFile(File file, Path path) {
+        try {
+            String sub = file.getAbsolutePath();
+            sub = sub.substring(sub.length() - 3, sub.length());
+            Files.move(file.toPath(), path.resolve(file.toPath().getFileName()));
+        } catch (IOException ex) {
+            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     //constructs a URI for a search term for use with the 'The Movie Database API'.
-    public String constructSearchURI(String type, String query, String year) {
-        return baseURI + "search/" + type + "?query=" + query + "&year=" + year
-                + "&api_key=" + apiKey;
+    public String constructTMDBSearchURI(String type, String query, String year) {
+        return tmdbBaseURI + "search/" + type + "?query=" + query + "&year=" + year
+                + "&api_key=" + tmbdApiKey;
     }
 
     //constructs a URI to return a movie using the 'The Movie Database API'.
     public String constructMovieURI(int id) {
-        return baseURI + "movie/" + id + "?api_key=" + apiKey + "&append_to_response=release_dates";
+        return tmdbBaseURI + "movie/" + id + "?api_key=" + tmbdApiKey + "&append_to_response=release_dates";
     }
 
     //constructs a URI to return a series using the 'The Movie Database API'.
     public String constructSeriesURI(int id) {
-        return baseURI + "tv/" + id + "?api_key=" + apiKey + "&append_to_response=release_dates";
+        return tmdbBaseURI + "tv/" + id + "?api_key=" + tmbdApiKey + "&append_to_response=release_dates";
     }
 
     //constructs a URI to return a season using the 'The Movie Database API'.
     public String constructSeasonURI(int id, int season) {
-        return baseURI + "tv/" + id + "/season/" + season + "?api_key=" + apiKey;
+        return tmdbBaseURI + "tv/" + id + "/season/" + season + "?api_key=" + tmbdApiKey;
     }
+
+    public String constructArtistSearchURI(String artist) {
+        return lastFMBaseURI + "?method=artist.search&artist=" + artist + "&api_key=" + lastFMApiKey + "&format=json";
+    }
+
+    public String constructTrackSearchURI(String track, String artist) {
+        return lastFMBaseURI + "?method=track.search&track=" + track + "&artist=" + artist + "&api_key=" + lastFMApiKey + "&format=json";
+    }
+
+    public String constructGetInfoURI(String method, String mbid) {
+        return lastFMBaseURI + "?method=" + method + ".getInfo&mbid=" + mbid + "&api_key=" + lastFMApiKey + "&format=json";
+    }
+
 }

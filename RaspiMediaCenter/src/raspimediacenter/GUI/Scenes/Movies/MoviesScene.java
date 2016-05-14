@@ -1,7 +1,7 @@
 package raspimediacenter.GUI.Scenes.Movies;
 
-import raspimediacenter.Data.Models.MovieContainer;
-import raspimediacenter.Data.Models.MovieContainer.Movie;
+import raspimediacenter.Data.Models.Movies.MovieContainer;
+import raspimediacenter.Data.Models.Movies.MovieContainer.Movie;
 import raspimediacenter.GUI.Components.Background;
 import raspimediacenter.GUI.Components.FileLibrary;
 import raspimediacenter.GUI.Components.SceneMenu;

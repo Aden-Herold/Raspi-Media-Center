@@ -1,7 +1,7 @@
 package raspimediacenter.GUI.Scenes;
 
 import java.util.ArrayList;
-import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
@@ -44,7 +44,7 @@ public class VideoPlayerScene extends Scene {
             }
         };
         
-        String file = "TV Shows/"+show.getName()+"/Season "+seasonNumber+"/Dexter S01E01 - Dexter.avi";
+        String file = "TV Shows/Breaking Bad/vid.mp4";
         player.play(file);
         
         thread.start();

@@ -16,12 +16,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import raspimediacenter.Data.Models.MovieContainer;
-import raspimediacenter.Data.Models.MovieContainer.Movie;
-import raspimediacenter.Data.Models.TVSeasonContainer;
-import raspimediacenter.Data.Models.TVSeasonContainer.TVSeason;
-import raspimediacenter.Data.Models.TVSeriesContainer;
-import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.Data.Models.Movies.MovieContainer;
+import raspimediacenter.Data.Models.Movies.MovieContainer.Movie;
+import raspimediacenter.Data.Models.Music.MusicAlbumContainer;
+import raspimediacenter.Data.Models.Music.MusicAlbumContainer.MusicAlbum;
+import raspimediacenter.Data.Models.Music.MusicArtistContainer;
+import raspimediacenter.Data.Models.Music.MusicArtistContainer.MusicArtist;
+import raspimediacenter.Data.Models.Music.MusicArtistSearchContainer;
+import raspimediacenter.Data.Models.Music.MusicTrackContainer;
+import raspimediacenter.Data.Models.Music.MusicTrackContainer.MusicTrack;
+import raspimediacenter.Data.Models.Music.MusicTrackSearchContainer;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
+import raspimediacenter.Data.Models.TV.TVSeriesContainer;
+import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 
 public class ParserUtils {
 
@@ -30,6 +38,14 @@ public class ParserUtils {
     private TVSeries series;
     private TVSeriesContainer seriesContainer;
     private TVSeasonContainer season;
+    private MusicArtistSearchContainer artistSearchContainer;
+    private MusicTrackSearchContainer trackSearchContainer;
+    private MusicArtist artist;
+    private MusicTrack track;
+    private MusicAlbum album;
+    private MusicAlbumContainer albumContainer;
+    private MusicTrackContainer trackContainer;
+    private MusicArtistContainer artistContainer;
 
     //Parses in JSON for a particular Movie from /Movies/ or remote
     public Movie parseMovie(String filePath, boolean remote) {
@@ -58,6 +74,18 @@ public class ParserUtils {
         seriesContainer = gson.fromJson(prepareJSON(filePath, remote), TVSeriesContainer.class);
         return seriesContainer;
     }
+    
+    public MusicTrackContainer parseTrackList(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        trackContainer = gson.fromJson(prepareJSON(filePath, remote), MusicTrackContainer.class);
+        return trackContainer;
+    }
+    
+    public MusicArtistContainer parseArtistList(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        artistContainer = gson.fromJson(prepareJSON(filePath, remote), MusicArtistContainer.class);
+        return artistContainer;
+    }
 
     //Parses in JSON for a particular season of a TV series from /TV Shows/showName/
     public TVSeasonContainer parseSeason(String filePath, boolean remote) {
@@ -70,6 +98,42 @@ public class ParserUtils {
     public TVSeason parseEpisode(TVSeasonContainer season, String fileName) {
         int episodeNo = trimFileName("E", fileName);
         return season.episodes.get(episodeNo);
+    }
+    
+    public MusicArtistSearchContainer parseArtistResults(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        artistSearchContainer = gson.fromJson(prepareJSON(filePath, remote), MusicArtistSearchContainer.class);
+        return artistSearchContainer;
+    }
+    
+    public MusicArtist parseArtist(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        artist = gson.fromJson(prepareJSON(filePath, remote), MusicArtist.class);
+        return artist;
+    }
+    
+    public MusicTrackSearchContainer parseTrackResults(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        trackSearchContainer = gson.fromJson(prepareJSON(filePath, remote), MusicTrackSearchContainer.class);
+        return trackSearchContainer;
+    }
+    
+    public MusicTrack parseTrack(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        track = gson.fromJson(prepareJSON(filePath, remote), MusicTrack.class);
+        return track;
+    }
+    
+    public MusicAlbum parseRemoteAlbum(String filePath, boolean remote) {
+        Gson gson = new Gson();
+        albumContainer = gson.fromJson(prepareJSON(filePath, remote), MusicAlbumContainer.class);
+        return albumContainer.album;
+    }
+    
+    public MusicAlbum parseLocalAlbum(String filePath) {
+        Gson gson = new Gson();
+        album = gson.fromJson(prepareJSON(filePath, false), MusicAlbum.class);
+        return album;
     }
 
     //Prepares JSON input by either extracting JSON from a URL (remote = true) or from a local path (remote = false)
@@ -142,6 +206,52 @@ public class ParserUtils {
         }
     }
     
+    public void appendToTrackList(MusicTrack track, String name, String albumName) {
+        File file = new File("Music/" + name + "/" + albumName + "/track-list.json");
+        MusicTrackContainer container;
+        boolean entryExists = false;
+        if(!file.exists()) {
+            beginJSONOutput(file, "{" + "tracks" + ":[{}]}");
+            container = parseTrackList("Music/" + name + "/" + albumName + "/track-list.json", false);
+            container.tracks.remove(0);
+        } else {
+            container = parseTrackList("Music/" + name + "/" + albumName + "/track-list.json", false);
+        }
+        for(int i = 0; i < container.tracks.size(); i++) {
+            if(container.tracks.get(i).track.getMBID() == track.track.getMBID()) {
+                entryExists = true;
+                break;
+            }
+        }
+        if(!entryExists) {
+            container.tracks.add(track);
+            saveAmendedTrackList(container, name, albumName);
+        }
+    }
+    
+    public void appendToArtistList(MusicArtist artist) {
+        File file = new File("Music/artist-list.json");
+        MusicArtistContainer container;
+        boolean entryExists = false;
+        if(!file.exists()) {
+            beginJSONOutput(file, "{" + "artists" + ":[{}]}");
+            container = parseArtistList("Music/artist-list.json", false);
+            container.artists.remove(0);
+        } else {
+            container = parseArtistList("Music/artist-list.json", false);
+        }
+        for(int i = 0; i < container.artists.size(); i++) {
+            if(container.artists.get(i).artist.getMBID() == artist.artist.getMBID()) {
+                entryExists = true;
+                break;
+            }
+        }
+        if(!entryExists) {
+            container.artists.add(artist);
+            saveAmendedArtistList(container);
+        }
+    }
+    
     public void cleanupSeriesList() {
         File file = new File("TV Shows/series-list.json");
         if(file.exists()) {
@@ -171,6 +281,21 @@ public class ParserUtils {
             saveAmendedMovieList(newList);
         }
     }
+    
+    public void cleanupArtistList() {
+        File file = new File("Music/artist-list.json");
+        if(file.exists()) {
+            MusicArtistContainer oldList, newList;
+            oldList = parseArtistList("Music/artist-list.json", false);
+            newList = oldList;
+            for(int i = 0; i < oldList.artists.size(); i++) {
+                if(!directoryExists(oldList.artists.get(i).artist.getName())) {
+                    newList.artists.remove(i);
+                }
+            }
+            saveAmendedArtistList(newList);
+        }
+    }
 
     //Called after appendToSeriesList, outputs modified JSON to /TV Shows/series-list.json to save changes
     public void saveAmendedSeriesList(TVSeriesContainer container) {
@@ -183,6 +308,20 @@ public class ParserUtils {
     //Called after appendtoMovieList, outputs modified JSON to /Movies/movie-list.json to save changes
     public void saveAmendedMovieList(MovieContainer container) {
         File infoFile = new File("Movies/movie-list.json");
+        Gson gson = new Gson();
+        String s = gson.toJson(container);
+        beginJSONOutput(infoFile, s);
+    }
+    
+    public void saveAmendedTrackList(MusicTrackContainer container, String name, String albumName) {
+        File infoFile = new File("Music/" + name + "/" + albumName + "/track-list.json");
+        Gson gson = new Gson();
+        String s = gson.toJson(container);
+        beginJSONOutput(infoFile, s);
+    }
+    
+    public void saveAmendedArtistList(MusicArtistContainer container) {
+        File infoFile = new File("Music/artist-list.json");
         Gson gson = new Gson();
         String s = gson.toJson(container);
         beginJSONOutput(infoFile, s);

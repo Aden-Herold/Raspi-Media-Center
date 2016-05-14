@@ -1,7 +1,7 @@
 package raspimediacenter.GUI.Scenes.TV;
 
-import raspimediacenter.Data.Models.TVSeasonContainer;
-import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer;
+import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.Background;
 import raspimediacenter.GUI.Components.FileLibrary;
 import raspimediacenter.GUI.Components.SceneMenu;
