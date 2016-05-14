@@ -9,6 +9,8 @@ import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import java.awt.Color;
 import java.util.ArrayList;
+import raspimediacenter.GUI.Scenes.Images.ImageCollectionScene;
+import raspimediacenter.GUI.Scenes.Images.ImagesScene;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 
 public class SceneManager {
@@ -78,6 +80,10 @@ public class SceneManager {
         {
             currentScene = new TVSeriesScene();
         }
+        else if (scene.toLowerCase().matches("images"))
+        {
+            currentScene = new ImageCollectionScene();
+        }
         
         currentScene.setupScene();
     }
@@ -106,6 +112,15 @@ public class SceneManager {
         unloadCurrentScene();
         
         currentScene = new VideoPlayerScene(series, seasonNumber, episode);
+        currentScene.setupScene();
+    }
+    
+    public static void loadImages (String directory)
+    {
+        previousScenes.add(currentScene);
+        unloadCurrentScene();
+        
+        currentScene = new ImagesScene(directory);
         currentScene.setupScene();
     }
     

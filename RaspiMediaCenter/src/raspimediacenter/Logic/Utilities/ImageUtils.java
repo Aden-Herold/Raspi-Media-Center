@@ -58,7 +58,7 @@ public class ImageUtils {
     public static ArrayList<String> getAllImagesPathsInDir (String directory, boolean descendIntoSubDirs) throws IOException
     {
         File dir = new File(System.getProperty("user.dir") + "/" + directory);
-        ArrayList<String> imageList = new ArrayList<String>();
+        ArrayList<String> imageList = new ArrayList<>();
         File[] files = dir.listFiles();
         
         for (File file : files)

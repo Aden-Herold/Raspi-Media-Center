@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import raspimediacenter.GUI.SceneManager;
+import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
 public class TVEpisodesScene extends Scene {
 
@@ -58,6 +59,12 @@ public class TVEpisodesScene extends Scene {
     
     // SCENE FUNCTIONS
     //GETTERS
+    @Override 
+    public EmbeddedVideoPlayer getPlayer()
+    {
+        return null;
+    }
+    
     @Override
     public SceneMenu getMenu() {
 

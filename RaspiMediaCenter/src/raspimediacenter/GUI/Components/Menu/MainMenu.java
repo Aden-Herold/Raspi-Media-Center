@@ -89,6 +89,11 @@ public class MainMenu extends SceneMenu {
     
     // EVENT FUNCTIONS
     @Override
+    public void clickedButton(){
+        SceneManager.getCurrentScene().buttonClicked();
+    }
+    
+    @Override
     public void clickedButton(MouseEvent e)
     {
         Point mousePos = e.getLocationOnScreen();

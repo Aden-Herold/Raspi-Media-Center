@@ -19,6 +19,7 @@ public class Background extends SceneComponent {
     private ArrayList<String> imagePaths = null; 
 
     private BufferedImage currentBackground;
+    private Thread rendererThread;
     
     //IMAGE TRANSITION FADE VARIABLES
     private BufferedImage fadeInImage;
@@ -42,9 +43,19 @@ public class Background extends SceneComponent {
             updateFadeImages();
             isFading = true;
             
-            Thread rendererThread = new Thread(new renderer());
+            rendererThread = new Thread(new renderer());
             rendererThread.start();
         }  
+    }
+    
+    public Background (String path)
+    {
+            getBackgrounds(path);
+            updateFadeImages();
+            isFading = true;
+            
+            rendererThread = new Thread(new renderer());
+            rendererThread.start();
     }
     
     public void unload()
@@ -65,8 +76,6 @@ public class Background extends SceneComponent {
         
         if (isFading)
         {
-            //updateFade();
-            
             //Start with default black canvas
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, GUI.getScreenWidth(), GUI.getScreenHeight());
@@ -86,9 +95,14 @@ public class Background extends SceneComponent {
 
     private void getDefaultBackgrounds ()
     {
+        getBackgrounds(userImagesPath);
+    }
+    
+    public void getBackgrounds(String path)
+    {
         try 
         {
-            imagePaths = ImageUtils.getAllImagesPathsInDir(userImagesPath, true);
+            imagePaths = ImageUtils.getAllImagesPathsInDir(path, true);
             
             if (imagePaths == null)
             {
@@ -100,7 +114,26 @@ public class Background extends SceneComponent {
             ex.getMessage();
         } 
     }
+    
+    public void updateBackgroundCollection(String img, String dir)
+    {
+        isFading = false;
+        setBackgroundImage(ImageUtils.getImageFromPath(img));
+        
+        getBackgrounds(dir);
+        reset();
+        isFading = true;
+        rendererThread = new Thread(new renderer());
+        rendererThread.start();
+    }
 
+    private void reset()
+    {
+        startTime = -1;
+        userImageCounter = 0;
+        updateFadeImages();
+    }
+    
     private void updateFade()
     {
         if (startTime < 0) {

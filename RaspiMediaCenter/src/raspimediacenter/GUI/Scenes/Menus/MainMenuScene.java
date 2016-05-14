@@ -17,6 +17,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
 public class MainMenuScene extends Scene {
 
@@ -37,6 +38,12 @@ public class MainMenuScene extends Scene {
     public MainMenuScene (){}
     
     // GETTERS
+    @Override 
+    public EmbeddedVideoPlayer getPlayer()
+    {
+        return null;
+    }
+    
     @Override
     public SceneMenu getMenu() {
         if (sceneMenu != null)

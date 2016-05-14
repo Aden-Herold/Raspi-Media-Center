@@ -20,6 +20,8 @@ public abstract class SceneMenu {
     public abstract void unloadMenu();
     
     //EVENT FUNCTIONS
+    public abstract void clickedButton();
+    
     public abstract void clickedButton(MouseEvent e);
     
     public abstract void focusHoveredButton(MouseEvent e);
