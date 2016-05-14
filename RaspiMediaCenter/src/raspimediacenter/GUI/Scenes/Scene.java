@@ -2,6 +2,7 @@ package raspimediacenter.GUI.Scenes;
 
 import raspimediacenter.GUI.Components.SceneMenu;
 import java.util.ArrayList;
+import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
 public abstract class Scene {
     
@@ -10,6 +11,7 @@ public abstract class Scene {
     
     public abstract ArrayList<String> getLabelContents(int linkNum);
     
+    public abstract EmbeddedVideoPlayer getPlayer();
     
     // SETUP/TEARDOWN FUNCTIONS
     public abstract void setupScene();

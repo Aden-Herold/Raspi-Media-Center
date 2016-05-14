@@ -3,12 +3,14 @@ package raspimediacenter.Logic.Players;
 import com.sun.jna.Native;
 import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 import com.sun.jna.NativeLibrary;
+import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.image.BufferedImage;
+import java.awt.image.BufferStrategy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import raspimediacenter.GUI.GUI;
+import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
@@ -21,7 +23,6 @@ public class EmbeddedVideoPlayer {
     private final int MAX_RATE = 32;
     
     private final EmbeddedMediaPlayer player;
-    private final BufferedImage image;
     
     private String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
 
@@ -31,6 +32,7 @@ public class EmbeddedVideoPlayer {
 
     private TrackThread trackThread;
     private VideoPlayerScene playerScene;
+    private static BufferStrategy buffer;
 
     //Searches for the VLC libraries and plugins folder, 
     public EmbeddedVideoPlayer() 
@@ -44,14 +46,18 @@ public class EmbeddedVideoPlayer {
         FullScreenStrategy fullScreenStrategy = new DefaultFullScreenStrategy(GUI.getWindow());
         player = mFactory.newEmbeddedMediaPlayer(fullScreenStrategy);
         player.setVideoSurface(mFactory.newVideoSurface(GUI.getScreen()));
-        
-        image = GraphicsEnvironment
-            .getLocalGraphicsEnvironment()
-            .getDefaultScreenDevice()
-            .getDefaultConfiguration()
-            .createCompatibleImage(GUI.getScreenWidth(), GUI.getScreenHeight());
+
+        setupMediaControls();
     }
 
+    //======================
+    //       GETTERS
+    //======================
+    public static BufferStrategy getBuffer()
+    {
+        return buffer;
+    }
+    
     //Returns the EmbeddedMediaPlayerComponent, to attach to the GUI
     public EmbeddedMediaPlayer getPlayer() {
         return player;
@@ -97,6 +103,26 @@ public class EmbeddedVideoPlayer {
         return rate;
     }
 
+    //======================
+    //      FUNCTIONS
+    //======================
+    private void setupMediaControls()
+    {
+        Canvas c = new Canvas();
+        c.setBackground(Color.BLACK);
+        c.setIgnoreRepaint(true);
+        c.setBounds(0, GUI.getScreenHeight()-GUI.getScreenHeight()/10, GUI.getScreenWidth(), GUI.getScreenHeight()/10);
+        GUI.getWindow().getLayeredPane().add(c, 1, 0);
+        
+        c.createBufferStrategy(2);
+        buffer = c.getBufferStrategy();
+    }
+    
+    
+    //===========================
+    //   MEDIA PLAYER FUNCTIONS
+    //===========================
+    
     //Plays the media file at the path specified in the method's parameter 
     public void play(String fileName) {
         player.playMedia(System.getProperty("user.dir") + "/" + fileName);

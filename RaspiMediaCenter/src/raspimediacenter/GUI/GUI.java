@@ -1,20 +1,19 @@
 package raspimediacenter.GUI;
 
+import java.awt.AWTEvent;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.ResourceManager;
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferStrategy;
 import javax.swing.JFrame;
 
@@ -36,6 +35,7 @@ public class GUI {
         if (device.isFullScreenSupported())
         {
             window = new JFrame();
+            window.setBackground(Color.BLACK);
             window.setSize(screenWidth, screenHeight);
             window.setIgnoreRepaint(true);
             window.setUndecorated(true);
@@ -47,18 +47,18 @@ public class GUI {
             screen = new Canvas();
             screen.setIgnoreRepaint(true);
             screen.setBounds(0, 0, screenWidth, screenHeight);
-            screen.addMouseListener(new mouseListener());
-            screen.addMouseWheelListener(new mouseListener());
-            screen.addMouseMotionListener(new mouseListener());
-            screen.addKeyListener(new keyboardListener());
-
-            window.getContentPane().add(screen);
             
+            window.getLayeredPane().add(screen, 0, 0);
             window.setVisible(true);
             screen.setVisible(true);
             
             screen.createBufferStrategy(2);   
             buffer = screen.getBufferStrategy();
+            
+            addGlobalKeyListener();
+            addGlobalMouseListener();
+            addGlobalMouseScrollListener();
+            addGlobalMouseMotionListener();
 
             sceneManager = new SceneManager();
             SceneManager.loadScene("main menu");
@@ -96,136 +96,120 @@ public class GUI {
     }
     
     // EVENT LISTENERS
-    private class keyboardListener implements KeyListener
+    private void addGlobalKeyListener()
     {
-        @Override
-        public void keyTyped(KeyEvent e) {
-            
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            
-            if (sceneManager != null)
+        Toolkit.getDefaultToolkit().addAWTEventListener((AWTEvent event) -> {
+            if(event instanceof KeyEvent) 
             {
-                Scene currentScene = SceneManager.getCurrentScene();
-                
-                int key = e.getKeyCode();
-                
-                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S || key == KeyEvent.VK_D)
+                KeyEvent evt = (KeyEvent)event;
+                if(evt.getID() == KeyEvent.KEY_PRESSED)
                 {
-                    currentScene.getMenu().focusNextButton();
-                } 
-                else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_UP || key == KeyEvent.VK_W || key == KeyEvent.VK_A)
-                {
-                    currentScene.getMenu().focusPreviousButton();
-                }
-                else if (key == KeyEvent.VK_ENTER)
-                {
-                    currentScene.buttonClicked();
-                }
-                else if (key == KeyEvent.VK_BACK_SPACE)
-                {
-                    if (SceneManager.getLastPreviousScene() != null)
+                    if (sceneManager != null)
                     {
-                        SceneManager.loadScene(SceneManager.getLastPreviousScene());
-                        SceneManager.removeLastScene();
+                        Scene currentScene = SceneManager.getCurrentScene();
+                        
+                        int key = evt.getKeyCode();
+                        
+                        if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S || key == KeyEvent.VK_D)
+                        {
+                            currentScene.getMenu().focusNextButton();
+                        }
+                        else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_UP || key == KeyEvent.VK_W || key == KeyEvent.VK_A)
+                        {
+                            currentScene.getMenu().focusPreviousButton();
+                        }
+                        else if (key == KeyEvent.VK_ENTER)
+                        {
+                            currentScene.getMenu().clickedButton();
+                        }
+                        else if (key == KeyEvent.VK_BACK_SPACE)
+                        {
+                            if (SceneManager.getLastPreviousScene() != null)
+                            {
+                                SceneManager.loadScene(SceneManager.getLastPreviousScene());
+                                SceneManager.removeLastScene();
+                            }
+                        }
+                        else if (key == KeyEvent.VK_ESCAPE)
+                        {
+                            System.exit(0);
+                        }
                     }
                 }
-                else if (key == KeyEvent.VK_ESCAPE)
-                {
-                    System.exit(0);
-                }
             }
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            
-        }
+        }, AWTEvent.KEY_EVENT_MASK);
     }
     
-    private class mouseListener implements MouseListener, MouseWheelListener, MouseMotionListener {
-
-        @Override
-        public void mouseClicked(MouseEvent e) 
-        {
-            if (sceneManager != null)
+    private void addGlobalMouseListener()
+    {
+        Toolkit.getDefaultToolkit().addAWTEventListener((AWTEvent event) -> {
+            if(event instanceof MouseEvent) 
             {
-                if (SceneManager.getCurrentScene() != null)
+                MouseEvent evt = (MouseEvent)event;
+                if(evt.getID() == MouseEvent.MOUSE_CLICKED)
                 {
-                    if (SceneManager.getCurrentScene().getMenu() != null)
+                    if (sceneManager != null)
                     {
-                        SceneMenu menu = SceneManager.getCurrentScene().getMenu();
-                        if (menu != null)
+                        if (SceneManager.getCurrentScene() != null)
                         {
-                            menu.clickedButton(e);
+                            SceneMenu menu = SceneManager.getCurrentScene().getMenu();
+                            if (menu != null)
+                            {
+                                menu.clickedButton(evt);
+                            }
                         }
                     }
                 }
             }
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseWheelMoved(MouseWheelEvent e) {
-            
-            if (sceneManager != null)
+        }, AWTEvent.MOUSE_EVENT_MASK);
+    }
+    
+    private void addGlobalMouseScrollListener()
+    {
+        Toolkit.getDefaultToolkit().addAWTEventListener((AWTEvent event) -> {
+            if(event instanceof MouseEvent) 
             {
-                SceneMenu menu = SceneManager.getCurrentScene().getMenu();
-                if (menu != null)
+                MouseWheelEvent evt = (MouseWheelEvent)event;
+                if(evt.getID() == MouseEvent.MOUSE_WHEEL)
                 {
-                   if (menu.isScrollable())
-                    {
-                        int notches = e.getWheelRotation()*-1;
-                        menu.scrollList(notches, 40);
-                    } 
-                }
-            }
-        }
-
-        @Override
-        public void mouseDragged(MouseEvent e) {
-            
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-            
-            if (sceneManager != null)
-            {
-                if (SceneManager.getCurrentScene() != null)
-                {
-                    if (SceneManager.getCurrentScene().getMenu() != null)
+                    if (sceneManager != null)
                     {
                         SceneMenu menu = SceneManager.getCurrentScene().getMenu();
                         if (menu != null)
                         {
-                            menu.focusHoveredButton(e);
+                            if (menu.isScrollable())
+                            {
+                                int notches = evt.getWheelRotation()*-1;
+                                menu.scrollList(notches, 40); 
+                            }
                         }
                     }
                 }
             }
-            
-        }
+        }, AWTEvent.MOUSE_WHEEL_EVENT_MASK);
+    }
+    
+    private void addGlobalMouseMotionListener()
+    {
+        Toolkit.getDefaultToolkit().addAWTEventListener((AWTEvent event) -> {
+            if(event instanceof MouseEvent) 
+            {
+                MouseEvent evt = (MouseEvent)event;
+                if (evt.getID() == MouseEvent.MOUSE_MOVED)
+                {
+                    if (sceneManager != null)
+                    {
+                        if (SceneManager.getCurrentScene() != null)
+                        {
+                            SceneMenu menu = SceneManager.getCurrentScene().getMenu();
+                            if (menu != null)
+                            {
+                                menu.focusHoveredButton(evt);
+                            }
+                        }
+                    }
+                }
+            }
+        }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
     }
 }
