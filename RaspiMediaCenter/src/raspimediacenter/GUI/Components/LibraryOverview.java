@@ -1,5 +1,6 @@
 package raspimediacenter.GUI.Components;
 
+import java.awt.Font;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.Logic.Utilities.TextUtils;
 import java.awt.FontMetrics;
@@ -11,6 +12,8 @@ import javax.swing.Timer;
 
 public class LibraryOverview extends SceneComponent {
 
+    private Font FONT = TextUtils.STANDARD_FONT;
+    
     private String text;
     private ArrayList<String> lines;
     
@@ -39,30 +42,36 @@ public class LibraryOverview extends SceneComponent {
         scrollTimer.stop();
     } 
     
+    public void setFont (Font font)
+    {
+        FONT = font;
+    }
+    
+    // FUNCTIONS
     private void wordWrap (Graphics2D g2d)
     {
         lines = new ArrayList<>();
         String wrappedString = "";
 
-        FontMetrics fm = g2d.getFontMetrics();
+        FontMetrics fm = g2d.getFontMetrics(FONT);
 
-	int curX = 0;
+        int curX = 0;
         
         String[] words = text.split(" ");
         
 	for (String word : words)
 	{
-            int wordWidth = fm.stringWidth(word + " ");
+                        int wordWidth = fm.stringWidth(word + " ");
 
-            if (curX + wordWidth >= bounds.width)
-            {
-                    lines.add(wrappedString);
-                    wrappedString = "";
-                    curX = 0;
-            }
+                        if (curX + wordWidth >= bounds.width)
+                        {
+                                lines.add(wrappedString);
+                                wrappedString = "";
+                                curX = 0;
+                        }
 
-            wrappedString += word + " ";
-            curX += wordWidth;
+                        wrappedString += word + " ";
+                        curX += wordWidth;
 	}
         
         lines.add(wrappedString);
@@ -73,10 +82,11 @@ public class LibraryOverview extends SceneComponent {
         
         g2d.setClip(bounds);
         wordWrap(g2d);
+        g2d.setFont(FONT);
         
         if (minOffset < 0)
         {
-            lineHeight = g2d.getFontMetrics(TextUtils.STANDARD_FONT).getHeight();
+            lineHeight = g2d.getFontMetrics(FONT).getHeight()+5;
             overviewHeight = lineHeight*lines.size();
             currentOffset = minOffset = lineHeight/2;
             sizeDif = (overviewHeight - bounds.height)-minOffset+10;
@@ -93,6 +103,7 @@ public class LibraryOverview extends SceneComponent {
             g2d.drawString(line, bounds.x, bounds.y+offset);
             offset+=lineHeight;
         }
+        g2d.setClip(null);
     }
     
     //FADE TIMER - OVERWRITE DEFAULT TIMER BEHAVIOUR TO CHANGE OPACITY OVER TIME

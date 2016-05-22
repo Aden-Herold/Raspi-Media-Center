@@ -8,9 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import raspimediacenter.Data.Models.TVSeasonContainer;
-import raspimediacenter.Data.Models.TVSeasonContainer.TVSeason;
-import raspimediacenter.Data.Models.TVSeriesContainer.TVSeries;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
+import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 
 public class LocalParserUtils {
 

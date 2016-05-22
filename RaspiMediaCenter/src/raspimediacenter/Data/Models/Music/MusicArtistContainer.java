@@ -42,6 +42,28 @@ public class MusicArtistContainer {
             public static class ArtistTags {
                 public List<ArtistTag> tag;
                 
+                public String getTagString()
+                {
+                    String tagString = "";
+                    
+                    if (tag != null)
+                    {
+                        for (int i = 0;  i < tag.size(); i++)
+                        {
+                            if (i < tag.size()-1)
+                            {
+                                tagString += tag.get(i).getName() + ", ";
+                            }
+                            else 
+                            {
+                                tagString += tag.get(i).getName();
+                            }
+                        }
+                    }
+                    
+                    return tagString;
+                }
+                
                 public static class ArtistTag {
                     private String name;
                     

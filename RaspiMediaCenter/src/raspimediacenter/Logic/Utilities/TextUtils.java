@@ -13,6 +13,7 @@ public class TextUtils {
     public static final int MENU_FONT_SIZE = (int)Math.floor(GUI.getScreenWidth()*0.022);
     public static final int STAR_RATING_FONT_SIZE = (int)Math.floor(GUI.getScreenWidth()*0.015);
     
+    public static Font SMALL_FONT;
     public static Font STANDARD_FONT;
     
     private TextUtils(){}
@@ -20,5 +21,6 @@ public class TextUtils {
     public static void setFont(Font font)
     {
         STANDARD_FONT = font;
+        SMALL_FONT = font.deriveFont(Font.PLAIN, SMALL_FONT_SIZE);
     }
 }

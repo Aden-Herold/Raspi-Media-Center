@@ -1,88 +1,86 @@
-package raspimediacenter.GUI.Components;
+package raspimediacenter.GUI.Components.Music;
 
-import raspimediacenter.GUI.GUI;
-import raspimediacenter.GUI.SceneManager;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
+import raspimediacenter.GUI.Components.LibraryButton;
+import raspimediacenter.GUI.Components.SceneMenu;
+import raspimediacenter.GUI.GUI;
+import raspimediacenter.GUI.SceneManager;
 
-public class FileLibrary extends SceneMenu {
+public class MusicLibrary extends SceneMenu{
 
-    private final double LIST_LENGTH = 0.78; //0.78 Default
-    private final double LIST_HEIGHT = (int)(Math.floor(GUI.getScreenHeight()*LIST_LENGTH));
-    private final int BUTTON_WIDTH = GUI.getScreenWidth()/5;
+    private final double LIST_HEIGHT = GUI.getScreenHeight();
     private boolean isScrollable = true;
 
-    private LibraryButton focusedButton;
-    private int focusedButtonPos = 0;
+    private MusicLibraryLabel focusedButton;
+    private int focusedLabelPos = 0;
     private int totalListItems;
-    private ArrayList<LibraryButton> libraryButtons;
-    
-    public FileLibrary ()
-    {
-    }
+    private ArrayList<MusicLibraryLabel> libraryButtons;
     
     // GETTERS
-    public int getButtonWidth()
-    {
-        return BUTTON_WIDTH;
-    }
-    
-    @Override 
-    public int getFocusedButtonPos ()
-    {
-        return focusedButtonPos;
-    }
-    
     @Override
     public boolean isScrollable() {
         return isScrollable;
     }
-    
+
+    @Override
+    public int getFocusedButtonPos() {
+        return focusedLabelPos;
+    }
+
     // SETTERS
     @Override
     public void setScrollable(boolean isScrollable) {
         this.isScrollable = isScrollable;
     }
-    
+
     // SETUP FUNCTIONS
     @Override
-     public void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> tagList, ArrayList<String> bioList){} // NOT NEEDED
+    public void setupLibraryList (ArrayList<String> list){} // NOT NEEDED
     
     @Override
-    public void setupLibraryList (ArrayList<String> list)
-    {
-        totalListItems = list.size();
+     public void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> tagList, ArrayList<String> bioList)
+     {
+        totalListItems = nameList.size();
         libraryButtons = new ArrayList<>();
-        int btnWidth = GUI.getScreenWidth()/5;
-        int btnHeight = (int)Math.floor(GUI.getScreenHeight()/28.8);
+
+        int btnHeight = (int)Math.floor(GUI.getScreenHeight()*0.20);
         int element = 0;
-        for (int x = 0; element < totalListItems; x+=btnHeight)
+        
+        for (int yPos = 0; element < totalListItems; yPos+=btnHeight)
         {
-            LibraryButton btn;
+            MusicLibraryLabel btn;
             
-            if (x-45 < LIST_HEIGHT)
-            {
-                btn = new LibraryButton(list.get(element), 
-                      GUI.getScreenWidth()-btnWidth,
-                      x,
-                      btnWidth,
-                      btnHeight,
-                      true
+            btn = new MusicLibraryLabel(
+                        artPaths.get(element),
+                        nameList.get(element), 
+                        tagList.get(element), 
+                        bioList.get(element),
+                        0,
+                        yPos,
+                        true
                 );  
+            /*
+            if (yPos < LIST_HEIGHT)
+            {
+                
             }
             else
             {
-                btn = new LibraryButton(list.get(element), 
-                    GUI.getScreenWidth()-btnWidth,
-                    x,
-                    btnWidth,
-                    btnHeight,
-                    false
+                btn = new MusicLibraryLabel(
+                        artPaths.get(element),
+                        nameList.get(element), 
+                        tagList.get(element), 
+                        bioList.get(element),
+                        0,
+                        yPos,
+                        false
                 );
             }
-            
+            */
             libraryButtons.add(btn);
             element++;
         }  
@@ -90,21 +88,21 @@ public class FileLibrary extends SceneMenu {
         focusedButton = libraryButtons.get(0);
         focusedButton.setFocused(true);
     }
-    
-    @Override
+
+     @Override
     public void unloadMenu()
     {
         focusedButton = null;
-        focusedButtonPos = 0;
+        focusedLabelPos = 0;
         totalListItems = 0;
         
-        for (LibraryButton btn : libraryButtons)
+        for (MusicLibraryLabel btn : libraryButtons)
         {
             btn = null;
         }
     }
-    
-    // EVENT FUNCTIONS
+     
+     // EVENT FUNCTIONS
     @Override
     public void clickedButton()
     {
@@ -120,7 +118,7 @@ public class FileLibrary extends SceneMenu {
         {
             for (int x = 0; x < libraryButtons.size(); x++)
             {
-                if (libraryButtons.get(x).getRect().contains(mousePos))
+                if (libraryButtons.get(x).getBounds().contains(mousePos))
                 {
                     SceneManager.getCurrentScene().buttonClicked();
                 }
@@ -131,26 +129,26 @@ public class FileLibrary extends SceneMenu {
     @Override
     public void focusNextButton() 
     {
-        if (focusedButtonPos+1 > libraryButtons.size()-1)
+        if (focusedLabelPos+1 > libraryButtons.size()-1)
         {
             focusButton(0);
         }
         else
         {
-            focusButton(focusedButtonPos+1);
+            focusButton(focusedLabelPos+1);
         }
     }
 
     @Override
     public void focusPreviousButton() 
     {
-        if (focusedButtonPos-1 < 0)
+        if (focusedLabelPos-1 < 0)
         {
             focusButton(libraryButtons.size()-1);
         }
         else
         {
-            focusButton(focusedButtonPos-1);
+            focusButton(focusedLabelPos-1);
         }
     }
     
@@ -161,7 +159,7 @@ public class FileLibrary extends SceneMenu {
         
         for (int x = 0; x < libraryButtons.size(); x++)
         {
-            if (libraryButtons.get(x).getRect().contains(mousePos))
+            if (libraryButtons.get(x).getBounds().contains(mousePos))
             {
                 focusButton(x);
             }
@@ -181,7 +179,7 @@ public class FileLibrary extends SceneMenu {
         }
 
         focusedButton = libraryButtons.get(button);
-        focusedButtonPos = button;
+        focusedLabelPos = button;
         libraryButtons.get(button).setFocused(true);
 
         if (SceneManager.getCurrentScene() != null)
@@ -197,7 +195,7 @@ public class FileLibrary extends SceneMenu {
         {
             if (!(libraryButtons.get(libraryButtons.size()-1).getY() < LIST_HEIGHT))
             {
-                for (LibraryButton btn : libraryButtons)
+                for (MusicLibraryLabel btn : libraryButtons)
                 {
                     btn.updateY(-amount);
                     if (((btn.getY()+btn.getHeight())+5 > 0) && (btn.getY()-45 < LIST_HEIGHT))
@@ -215,7 +213,7 @@ public class FileLibrary extends SceneMenu {
         {
             if (!(libraryButtons.get(0).getY() >= 0))
             {
-                for (LibraryButton btn : libraryButtons)
+                for (MusicLibraryLabel btn : libraryButtons)
                 {
                     btn.updateY(amount);
                     if (((btn.getY()+btn.getHeight())+5 > 0) && (btn.getY()-45 < LIST_HEIGHT))
@@ -236,13 +234,18 @@ public class FileLibrary extends SceneMenu {
         }
     }
 
+    // DRAW FUNCTIONS
     @Override
     public void drawMenu(Graphics2D g2d) {
-        for (LibraryButton btn : libraryButtons)
+        Iterator<MusicLibraryLabel> iter = libraryButtons.iterator();
+        
+        while (iter.hasNext())
         {
-            if (btn.getVisible())
+            MusicLibraryLabel label = iter.next();
+            
+            if (label.getVisible())
             {
-               btn.paintSceneComponent(g2d); 
+                label.paintSceneComponent(g2d);
             }
         }
     }

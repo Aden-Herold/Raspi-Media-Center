@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import raspimediacenter.GUI.Scenes.Images.ImageCollectionScene;
 import raspimediacenter.GUI.Scenes.Images.ImagesScene;
+import raspimediacenter.GUI.Scenes.Music.MusicArtistScene;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 
 public class SceneManager {
@@ -79,6 +80,10 @@ public class SceneManager {
         else if (scene.toLowerCase().matches("tv shows"))
         {
             currentScene = new TVSeriesScene();
+        }
+        else if (scene.toLowerCase().matches("music"))
+        {
+            currentScene = new MusicArtistScene();
         }
         else if (scene.toLowerCase().matches("images"))
         {

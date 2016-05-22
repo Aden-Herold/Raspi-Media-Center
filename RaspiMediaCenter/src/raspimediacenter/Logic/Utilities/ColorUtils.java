@@ -35,4 +35,15 @@ public class ColorUtils {
         
         return color;
     }
+    
+    //Returns a colour along the HUE scale between 0.0 and 1.0 
+    // Hue pattern :: red - orange - yellow - green - blue - purple - red
+    public static Color getColor(double power)
+    {
+        double H = power * 1; // Hue
+        double S = 0.9; // Saturation
+        double B = 0.9; // Brightness
+
+        return Color.getHSBColor((float)H, (float)S, (float)B);
+    }
 }
