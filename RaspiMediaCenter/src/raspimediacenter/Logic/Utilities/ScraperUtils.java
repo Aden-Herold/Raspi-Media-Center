@@ -158,7 +158,7 @@ public class ScraperUtils {
                 String jsonURI = constructArtistSearchURI(parser.encodeURLParameter(name));
                 artist = scraperParseArtist(jsonURI, artist);
                 name = renameDir("Music/", name, artist.artist.getName());
-                //saveLocalArtistJSON(artist, "Music/" + name + "/");
+                saveLocalArtistJSON(artist, "Music/" + name + "/");
                 File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/Music/" + name + "/", false);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
@@ -170,7 +170,7 @@ public class ScraperUtils {
                                 existingAlbumName = existingAlbumName.replaceFirst("[.][^.]+$", "");
                                 jsonURI = constructTrackSearchURI(parser.encodeURLParameter(existingAlbumName), parser.encodeURLParameter(name));
                                 track = scraperParseTrack(jsonURI, artist);
-                                album = scraperParseAlbum(jsonURI, album, track, k);
+                                album = scraperParseAlbum(jsonURI, track, k);
                                 saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
                                 parser.appendToTrackList(track, name, album.getName());
                             }
@@ -179,7 +179,7 @@ public class ScraperUtils {
                         subDirName = subDirName.replaceFirst("[.][^.]+$", "");
                         jsonURI = constructTrackSearchURI(parser.encodeURLParameter(subDirName), parser.encodeURLParameter(name));
                         track = scraperParseTrack(jsonURI, artist);
-                        album = scraperParseAlbum(jsonURI, album, track, j);
+                        album = scraperParseAlbum(jsonURI, track, j);
                         makeDirectory(System.getProperty("user.dir") + "/Music/" + name + "/" + album.getName());
                         moveFile(subDirFiles[j], Paths.get("Music/" + name + "/" + album.getName() + "/"));
                         subDirFiles[j].renameTo(new File(System.getProperty("user.dir") + "/Music/" + name + "/"
@@ -225,11 +225,10 @@ public class ScraperUtils {
                 String name = artistList.artists.get(i).artist.getName();
                 requestMusicImageScrape(artistImage, "artist_portrait.jpg", artistList.artists.get(i).artist.image.get(artistList.artists.get(i).artist.image.size() - 2).getPath(),
                         "Music/" + name + "/");
-                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/Music/" + name, true);
+                File[] subDirFiles = getDirectories("Music/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
                     album = parser.parseLocalAlbum("Music/" + name + "/" + subDirName + "/info.json");
-                    System.out.println(album.getName());
                     requestMusicImageScrape(albumImage, "album_art.jpg", album.image.get(album.image.size() - 2).getText(), "Music/" + name + "/" + subDirName + "/");
                 }
             }
@@ -279,6 +278,7 @@ public class ScraperUtils {
         foundArtist = artistSearchContainer.results.artistmatches.artist.get(0);
         jsonURI = constructGetInfoURI("artist", foundArtist.getMBID());
         artist = parser.parseArtist(jsonURI, true);
+        artist.artist.bio.setSummary(trimString(artist.artist.bio.getSummary(), 0, "<a"));
         parser.appendToArtistList(artist);
         return artist;
     }
@@ -288,12 +288,15 @@ public class ScraperUtils {
         foundTrack = trackSearchContainer.results.trackmatches.track.get(0);
         jsonURI = constructGetInfoURI("track", foundTrack.getMBID());
         track = parser.parseTrack(jsonURI, true);
+        track.track.wiki.setSummary(trimString(track.track.wiki.getSummary(), 0, "<a"));
         return track;
     }
 
-    public MusicAlbum scraperParseAlbum(String jsonURI, MusicAlbum album, MusicTrack track, int index) {
+    public MusicAlbum scraperParseAlbum(String jsonURI, MusicTrack track, int index) {
         jsonURI = constructGetInfoURI("album", track.track.album.getMBID());
-        album = parser.parseRemoteAlbum(jsonURI, true);
+        album = parser.parseRemoteAlbum(jsonURI);
+        album.wiki.setSummary(trimString(album.wiki.getSummary(), 0, "<a"));
+        parser.appendToAlbumList(album);
         return album;
     }
 
@@ -328,7 +331,7 @@ public class ScraperUtils {
         } catch (IOException ex) {
             Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return image;
+        return convertToNonAlpha(image);
     }
 
     //Reads in an image from http://image.tmdb.org/t/p/ using the path to either the backdrop, poster or still image belonging
@@ -344,7 +347,16 @@ public class ScraperUtils {
         } catch (IOException ex) {
             Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return image;
+        return convertToNonAlpha(image);
+    }
+
+    public BufferedImage convertToNonAlpha(BufferedImage image) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        int[] rgb = image.getRGB(0, 0, w, h, null, 0, w);
+        newImage.setRGB(0, 0, w, h, rgb, 0, w);
+        return newImage;
     }
 
     //Saves newly read image into the specified directory
@@ -467,12 +479,10 @@ public class ScraperUtils {
             File[] episodes = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + series.getName() + "/Season " + seasonNo, false);
             String episodeString = getEpisodeTitles(season);
             for (int i = 0; i < episodes.length; i++) {
-                System.out.println(episodes[i].getName());
                 matcher = Pattern.compile("E(\\d+) - ").matcher(episodes[i].getName());
                 if (matcher.find()) {
                     String episodeTitle = episodes[i].getName().substring(matcher.group().length());
                     episodeTitle = episodeTitle.substring(0, episodeTitle.length() - 4);
-                    System.out.println(episodeTitle);
                     matcher = Pattern.compile(episodeTitle).matcher(episodeString);
                     if (matcher.find()) {
                         number++;
@@ -492,10 +502,10 @@ public class ScraperUtils {
     }
 
     public boolean isMusicExtension(String fileName) {
-        fileName = fileName.substring(fileName.length() - 3, fileName.length());
+        String extension = fileName.substring(fileName.length() - 3, fileName.length());
         for (int i = 0; i < audioFormats.length; i++) {
-            if (fileName.equalsIgnoreCase(audioFormats[i])) {
-                System.out.println(fileName + "=" + audioFormats[i]);
+            if (extension.equalsIgnoreCase(audioFormats[i])) {
+                System.out.println(fileName + " - " + extension + " audio format is supported!");
                 return true;
             }
         }
@@ -510,6 +520,11 @@ public class ScraperUtils {
         } catch (IOException ex) {
             Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public String trimString(String oldString, int start, String pattern) {
+        String newString = oldString.substring(start, oldString.indexOf(pattern));
+        return newString;
     }
 
     //constructs a URI for a search term for use with the 'The Movie Database API'.

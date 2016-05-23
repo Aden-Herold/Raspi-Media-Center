@@ -77,7 +77,11 @@ public class MusicTrackContainer {
             public static class TrackWiki {
 
                 private String summary;
-
+                
+                public void setSummary(String summary) {
+                    this.summary = summary;
+                }
+                
                 public String getSummary() {
                     return summary;
                 }

@@ -82,6 +82,10 @@ public class MusicAlbumContainer {
         public static class AlbumWiki {
 
             private String summary;
+            
+            public void setSummary(String summary) {
+                this.summary = summary;
+            }
 
             public String getSummary() {
                 return summary;
@@ -89,3 +93,4 @@ public class MusicAlbumContainer {
         }
     }
 }
+

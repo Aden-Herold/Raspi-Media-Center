@@ -15,8 +15,8 @@ public class RaspiMediaCenter {
     public static void main(String[] args) {
 
         ScraperUtils scraper = new ScraperUtils();
-        //scraper.startScrapers();
+        scraper.startScrapers();
 
-        GUI gui = new GUI();
+        //GUI gui = new GUI();
     }
 }

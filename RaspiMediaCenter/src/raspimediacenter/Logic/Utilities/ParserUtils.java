@@ -20,6 +20,7 @@ import raspimediacenter.Data.Models.Movies.MovieContainer;
 import raspimediacenter.Data.Models.Movies.MovieContainer.Movie;
 import raspimediacenter.Data.Models.Music.MusicAlbumContainer;
 import raspimediacenter.Data.Models.Music.MusicAlbumContainer.MusicAlbum;
+import raspimediacenter.Data.Models.Music.MusicAlbumList;
 import raspimediacenter.Data.Models.Music.MusicArtistContainer;
 import raspimediacenter.Data.Models.Music.MusicArtistContainer.MusicArtist;
 import raspimediacenter.Data.Models.Music.MusicArtistSearchContainer;
@@ -46,6 +47,7 @@ public class ParserUtils {
     private MusicAlbumContainer albumContainer;
     private MusicTrackContainer trackContainer;
     private MusicArtistContainer artistContainer;
+    private MusicAlbumList albumList;
 
     //Parses in JSON for a particular Movie from /Movies/ or remote
     public Movie parseMovie(String filePath, boolean remote) {
@@ -86,6 +88,12 @@ public class ParserUtils {
         artistContainer = gson.fromJson(prepareJSON(filePath, remote), MusicArtistContainer.class);
         return artistContainer;
     }
+    
+    public MusicAlbumList parseAlbumList(String filePath) {
+        Gson gson = new Gson();
+        albumList = gson.fromJson(prepareJSON(filePath, false), MusicAlbumList.class);
+        return albumList;
+    }
 
     //Parses in JSON for a particular season of a TV series from /TV Shows/showName/
     public TVSeasonContainer parseSeason(String filePath, boolean remote) {
@@ -124,9 +132,9 @@ public class ParserUtils {
         return track;
     }
     
-    public MusicAlbum parseRemoteAlbum(String filePath, boolean remote) {
+    public MusicAlbum parseRemoteAlbum(String filePath) {
         Gson gson = new Gson();
-        albumContainer = gson.fromJson(prepareJSON(filePath, remote), MusicAlbumContainer.class);
+        albumContainer = gson.fromJson(prepareJSON(filePath, true), MusicAlbumContainer.class);
         return albumContainer.album;
     }
     
@@ -218,7 +226,7 @@ public class ParserUtils {
             container = parseTrackList("Music/" + name + "/" + albumName + "/track-list.json", false);
         }
         for(int i = 0; i < container.tracks.size(); i++) {
-            if(container.tracks.get(i).track.getMBID() == track.track.getMBID()) {
+            if(container.tracks.get(i).track.getMBID().equalsIgnoreCase(track.track.getMBID())) {
                 entryExists = true;
                 break;
             }
@@ -241,7 +249,7 @@ public class ParserUtils {
             container = parseArtistList("Music/artist-list.json", false);
         }
         for(int i = 0; i < container.artists.size(); i++) {
-            if(container.artists.get(i).artist.getMBID() == artist.artist.getMBID()) {
+            if(container.artists.get(i).artist.getMBID().equalsIgnoreCase(artist.artist.getMBID())) {
                 entryExists = true;
                 break;
             }
@@ -249,6 +257,29 @@ public class ParserUtils {
         if(!entryExists) {
             container.artists.add(artist);
             saveAmendedArtistList(container);
+        }
+    }
+    
+    public void appendToAlbumList(MusicAlbum album) {
+        File file = new File("Music/" + album.getArtist() + "/album-list.json");
+        MusicAlbumList list;
+        boolean entryExists = false;
+        if(!file.exists()) {
+            beginJSONOutput(file, "{" + "albums" + ":[{}]}");
+            list = parseAlbumList("Music/" + album.getArtist() + "/album-list.json");
+            list.albums.remove(0);
+        } else {
+            list = parseAlbumList("Music/" + album.getArtist() + "/album-list.json");
+        }
+        for(int i = 0; i < list.albums.size(); i++) {
+            if(list.albums.get(i).getMBID().equalsIgnoreCase(album.getMBID())) {
+                entryExists = true;
+                break;
+            }
+        }
+        if(!entryExists) {
+            list.albums.add(album);
+            saveAmendedAlbumList(list, album.getArtist());
         }
     }
     
@@ -324,6 +355,13 @@ public class ParserUtils {
         File infoFile = new File("Music/artist-list.json");
         Gson gson = new Gson();
         String s = gson.toJson(container);
+        beginJSONOutput(infoFile, s);
+    }
+    
+    public void saveAmendedAlbumList(MusicAlbumList list, String name) {
+        File infoFile = new File("Music/" + name + "/album-list.json");
+        Gson gson = new Gson();
+        String s = gson.toJson(list);
         beginJSONOutput(infoFile, s);
     }
 

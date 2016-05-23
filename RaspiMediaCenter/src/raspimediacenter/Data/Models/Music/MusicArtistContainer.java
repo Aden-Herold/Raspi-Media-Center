@@ -76,6 +76,10 @@ public class MusicArtistContainer {
             public static class ArtistBio {
                 private String summary;
                 
+                public void setSummary(String summary) {
+                    this.summary = summary;
+                }
+                
                 public String getSummary() {
                     return summary;
                 }
