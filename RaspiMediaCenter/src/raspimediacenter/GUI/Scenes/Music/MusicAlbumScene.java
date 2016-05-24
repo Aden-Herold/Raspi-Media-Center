@@ -3,19 +3,17 @@ package raspimediacenter.GUI.Scenes.Music;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
-import java.util.Arrays;
-import raspimediacenter.Data.Models.Music.MusicArtistContainer;
+import raspimediacenter.Data.Models.Music.MusicAlbumList;
+import raspimediacenter.Data.Models.Music.MusicArtistContainer.MusicArtist;
 import raspimediacenter.GUI.Components.Music.MusicBackground;
 import raspimediacenter.GUI.Components.Music.MusicLibrary;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.GUI;
-import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 import raspimediacenter.Logic.Utilities.ParserUtils;
 
-
-public class MusicArtistScene extends Scene {
+public class MusicAlbumScene extends Scene {
 
      //SCENE VARIABLES
     private boolean painting = false;
@@ -25,10 +23,14 @@ public class MusicArtistScene extends Scene {
     private SceneMenu sceneMenu;
     
     // DATA MODEL VARIABLES
-    private static MusicArtistContainer artistsList;
+    private static MusicArtist artist;
+    private static MusicAlbumList albumList;
     
     // MUSIC SCENE FUNCTIONS
-    public MusicArtistScene (){}
+    public MusicAlbumScene (MusicArtist artist)
+    {
+        MusicAlbumScene.artist = artist;
+    }
     
     // SCENE FUNCTIONS
     //GETTERS
@@ -61,7 +63,7 @@ public class MusicArtistScene extends Scene {
     @Override
     public void setupScene() {
         ParserUtils parser = new ParserUtils();
-        artistsList = parser.parseArtistList("Music/artist-list.json", false);
+        albumList = parser.parseAlbumList("Music/"+artist.artist.getName()+"/");
 
          //Create Library List
         sceneMenu = new MusicLibrary();
@@ -77,9 +79,9 @@ public class MusicArtistScene extends Scene {
     {
         ArrayList<String> menuList = new ArrayList<>();
         
-        for (int x = 0 ; x < artistsList.artists.size(); x++)
+        for (int x = 0 ; x < albumList.albums.size(); x++)
         {
-            menuList.add(artistsList.artists.get(x).artist.getName());
+            menuList.add(albumList.albums.get(x).getName());
         }
         
         return menuList;
@@ -90,9 +92,9 @@ public class MusicArtistScene extends Scene {
         ArrayList<String> artPathsList = new ArrayList<>();
         String artPath = "";
         
-        for (int x = 0 ; x < artistsList.artists.size(); x++)
+        for (int x = 0 ; x < albumList.albums.size(); x++)
         {
-            artPath = "Music/"+artistsList.artists.get(x).artist.getName()+"/artist_portrait.jpg";
+            artPath = "Music/"+albumList.albums.get(x).getName()+"/album_art.jpg";
             artPathsList.add(artPath);
         }
         
@@ -103,9 +105,9 @@ public class MusicArtistScene extends Scene {
     {
         ArrayList<String> bioList = new ArrayList<>();
         
-        for (int x = 0 ; x < artistsList.artists.size(); x++)
+        for (int x = 0 ; x < albumList.albums.size(); x++)
         {
-            bioList.add(artistsList.artists.get(x).artist.tags.getTagString());
+            bioList.add(albumList.albums.get(x).tags.tag.get(x).getName());
         }
         
         return bioList;
@@ -115,9 +117,9 @@ public class MusicArtistScene extends Scene {
     {
         ArrayList<String> bioList = new ArrayList<>();
         
-        for (int x = 0 ; x < artistsList.artists.size(); x++)
+        for (int x = 0 ; x < albumList.albums.size(); x++)
         {
-            bioList.add(artistsList.artists.get(x).artist.bio.getSummary());
+            bioList.add(albumList.albums.get(x).wiki.getSummary());
         }
         
         return bioList;
@@ -135,8 +137,7 @@ public class MusicArtistScene extends Scene {
     @Override
     public void buttonClicked ()
     {
-        int linkNum = sceneMenu.getFocusedButtonPos();
-        SceneManager.loadAlbums(artistsList.artists.get(linkNum));
+
     }
     
     //UPDATE FUNCTIONS

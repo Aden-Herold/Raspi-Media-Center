@@ -42,7 +42,6 @@ public class MusicBackground extends SceneComponent{
     
     private void updateBackground()
     {
-        
         SceneManager.getCurrentScene().paintScene();
         
         try {
@@ -50,6 +49,14 @@ public class MusicBackground extends SceneComponent{
         } catch (InterruptedException ex) {
             Logger.getLogger(MusicBackground.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void unload ()
+    {
+        rendering = false;
+        rendererThread = null;
+        eq = null;
+        background = null;
     }
     
     @Override

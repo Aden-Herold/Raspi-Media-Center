@@ -1,5 +1,6 @@
 package raspimediacenter.GUI.Components.Video.VideoPlayer;
 
+import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.PlayButton;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -7,6 +8,8 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import raspimediacenter.GUI.Components.SceneMenu;
+import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.FastForwardButton;
+import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.StopButton;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.SceneManager;
 
@@ -49,11 +52,20 @@ public class VideoPlayerMenu extends SceneMenu {
     public void setupLibraryList (ArrayList<String> list)
     {
         menuButtons = new ArrayList<>();
+        int btnSize = width/25;
+
+         //Add Stop Button
+        StopButton stop = new StopButton(width/2-btnSize*2, overlayHeight/2-btnSize/2, btnSize, btnSize);
+        menuButtons.add(stop);
         
-        int playSize = width/25;
-        PlayButton play = new PlayButton(width/2-playSize/2, overlayHeight/2-playSize/2, playSize, playSize);
+        //Add Play Button
+        PlayButton play = new PlayButton(width/2-btnSize/2, overlayHeight/2-btnSize/2, btnSize, btnSize);
         play.setState(true);
         menuButtons.add(play);
+
+        //Add Fast-Forward Button
+        FastForwardButton ffButton = new FastForwardButton(width/2+btnSize, overlayHeight/2-btnSize/2, btnSize, btnSize, play);
+        menuButtons.add(ffButton);
         
         focusedButton = play;
         focusedButton.setFocused(true);
@@ -144,10 +156,6 @@ public class VideoPlayerMenu extends SceneMenu {
     @Override
     protected void focusButton (int button)
     {
-        SceneManager.getCurrentScene().updateBackground(button);
-        SceneManager.getCurrentScene().updatePreviewImage(button);
-        SceneManager.getCurrentScene().updateInformationLabels(button);
-
         if (focusedButton != null)
         {
             focusedButton.setFocused(false);

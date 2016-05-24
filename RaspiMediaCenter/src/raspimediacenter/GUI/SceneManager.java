@@ -9,8 +9,10 @@ import raspimediacenter.GUI.Scenes.TV.TVEpisodesScene;
 import raspimediacenter.GUI.Scenes.TV.TVSeasonsScene;
 import java.awt.Color;
 import java.util.ArrayList;
+import raspimediacenter.Data.Models.Music.MusicArtistContainer.MusicArtist;
 import raspimediacenter.GUI.Scenes.Images.ImageCollectionScene;
 import raspimediacenter.GUI.Scenes.Images.ImagesScene;
+import raspimediacenter.GUI.Scenes.Music.MusicAlbumScene;
 import raspimediacenter.GUI.Scenes.Music.MusicArtistScene;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 
@@ -57,6 +59,12 @@ public class SceneManager {
     }
     
     //FUNCTIONS
+    public static void loadPreviousScene()
+    {
+         loadScene(SceneManager.getLastPreviousScene());
+         removeLastScene();
+    }
+    
     public static void loadScene (Scene scene)
     {
         unloadCurrentScene();
@@ -120,6 +128,15 @@ public class SceneManager {
         currentScene.setupScene();
     }
     
+    public static void loadAlbums (MusicArtist artist)
+    {
+        previousScenes.add(currentScene);
+        unloadCurrentScene();
+        
+        currentScene = new MusicAlbumScene(artist);
+        currentScene.setupScene();
+    }
+    
     public static void loadImages (String directory)
     {
         previousScenes.add(currentScene);
@@ -135,6 +152,7 @@ public class SceneManager {
         {
             currentScene.unloadScene();
             currentScene = null;
+            System.gc();
         }
     }
 }

@@ -1,12 +1,12 @@
-package raspimediacenter.GUI.Components.Video.VideoPlayer;
+package raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
+import raspimediacenter.GUI.Components.Video.VideoPlayer.VideoPlayerButton;
 import raspimediacenter.GUI.SceneManager;
-import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
 public class PlayButton extends VideoPlayerButton {
 
@@ -29,6 +29,12 @@ public class PlayButton extends VideoPlayerButton {
     public boolean getFocused ()
     {
         return focused;
+    }
+    
+    @Override
+    public boolean getState ()
+    {
+        return playing;
     }
     
     public void setBounds(int x, int y, int width, int height)

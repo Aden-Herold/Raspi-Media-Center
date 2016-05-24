@@ -10,7 +10,6 @@ import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -102,7 +101,7 @@ public class GUI {
             if(event instanceof KeyEvent) 
             {
                 KeyEvent evt = (KeyEvent)event;
-                if(evt.getID() == KeyEvent.KEY_PRESSED)
+                if(evt.getID() == KeyEvent.KEY_RELEASED)
                 {
                     if (sceneManager != null)
                     {
@@ -126,8 +125,7 @@ public class GUI {
                         {
                             if (SceneManager.getLastPreviousScene() != null)
                             {
-                                SceneManager.loadScene(SceneManager.getLastPreviousScene());
-                                SceneManager.removeLastScene();
+                                SceneManager.loadPreviousScene();
                             }
                         }
                         else if (key == KeyEvent.VK_ESCAPE)

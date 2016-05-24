@@ -19,13 +19,13 @@ public class VideoPlayerScene extends Scene {
     private boolean painting = false;
     private SceneMenu sceneMenu;
     private EmbeddedVideoPlayer player;
+    private boolean running = true;
 
     public VideoPlayerScene (TVSeries show, int seasonNumber, String episodeName)
     {
         this.show = show;
         this.seasonNumber = seasonNumber+1;
         this.episodeName = episodeName;
-
     }
 
     @Override 
@@ -46,14 +46,15 @@ public class VideoPlayerScene extends Scene {
 
     private void update()
     {
-        while(true)
+        while(running)
         {
             paintScene();
             
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(VideoPlayerScene.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+            catch (InterruptedException ex) {
+                System.out.println("Thread could not sleep: " + ex.getMessage());
             }
         }
     }
@@ -73,7 +74,8 @@ public class VideoPlayerScene extends Scene {
         sceneMenu = new VideoPlayerMenu(); 
         sceneMenu.setupLibraryList(null);
         
-        String file = "TV Shows/"+show.getName()+"/Season "+seasonNumber+"/Dexter S01E01 - Dexter.avi";
+        //String file = "TV Shows/"+show.getName()+"/Season "+seasonNumber+"/Dexter S01E01 - Dexter.avi";
+        String file = "TV Shows/Dexter/Season 1/Dexter S01E01 - Dexter.avi";
         player.play(file);
         
         painting = false;
@@ -86,11 +88,17 @@ public class VideoPlayerScene extends Scene {
     }
 
     @Override
-    public void unloadScene() {
-        
-        player.stop();
+    public void unloadScene() 
+    {
+        running = false;
+        if (player.isPlaying())
+        {
+            player.stop();
+        }
+        player.removeMediaControls();
         player = null;
         
+        sceneMenu =  null;
     }
 
     @Override

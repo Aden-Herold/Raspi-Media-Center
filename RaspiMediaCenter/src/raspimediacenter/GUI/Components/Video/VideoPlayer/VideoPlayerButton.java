@@ -7,6 +7,8 @@ public abstract class VideoPlayerButton {
 
     public abstract Rectangle getRect();
     
+    public abstract boolean getState();
+    
     public abstract void setFocused(boolean isFocused);
     
     public abstract void setState (boolean state);

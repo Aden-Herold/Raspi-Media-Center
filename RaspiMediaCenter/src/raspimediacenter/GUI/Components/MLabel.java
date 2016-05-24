@@ -20,17 +20,15 @@ public class MLabel extends SceneComponent {
     private final Rectangle label;
     private boolean specialLabel = false;
     private float opacity = 1f;
+    private int stringHeight = -1;
     
     public MLabel (String text, int alignment, int x, int y, int width, boolean specialLabel)
     {
         this.text = text;
         this.alignment = alignment;
         this.specialLabel = specialLabel;
-        
-        Graphics2D textGraphics = (Graphics2D)GUI.getScreen().getGraphics();
-        int stringHeight = textGraphics.getFontMetrics(font).getHeight();
-        
-        label = new Rectangle(x, y, width, stringHeight+10);
+ 
+        label = new Rectangle(x, y, width, 0);
     }
     
     //GETTERS
@@ -114,6 +112,13 @@ public class MLabel extends SceneComponent {
             g2d.setFont(font);
 
             FontMetrics metrics = g2d.getFontMetrics(font);
+            
+            if (stringHeight == -1)
+            {
+                stringHeight = metrics.getHeight();
+                label.height = stringHeight+10;
+            }
+             
 
             if (specialLabel)
             {

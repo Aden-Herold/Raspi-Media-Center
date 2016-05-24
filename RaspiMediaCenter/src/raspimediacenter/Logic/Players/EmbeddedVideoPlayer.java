@@ -10,7 +10,6 @@ import java.awt.image.BufferStrategy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import raspimediacenter.GUI.GUI;
-import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
@@ -33,6 +32,7 @@ public class EmbeddedVideoPlayer {
     private TrackThread trackThread;
     private VideoPlayerScene playerScene;
     private static BufferStrategy buffer;
+    private Canvas mediaControls;
 
     //Searches for the VLC libraries and plugins folder, 
     public EmbeddedVideoPlayer() 
@@ -102,22 +102,32 @@ public class EmbeddedVideoPlayer {
     public int getRate() {
         return rate;
     }
+    
+    public boolean isPlaying()
+    {
+        return player.isPlaying();
+    }
 
     //======================
     //      FUNCTIONS
     //======================
     private void setupMediaControls()
     {
-        Canvas c = new Canvas();
-        c.setBackground(Color.BLACK);
-        c.setIgnoreRepaint(true);
-        c.setBounds(0, GUI.getScreenHeight()-GUI.getScreenHeight()/10, GUI.getScreenWidth(), GUI.getScreenHeight()/10);
-        GUI.getWindow().getLayeredPane().add(c, 1, 0);
-        
-        c.createBufferStrategy(2);
-        buffer = c.getBufferStrategy();
+        mediaControls = new Canvas();
+        mediaControls.setBackground(Color.BLACK);
+        mediaControls.setIgnoreRepaint(true);
+        mediaControls.setBounds(0, GUI.getScreenHeight()-GUI.getScreenHeight()/10, GUI.getScreenWidth(), GUI.getScreenHeight()/10);
+        GUI.getWindow().getLayeredPane().add(mediaControls, 1, 0);
+
+        mediaControls.createBufferStrategy(2);
+        buffer = mediaControls.getBufferStrategy();
     }
     
+    public void removeMediaControls()
+    {
+        //mediaControls.setVisible(false);
+        GUI.getWindow().getLayeredPane().remove(mediaControls);
+    }
     
     //===========================
     //   MEDIA PLAYER FUNCTIONS
@@ -193,10 +203,14 @@ public class EmbeddedVideoPlayer {
                 rate = 2;
                 trackThread = new TrackThread(func);
                 new Thread(trackThread).start();
-            } else {
+            } 
+            else 
+            {
                 rate *= 2;
             }
-        } else {
+        } 
+        else 
+        {
             rate = 2;
         }
     }

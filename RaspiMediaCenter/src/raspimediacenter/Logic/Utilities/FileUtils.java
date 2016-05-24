@@ -24,6 +24,33 @@ public class FileUtils {
         subDirs = new ArrayList<>(Arrays.asList(directories));
         return subDirs;
     }
+    
+    public static ArrayList<String> getAllSubDirsFromPathEndsWith (String path, String endsWith)
+    {
+        ArrayList<String> subDirs;
+        
+        File file = new File(path);
+        String[] directories = file.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File current, String name) {
+                
+                File file = new File(current, name);
+                
+                if (file.isDirectory())
+                {
+                    if (file.getName().endsWith(endsWith))
+                    {
+                        return true;
+                    }
+                }
+
+              return false;
+            }
+        });
+        
+        subDirs = new ArrayList<>(Arrays.asList(directories));
+        return subDirs;
+    }
 
     public static ArrayList<String> getAllFileNamesFromDir (String directoryName)
     {

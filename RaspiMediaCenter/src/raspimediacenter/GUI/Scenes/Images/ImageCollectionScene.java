@@ -2,16 +2,16 @@ package raspimediacenter.GUI.Scenes.Images;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import raspimediacenter.GUI.Components.Background;
 import raspimediacenter.GUI.Components.FileLibrary;
+import raspimediacenter.GUI.Components.Images.ImageCollectionBackground;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 import raspimediacenter.Logic.Utilities.FileUtils;
+import raspimediacenter.Logic.Utilities.ImageUtils;
 
 public class ImageCollectionScene extends Scene {
 
@@ -20,7 +20,7 @@ public class ImageCollectionScene extends Scene {
     private boolean painting = false;
     
     //SCENE COMPONENTS
-    private Background background;
+    private ImageCollectionBackground background;
     private SceneMenu sceneMenu;
     
     public ImageCollectionScene (){}
@@ -57,16 +57,24 @@ public class ImageCollectionScene extends Scene {
 
         menuList = createMenuList();
         
-        //Create Background
-        BufferedImage backdrop = null;
-        String dir = "Images/"+menuList.get(0)+"/";
-        background = new Background(dir);
-        //background.setBackgroundImage(backdrop);
-        
         //Create Library List
         sceneMenu = new FileLibrary();
         sceneMenu.setupLibraryList(menuList);
         
+        //Create ImageCollectionsList
+        ArrayList<String> list = new ArrayList<>();
+        
+        for (int x = 0; x < menuList.size(); x++)
+        {
+                String dir = "Images/"+menuList.get(x)+"/";
+                String str = ImageUtils.getFirstImagePathInDir(dir);
+                list.add(str);
+        }
+        
+        //Create Background
+        background = new ImageCollectionBackground(list);
+        background.setupBackgrounds(0);
+
         paintScene();
     }
 
@@ -81,7 +89,6 @@ public class ImageCollectionScene extends Scene {
 
     @Override
     public void unloadScene() {
-        background.unload();
         background = null;
         sceneMenu.unloadMenu();
         sceneMenu = null;
@@ -99,8 +106,7 @@ public class ImageCollectionScene extends Scene {
     // UPDATE FUNCTIONS
     @Override
     public void updateBackground(int linkNum) {
-        String dir = "Images/"+menuList.get(linkNum)+"/";
-        background.updateBackgroundCollection(FileUtils.getRandomFileFromDir(dir), dir);
+        background.setupBackgrounds(linkNum);
     }
 
     @Override
