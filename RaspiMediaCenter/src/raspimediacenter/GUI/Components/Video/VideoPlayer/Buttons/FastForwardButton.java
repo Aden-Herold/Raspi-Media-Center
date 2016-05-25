@@ -12,12 +12,12 @@ import raspimediacenter.Logic.Utilities.TextUtils;
 public class FastForwardButton extends VideoPlayerButton {
 
     private Rectangle bounds;
-    private Rectangle symbolsRect;
+    private final Rectangle symbolsRect;
     
     private boolean focused = false;
     private int ffState = 0;
     
-    private VideoPlayerButton playBtn;
+    private final VideoPlayerButton playBtn;
     
     public FastForwardButton (int x, int y, int width, int height, VideoPlayerButton playBtn)
     {
@@ -154,6 +154,13 @@ public class FastForwardButton extends VideoPlayerButton {
                 g2d.setFont(TextUtils.SMALL_FONT);
                 g2d.drawString("x32", symbolsRect.x+(int)Math.floor(symbolsRect.width/3.5), symbolsRect.y+symbolsRect.height/2+lineHeight);
             } 
+        }
+        else
+        {
+            if (ffState != 0)
+            {
+                ffState  = 0;
+            }
         }
     }
 }

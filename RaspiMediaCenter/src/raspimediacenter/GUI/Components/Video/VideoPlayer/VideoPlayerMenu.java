@@ -9,7 +9,11 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.FastForwardButton;
+import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.NextChapterButton;
+import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.PreviousChapterButton;
+import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.RewindButton;
 import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.StopButton;
+import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.SubtitlesButton;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.SceneManager;
 
@@ -54,20 +58,41 @@ public class VideoPlayerMenu extends SceneMenu {
         menuButtons = new ArrayList<>();
         int btnSize = width/25;
 
-         //Add Stop Button
-        StopButton stop = new StopButton(width/2-btnSize*2, overlayHeight/2-btnSize/2, btnSize, btnSize);
-        menuButtons.add(stop);
-        
-        //Add Play Button
+        //Create buttons
         PlayButton play = new PlayButton(width/2-btnSize/2, overlayHeight/2-btnSize/2, btnSize, btnSize);
-        play.setState(true);
+        StopButton stop = new StopButton(width/2-btnSize*2, overlayHeight/2-btnSize/2, btnSize, btnSize);
+        SubtitlesButton subtitles = new SubtitlesButton(width/2+btnSize, overlayHeight/2-btnSize/2, btnSize, btnSize);
+        FastForwardButton ffButton = new FastForwardButton(width/2+btnSize*2+btnSize/2, overlayHeight/2-btnSize/2, btnSize, btnSize, play);
+        RewindButton rewind = new RewindButton(width/2-btnSize*3-btnSize/2, overlayHeight/2-btnSize/2, btnSize, btnSize, play);
+        PreviousChapterButton pvChapter = null;
+        NextChapterButton nxChapter = null;
+        
+        if (SceneManager.getCurrentScene().getPlayer().getChapterCount() > 0)
+        {
+             pvChapter= new PreviousChapterButton(width/2-btnSize*5, overlayHeight/2-btnSize/2, btnSize, btnSize, play);
+             nxChapter= new NextChapterButton(width/2+btnSize*4, overlayHeight/2-btnSize/2, btnSize, btnSize, play);
+        }
+        
+        //Add buttons in correct order
+        if (pvChapter != null)
+        {
+            menuButtons.add(pvChapter);
+        }
+        
+        menuButtons.add(rewind);
+        menuButtons.add(stop);
         menuButtons.add(play);
-
-        //Add Fast-Forward Button
-        FastForwardButton ffButton = new FastForwardButton(width/2+btnSize, overlayHeight/2-btnSize/2, btnSize, btnSize, play);
+        menuButtons.add(subtitles);
         menuButtons.add(ffButton);
         
+        if (nxChapter != null)
+        {
+            menuButtons.add(nxChapter);
+        }
+        
+        play.setState(true);
         focusedButton = play;
+        focusedButtonPos = menuButtons.indexOf(play);
         focusedButton.setFocused(true);
     }
     
@@ -87,7 +112,15 @@ public class VideoPlayerMenu extends SceneMenu {
     @Override
     public void clickedButton()
     {
-        focusedButton.performAction();
+        if (SceneManager.getCurrentScene().getPlayer().getControlsVisible())
+        {
+            focusedButton.performAction();
+        }
+        else
+        {
+            SceneManager.getCurrentScene().getPlayer().toggleControls();
+        }
+        
         SceneManager.getCurrentScene().buttonClicked();
         SceneManager.getCurrentScene().paintScene();
     }

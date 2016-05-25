@@ -9,7 +9,6 @@ import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.input.KeyCode;
 import raspimediacenter.GUI.Components.Video.VideoPlayer.VideoPlayerButton;
 import raspimediacenter.GUI.SceneManager;
 

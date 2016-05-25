@@ -3,7 +3,6 @@ package raspimediacenter.GUI.Scenes.Music;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
-import java.util.Arrays;
 import raspimediacenter.Data.Models.Music.MusicArtistContainer;
 import raspimediacenter.GUI.Components.Music.MusicBackground;
 import raspimediacenter.GUI.Components.Music.MusicLibrary;

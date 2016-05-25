@@ -2,7 +2,12 @@ package raspimediacenter.GUI.Scenes.Images;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import raspimediacenter.Data.Models.Images.ImageCollectionsContainer;
 import raspimediacenter.GUI.Components.FileLibrary;
 import raspimediacenter.GUI.Components.Images.ImageCollectionBackground;
 import raspimediacenter.GUI.Components.SceneMenu;
@@ -62,6 +67,7 @@ public class ImageCollectionScene extends Scene {
         sceneMenu.setupLibraryList(menuList);
         
         //Create ImageCollectionsList
+        /*
         ArrayList<String> list = new ArrayList<>();
         
         for (int x = 0; x < menuList.size(); x++)
@@ -70,10 +76,11 @@ public class ImageCollectionScene extends Scene {
                 String str = ImageUtils.getFirstImagePathInDir(dir);
                 list.add(str);
         }
+        */
         
         //Create Background
-        background = new ImageCollectionBackground(list);
-        background.setupBackgrounds(0);
+        background = new ImageCollectionBackground(getStarterImages(), getImagePathsContainer());
+        background.changeBackground(0);
 
         paintScene();
     }
@@ -85,6 +92,37 @@ public class ImageCollectionScene extends Scene {
         menuList = FileUtils.getAllSubDirsFromPath("Images/");
         
         return menuList;
+    }
+    
+    private ArrayList<BufferedImage> getStarterImages ()
+    {
+        ArrayList<BufferedImage> starterImages = new ArrayList<>();
+        
+        
+        for (int x = 0;  x < menuList.size(); x++)
+        {
+            String dir = "Images/"+menuList.get(x)+"/";
+            String str = ImageUtils.getFirstImagePathInDir(dir);
+            starterImages.add(ImageUtils.getImageFromPath(str));
+        }
+        
+        return  starterImages;
+    }
+    
+    private ArrayList<ImageCollectionsContainer> getImagePathsContainer()
+    {
+        ArrayList<ImageCollectionsContainer> container = new ArrayList<>();
+        
+        for (int x = 0; x < menuList.size(); x++)
+        {
+            String dir = "Images/"+menuList.get(x);
+            try {
+                container.add(new ImageCollectionsContainer(ImageUtils.getAllImagesPathsInDir(dir, true)));
+            } catch (IOException ex) {
+                Logger.getLogger(ImageCollectionScene.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return container;
     }
 
     @Override
@@ -106,7 +144,7 @@ public class ImageCollectionScene extends Scene {
     // UPDATE FUNCTIONS
     @Override
     public void updateBackground(int linkNum) {
-        background.setupBackgrounds(linkNum);
+        background.changeBackground(linkNum);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package raspimediacenter.GUI.Components.Music;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import raspimediacenter.GUI.Components.SceneComponent;
 import raspimediacenter.GUI.GUI;
@@ -10,7 +8,7 @@ import raspimediacenter.Logic.Utilities.ColorUtils;
 
 public class Equalizer extends SceneComponent
 {
-    private final int EQUALIZER_WIDTH = (int)Math.floor(GUI.getScreenWidth()/2.5);
+    private final int EQUALIZER_WIDTH = (int)Math.floor(GUI.getScreenWidth()/8);
     private final int EQUALIZER_HEIGHT= GUI.getScreenHeight();
     private final int EQUALIZER_COL_WIDTH = EQUALIZER_WIDTH;
     private final int EQUALIZER_COL_HEIGHT = (int)Math.floor(GUI.getScreenHeight()*0.05);

@@ -102,8 +102,8 @@ public class VideoPlayerScene extends Scene {
     }
 
     @Override
-    public void buttonClicked() {
-        
+    public void buttonClicked() 
+    {
     }
 
     @Override

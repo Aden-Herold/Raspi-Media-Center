@@ -22,9 +22,17 @@ public class EmbeddedVideoPlayer {
     private final int MAX_RATE = 32;
     
     private final EmbeddedMediaPlayer player;
-    
-    private String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
+    private final String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
 
+    private final long CONTROLS_VIS_TIME = 5000; //5 seconds
+    private long startTime = -1;
+    private Thread controlManager;
+    private boolean controlsUsed = false;
+    private boolean controlsVisible = true;
+    private boolean controlsUpdating = false;
+    private boolean controlsHiding = true;
+    private int controlsPosDif = 0;
+    
     private boolean isPaused;
     private boolean isMuted;
     private int rate = 1;
@@ -34,6 +42,10 @@ public class EmbeddedVideoPlayer {
     private static BufferStrategy buffer;
     private Canvas mediaControls;
 
+    //======================
+    //       CONSTRUCTOR
+    //======================
+    
     //Searches for the VLC libraries and plugins folder, 
     public EmbeddedVideoPlayer() 
     {
@@ -107,6 +119,21 @@ public class EmbeddedVideoPlayer {
     {
         return player.isPlaying();
     }
+    
+    public int getSubtitlesCount()
+    {
+        return player.getSpuCount();
+    }
+    
+    public boolean getControlsVisible()
+    {
+        return controlsVisible;
+    }
+    
+    public boolean getControlsUpdating()
+    {
+        return controlsUpdating;
+    }
 
     //======================
     //      FUNCTIONS
@@ -121,6 +148,8 @@ public class EmbeddedVideoPlayer {
 
         mediaControls.createBufferStrategy(2);
         buffer = mediaControls.getBufferStrategy();
+        
+        toggleControls();
     }
     
     public void removeMediaControls()
@@ -128,6 +157,108 @@ public class EmbeddedVideoPlayer {
         //mediaControls.setVisible(false);
         GUI.getWindow().getLayeredPane().remove(mediaControls);
     }
+    
+    //======================
+    //       MEDIA CONTROLS ANIMATION
+    //======================
+    public void toggleControls()
+    {
+        controlsUpdating = true;
+        if (controlManager == null || !controlManager.isAlive())
+        {
+            controlManager = new Thread(new controlsManager());
+            controlManager.start();
+        }
+        else if (controlsVisible && controlsHiding)
+        {
+            controlsUsed = true;
+        }
+        else
+        {
+            controlsUsed = true;
+            controlsHiding = false;
+        }
+    }
+    
+    private class controlsManager implements Runnable
+    {
+        @Override
+        public void run() {
+            while (controlsUpdating)
+            {
+                if (controlsVisible && controlsHiding)
+                {
+                    hideControls();
+                }
+                else
+                {
+                    showControls();
+                }
+                
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(EmbeddedVideoPlayer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+    
+    private void hideControls()
+    {
+        int mcHeight = GUI.getScreenHeight()/10+10;
+        int yPos = mediaControls.getY()+2;
+        controlsPosDif+=2;
+        if (controlsPosDif > mcHeight)
+        {
+            controlsHiding = false;
+            controlsUpdating = false;
+            controlsVisible = false;
+        }
+        else
+        {
+            mediaControls.setLocation(mediaControls.getX(), yPos);
+        }
+    }
+    
+    private void showControls()
+    {
+        int yPos = mediaControls.getY()-2;
+        controlsPosDif-=2;
+        if (controlsPosDif  < 0)
+        {
+            controlsPosDif = 0;
+            controlsVisible = true;
+            if (startTime == -1)
+            {
+                startTime = System.currentTimeMillis();
+            }
+            else
+            {
+                long time = System.currentTimeMillis(); 
+                long duration = time - startTime;
+                
+                if (!controlsUsed)
+                {
+                    if (duration >= CONTROLS_VIS_TIME)
+                    {
+                        controlsHiding = true;
+                        startTime = -1;
+                    }
+                }
+                else
+                {
+                    controlsUsed = false;
+                    startTime = -1;
+                }
+            }
+        }
+        else
+        {
+            mediaControls.setLocation(mediaControls.getX(), yPos);
+        }
+    }
+    
     
     //===========================
     //   MEDIA PLAYER FUNCTIONS

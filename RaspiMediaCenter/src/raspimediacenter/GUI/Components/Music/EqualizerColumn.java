@@ -83,8 +83,8 @@ public class EqualizerColumn {
         
         //VERTICAL LINES
         int posX = GUI.getScreenWidth();
-         int xOffset = (int)Math.ceil(bounds.width*0.01);
-        for (int x = 0; x < 100; x++)
+         int xOffset = (int)Math.ceil(bounds.width*0.02);
+        for (int x = 0; x < 50; x++)
         {
             if (posX > GUI.getScreenWidth()-fillWidth)
             {
