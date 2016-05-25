@@ -181,7 +181,7 @@ public class ScraperUtils {
                         track = scraperParseTrack(jsonURI, artist);
                         album = scraperParseAlbum(jsonURI, track, j);
                         makeDirectory(System.getProperty("user.dir") + "/Music/" + name + "/" + album.getName());
-                        moveFile(subDirFiles[j], Paths.get("Music/" + name + "/" + album.getName() + "/"));
+                        moveFile(subDirFiles[j], "Music/" + name + "/" + album.getName() + "/", track.track.getName());
                         subDirFiles[j].renameTo(new File(System.getProperty("user.dir") + "/Music/" + name + "/"
                                 + album.getName() + "/" + subDirName));
                         saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
@@ -295,8 +295,12 @@ public class ScraperUtils {
     public MusicAlbum scraperParseAlbum(String jsonURI, MusicTrack track, int index) {
         jsonURI = constructGetInfoURI("album", track.track.album.getMBID());
         album = parser.parseRemoteAlbum(jsonURI);
-        album.wiki.setSummary(trimString(album.wiki.getSummary(), 0, "<a"));
-        parser.appendToAlbumList(album);
+        if (album != null) {
+            if (album.wiki != null) {
+                album.wiki.setSummary(trimString(album.wiki.getSummary(), 0, "<a"));
+            }
+            parser.appendToAlbumList(album);
+        }
         return album;
     }
 
@@ -512,14 +516,10 @@ public class ScraperUtils {
         return false;
     }
 
-    public void moveFile(File file, Path path) {
-        try {
-            String sub = file.getAbsolutePath();
-            sub = sub.substring(sub.length() - 3, sub.length());
-            Files.move(file.toPath(), path.resolve(file.toPath().getFileName()));
-        } catch (IOException ex) {
-            Logger.getLogger(ScraperUtils.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public void moveFile(File file, String path, String rename) {
+        String sub = file.getAbsolutePath();
+        sub = sub.substring(sub.length() - 3, sub.length());
+        file.renameTo(new File(path + rename + "." + sub));
     }
 
     public String trimString(String oldString, int start, String pattern) {
