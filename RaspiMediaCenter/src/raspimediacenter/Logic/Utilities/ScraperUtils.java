@@ -278,7 +278,15 @@ public class ScraperUtils {
         foundArtist = artistSearchContainer.results.artistmatches.artist.get(0);
         jsonURI = constructGetInfoURI("artist", foundArtist.getMBID());
         artist = parser.parseArtist(jsonURI, true);
-        artist.artist.bio.setSummary(trimString(artist.artist.bio.getSummary(), 0, "<a"));
+        
+        if (artist != null)
+        {
+            if (artist.artist.bio != null)
+            {
+                artist.artist.bio.setSummary(trimString(artist.artist.bio.getSummary(), 0, "<a"));
+            }
+        }
+        
         parser.appendToArtistList(artist);
         return artist;
     }
@@ -288,7 +296,15 @@ public class ScraperUtils {
         foundTrack = trackSearchContainer.results.trackmatches.track.get(0);
         jsonURI = constructGetInfoURI("track", foundTrack.getMBID());
         track = parser.parseTrack(jsonURI, true);
-        track.track.wiki.setSummary(trimString(track.track.wiki.getSummary(), 0, "<a"));
+        
+        if (track != null)
+        {
+            if (track.track.wiki != null)
+            {
+                track.track.wiki.setSummary(trimString(track.track.wiki.getSummary(), 0, "<a"));
+            }
+        }
+        
         return track;
     }
 
