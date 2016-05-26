@@ -12,8 +12,10 @@ import raspimediacenter.GUI.SceneManager;
 
 public class MusicLibrary extends SceneMenu{
 
+    private final int BTN_HEIGHT = (int)Math.floor(GUI.getScreenHeight()*0.20);
     private final double LIST_HEIGHT = GUI.getScreenHeight();
     private boolean isScrollable = true;
+    private int currentScrollAmount = 0;
 
     private MusicLibraryLabel focusedButton;
     private int focusedLabelPos = 0;
@@ -42,45 +44,26 @@ public class MusicLibrary extends SceneMenu{
     public void setupLibraryList (ArrayList<String> list){} // NOT NEEDED
     
     @Override
-     public void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> tagList, ArrayList<String> bioList)
+     public void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> bioList)
      {
         totalListItems = nameList.size();
         libraryButtons = new ArrayList<>();
 
-        int btnHeight = (int)Math.floor(GUI.getScreenHeight()*0.20);
         int element = 0;
         
-        for (int yPos = 0; element < totalListItems; yPos+=btnHeight)
+        for (int yPos = 0; element < totalListItems; yPos+=BTN_HEIGHT)
         {
             MusicLibraryLabel btn;
             
             btn = new MusicLibraryLabel(
                         artPaths.get(element),
                         nameList.get(element), 
-                        tagList.get(element), 
                         bioList.get(element),
                         0,
                         yPos,
                         true
                 );  
-            /*
-            if (yPos < LIST_HEIGHT)
-            {
-                
-            }
-            else
-            {
-                btn = new MusicLibraryLabel(
-                        artPaths.get(element),
-                        nameList.get(element), 
-                        tagList.get(element), 
-                        bioList.get(element),
-                        0,
-                        yPos,
-                        false
-                );
-            }
-            */
+
             libraryButtons.add(btn);
             element++;
         }  
@@ -132,10 +115,12 @@ public class MusicLibrary extends SceneMenu{
         if (focusedLabelPos+1 > libraryButtons.size()-1)
         {
             focusButton(0);
+            resetScroll();
         }
         else
         {
             focusButton(focusedLabelPos+1);
+            scrollList(-1);
         }
     }
 
@@ -145,10 +130,12 @@ public class MusicLibrary extends SceneMenu{
         if (focusedLabelPos-1 < 0)
         {
             focusButton(libraryButtons.size()-1);
+            resetScroll();
         }
         else
         {
             focusButton(focusedLabelPos-1);
+            scrollList(1);
         }
     }
     
@@ -169,10 +156,6 @@ public class MusicLibrary extends SceneMenu{
     @Override
     protected void focusButton (int button)
     {
-        SceneManager.getCurrentScene().updateBackground(button);
-        SceneManager.getCurrentScene().updatePreviewImage(button);
-        SceneManager.getCurrentScene().updateInformationLabels(button);
-
         if (focusedButton != null)
         {
             focusedButton.setFocused(false);
@@ -188,24 +171,55 @@ public class MusicLibrary extends SceneMenu{
         }
     }
     
+    private void resetScroll()
+    {
+        if (currentScrollAmount < 0)
+        {
+            for (MusicLibraryLabel btn : libraryButtons)
+            {
+                  btn.updateY(currentScrollAmount*-1);
+                  toggleButtonVisible(btn);
+            }
+            currentScrollAmount = 0;
+        }
+        else
+        {
+            int btnsInvis = 0;
+            for (int x = libraryButtons.size()-1; x >= 0; x--)
+            {
+                if (libraryButtons.get(x).getVisible() == false)
+                {
+                    btnsInvis++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            
+            int adjustAmount = btnsInvis*BTN_HEIGHT;
+            System.out.println(adjustAmount);
+            for (MusicLibraryLabel btn : libraryButtons)
+            {
+                  btn.updateY(-adjustAmount);
+                  toggleButtonVisible(btn);
+            }
+            currentScrollAmount = adjustAmount;
+        }
+    }
+    
     @Override
-    public void scrollList (int direction, int amount)
+    public void scrollList (int direction)
     {
         if (direction < 0) //UP
         {
             if (!(libraryButtons.get(libraryButtons.size()-1).getY() < LIST_HEIGHT))
             {
+                currentScrollAmount -= BTN_HEIGHT;
                 for (MusicLibraryLabel btn : libraryButtons)
                 {
-                    btn.updateY(-amount);
-                    if (((btn.getY()+btn.getHeight())+5 > 0) && (btn.getY()-45 < LIST_HEIGHT))
-                    {
-                        btn.setVisible(true);
-                    }
-                    else
-                    {
-                        btn.setVisible(false);
-                    }
+                    btn.updateY(-BTN_HEIGHT);
+                    toggleButtonVisible(btn);
                 }
             }
         }
@@ -213,17 +227,11 @@ public class MusicLibrary extends SceneMenu{
         {
             if (!(libraryButtons.get(0).getY() >= 0))
             {
+                currentScrollAmount += BTN_HEIGHT;
                 for (MusicLibraryLabel btn : libraryButtons)
                 {
-                    btn.updateY(amount);
-                    if (((btn.getY()+btn.getHeight())+5 > 0) && (btn.getY()-45 < LIST_HEIGHT))
-                    {
-                        btn.setVisible(true);
-                    }
-                    else
-                    {
-                        btn.setVisible(false);
-                    }
+                    btn.updateY(BTN_HEIGHT);
+                    toggleButtonVisible(btn);
                 }
             }
         }
@@ -234,6 +242,18 @@ public class MusicLibrary extends SceneMenu{
         }
     }
 
+    private void toggleButtonVisible(MusicLibraryLabel btn)
+    {
+         if (((btn.getY()+btn.getHeight()) > 0) && (btn.getY() < LIST_HEIGHT))
+        {
+            btn.setVisible(true);
+        }
+        else
+        {
+            btn.setVisible(false);
+        }
+    }
+    
     // DRAW FUNCTIONS
     @Override
     public void drawMenu(Graphics2D g2d) {

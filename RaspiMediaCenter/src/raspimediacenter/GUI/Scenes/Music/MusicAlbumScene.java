@@ -9,6 +9,7 @@ import raspimediacenter.GUI.Components.Music.MusicBackground;
 import raspimediacenter.GUI.Components.Music.MusicLibrary;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.GUI;
+import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 import raspimediacenter.Logic.Utilities.ParserUtils;
@@ -63,11 +64,11 @@ public class MusicAlbumScene extends Scene {
     @Override
     public void setupScene() {
         ParserUtils parser = new ParserUtils();
-        albumList = parser.parseAlbumList("Music/"+artist.artist.getName()+"/");
+        albumList = parser.parseAlbumList("Music/"+artist.artist.getName()+"/album-list.json");
 
          //Create Library List
         sceneMenu = new MusicLibrary();
-        sceneMenu.setupMusicList(createArtPathsList(), createMenuList(), createTagsList(), createBioList());
+        sceneMenu.setupMusicList(createArtPathsList(), createMenuList(), createBioList());
         
         background = new MusicBackground();
         
@@ -94,23 +95,11 @@ public class MusicAlbumScene extends Scene {
         
         for (int x = 0 ; x < albumList.albums.size(); x++)
         {
-            artPath = "Music/"+albumList.albums.get(x).getName()+"/album_art.jpg";
+            artPath = "Music/"+artist.artist.getName()+"/"+albumList.albums.get(x).getName()+"/album_art.jpg";
             artPathsList.add(artPath);
         }
         
         return artPathsList;
-    }
-    
-     private ArrayList<String> createTagsList()
-    {
-        ArrayList<String> bioList = new ArrayList<>();
-        
-        for (int x = 0 ; x < albumList.albums.size(); x++)
-        {
-            bioList.add(albumList.albums.get(x).tags.tag.get(x).getName());
-        }
-        
-        return bioList;
     }
     
     private ArrayList<String> createBioList()
@@ -119,7 +108,14 @@ public class MusicAlbumScene extends Scene {
         
         for (int x = 0 ; x < albumList.albums.size(); x++)
         {
-            bioList.add(albumList.albums.get(x).wiki.getSummary());
+            if (albumList.albums.get(x).wiki != null)
+            {
+                bioList.add(albumList.albums.get(x).wiki.getSummary());
+            }
+            else
+            {
+                bioList.add("");
+            }
         }
         
         return bioList;
@@ -137,7 +133,8 @@ public class MusicAlbumScene extends Scene {
     @Override
     public void buttonClicked ()
     {
-
+        int linkNum = sceneMenu.getFocusedButtonPos();
+        SceneManager.loadTracks(artist, albumList.albums.get(linkNum));
     }
     
     //UPDATE FUNCTIONS

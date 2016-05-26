@@ -82,12 +82,12 @@ public class LibraryButton extends SceneComponent {
     //FUNCTIONS
     public void updateX (int x)
     {
-        button.x = button.x + x;
+        button.x += x;
     }
     
     public void updateY (int y)
     {
-        button.y = button.y + y;
+        button.y += y;
     }
     
     

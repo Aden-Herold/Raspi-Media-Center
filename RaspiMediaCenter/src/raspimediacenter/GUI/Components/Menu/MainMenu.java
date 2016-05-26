@@ -46,7 +46,7 @@ public class MainMenu extends SceneMenu {
     
     // SETUP FUNCTIONS
     @Override
-     public void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> tagList, ArrayList<String> bioList){} // NOT NEEDED
+     public void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> bioList){} // NOT NEEDED
     
     @Override
     public void setupLibraryList (ArrayList<String> list)
@@ -176,7 +176,7 @@ public class MainMenu extends SceneMenu {
     }
     
     @Override
-    public void scrollList (int direction, int amount)
+    public void scrollList (int direction)
     {
         //MENU CANNOT SCROLL
     }

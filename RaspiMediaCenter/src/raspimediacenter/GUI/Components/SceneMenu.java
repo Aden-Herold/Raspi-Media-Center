@@ -17,7 +17,7 @@ public abstract class SceneMenu {
     //SETUP FUNCTIONS
     public abstract void setupLibraryList(ArrayList<String> list);
     
-    public abstract void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> tagList, ArrayList<String> bioList);
+    public abstract void setupMusicList(ArrayList<String> artPaths, ArrayList<String> nameList, ArrayList<String> bioList);
     
     public abstract void unloadMenu();
     
@@ -34,7 +34,7 @@ public abstract class SceneMenu {
     
     protected abstract void focusButton(int button);
     
-    public abstract void scrollList(int direction, int amount);
+    public abstract void scrollList(int direction);
     
     //DRAW FUNCTIONS
     public abstract void drawMenu(Graphics2D g2d);

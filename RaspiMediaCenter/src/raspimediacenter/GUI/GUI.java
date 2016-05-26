@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferStrategy;
 import javax.swing.JFrame;
+import raspimediacenter.Logic.Utilities.TextUtils;
 
 public class GUI {
 
@@ -41,7 +42,7 @@ public class GUI {
             window.setResizable(false);
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             
-            ResourceManager resources = new ResourceManager();
+            new ResourceManager();
 
             screen = new Canvas();
             screen.setIgnoreRepaint(true);
@@ -53,6 +54,8 @@ public class GUI {
             
             screen.createBufferStrategy(2);   
             buffer = screen.getBufferStrategy();
+            
+            TextUtils.setGraphics(buffer.getDrawGraphics());
             
             addGlobalKeyListener();
             addGlobalMouseListener();
@@ -178,7 +181,7 @@ public class GUI {
                             if (menu.isScrollable())
                             {
                                 int notches = evt.getWheelRotation()*-1;
-                                menu.scrollList(notches, 40); 
+                                menu.scrollList(notches); 
                             }
                         }
                     }

@@ -48,6 +48,16 @@ public class LibraryOverview extends SceneComponent {
     }
     
     // FUNCTIONS
+    public void updateX (int x)
+    {
+        bounds.x = bounds.x + x;
+    }
+    
+    public void updateY (int y)
+    {
+        bounds.y = bounds.y + y;
+    }
+    
     private void wordWrap (Graphics2D g2d)
     {
         lines = new ArrayList<>();

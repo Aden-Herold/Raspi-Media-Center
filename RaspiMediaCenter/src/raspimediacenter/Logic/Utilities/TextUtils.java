@@ -2,6 +2,8 @@ package raspimediacenter.Logic.Utilities;
 
 import raspimediacenter.GUI.GUI;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 
 public class TextUtils {
 
@@ -19,6 +21,8 @@ public class TextUtils {
     public static Font STANDARD_FONT;
     public static Font LARGE_FONT;
     
+    private static Graphics graphics;
+    
     private TextUtils(){}
     
     public static void setFont(Font font)
@@ -26,5 +30,15 @@ public class TextUtils {
         STANDARD_FONT = font;
         SMALL_FONT = font.deriveFont(Font.PLAIN, SMALL_FONT_SIZE);
         LARGE_FONT = font.deriveFont(Font.BOLD, LARGE_FONT_SIZE);
+    }
+    
+    public static void setGraphics (Graphics g)
+    {
+        graphics = g;
+    }
+    
+    public static FontMetrics getMetrics ( Font f)
+    {
+        return graphics.getFontMetrics(f);
     }
 }
