@@ -14,10 +14,11 @@ import java.util.logging.Logger;
 
 public class Background extends SceneComponent {
 
-    private final String backgroundImagesPath = "Resources/";
+    private final String backgroundImagePath = "Resources/defaultBackground.jpg";
     private final String userImagesPath = "Resources/UserBackgrounds/";
     private ArrayList<String> imagePaths = null; 
 
+    private BufferedImage defaultBackground;
     private BufferedImage currentBackground;
     private Thread rendererThread;
     
@@ -46,6 +47,8 @@ public class Background extends SceneComponent {
             rendererThread = new Thread(new renderer());
             rendererThread.start();
         }  
+        
+        defaultBackground = ImageUtils.getImageFromPath(backgroundImagePath);
     }
     
     public Background (String path)
@@ -68,12 +71,19 @@ public class Background extends SceneComponent {
     
     public void setBackgroundImage (BufferedImage img)
     {
-        currentBackground = img;
+        if (img != null)
+        {
+            currentBackground = img;
+        }
+        else
+        {
+            currentBackground = defaultBackground;
+        }
     }
     
     @Override
     public void paintSceneComponent(Graphics2D g) {
-        
+
         if (isFading)
         {
             //Start with default black canvas
@@ -106,7 +116,8 @@ public class Background extends SceneComponent {
             
             if (imagePaths == null)
             {
-                imagePaths = ImageUtils.getAllImagesPathsInDir(backgroundImagesPath, false);
+                isFading = false;
+                currentBackground = defaultBackground;
             }
         }
         catch (IOException ex) 

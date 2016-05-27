@@ -9,15 +9,20 @@ import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.GUI.Scenes.Scene;
-import raspimediacenter.Logic.Utilities.ImageUtils;
 import raspimediacenter.Logic.Utilities.ParserUtils;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import raspimediacenter.Data.Models.Images.ImageCollectionsContainer;
+import raspimediacenter.GUI.Components.Menu.ProgressBar;
+import raspimediacenter.GUI.Scenes.Images.ImageCollectionScene;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
+import raspimediacenter.Logic.Utilities.FileUtils;
+import raspimediacenter.Logic.Utilities.ImageUtils;
 
 public class MainMenuScene extends Scene {
 
@@ -30,10 +35,14 @@ public class MainMenuScene extends Scene {
     private Background background;
     private SceneMenu sceneMenu;
     private MenuHUD menuHUD;
+    private ProgressBar progressBar;
+    int progress = 0;
+    String progressString = "Scraping Tv Shows - Breaking Bad - S01E02";
     
     // DATA MODEL VARIABLES
     MovieContainer movies;
     TVSeriesContainer tvSeries;
+    ArrayList<ImageCollectionsContainer> imageCollections;
     
     public MainMenuScene (){}
     
@@ -68,22 +77,22 @@ public class MainMenuScene extends Scene {
         if (menuChoice.toLowerCase().matches("movies"))
         {
             info[0] = String.valueOf(movies.results.size());
-            info[1] = "0";
+            info[1] = "0"; // total 
         }
         else if (menuChoice.toLowerCase().matches("tv shows"))
         {
-            info[0] = String.valueOf(tvSeries.results.size());
-            info[1] = "3929";
+            info[0] = String.valueOf(tvSeries.results.size()); // total tv shows
+            info[1] = "3929"; //total episodes
         }
         else if (menuChoice.toLowerCase().matches("music"))
         {
-            info[0] = "212";
-            info[1] = "14";
+            info[0] = "212"; // total music
+            info[1] = "14"; // playlists
         }
         else if (menuChoice.toLowerCase().matches("images"))
         {
-            info[0] = "256";
-            info[1] = "4";
+            info[0] = String.valueOf(getTotalImages()); // total images
+            info[1] = String.valueOf(imageCollections.size()); // collections
         }
         else
         {
@@ -94,15 +103,47 @@ public class MainMenuScene extends Scene {
         return info;
     }
 
+    private int getTotalImages ()
+    {
+        int total = 0;
+        for (ImageCollectionsContainer cont : imageCollections)
+        {
+            total += cont.imagePaths.size();
+        }
+        return total;
+    }
+    
+    private ArrayList<ImageCollectionsContainer> getImagePathsContainer()
+    {
+        ArrayList<ImageCollectionsContainer> container = new ArrayList<>();
+        ArrayList<String> directories = FileUtils.getAllSubDirsFromPath("Images/");
+        
+        
+        for (int x = 0; x < directories.size(); x++)
+        {
+            String dir = "Images/"+directories.get(x);
+            try {
+                container.add(new ImageCollectionsContainer(ImageUtils.getAllImagesPathsInDir(dir, true)));
+            } catch (IOException ex) {
+                Logger.getLogger(ImageCollectionScene.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return container;
+    }
+    
     // SETUP && TEAR DOWN
     @Override
     public void setupScene() {
         ParserUtils parser = new ParserUtils();
         movies = parser.parseMovieList("Movies/movie-list.json", false);
         tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
+        imageCollections = getImagePathsContainer();
         
         //Create Background
         background = new Background(true);
+        
+        //Create Progress Bar
+        progressBar = new ProgressBar(0, 0, GUI.getScreenWidth(), 0);
         
         //Create Library List
         sceneMenu = new MainMenu();
@@ -133,7 +174,7 @@ public class MainMenuScene extends Scene {
     @Override
     public void unloadScene() {
         background.unload();
-        background = null;
+        //background = null;
         sceneMenu.unloadMenu();
         sceneMenu = null;
         menuHUD = null;
@@ -149,16 +190,10 @@ public class MainMenuScene extends Scene {
 
     // UPDATE FUNCTIONS
     @Override
-    public void updateBackground(int linkNum) {
-        //BufferedImage backdrop = ImageUtils.getImageFromPath("Movies/"+movies.results.get(linkNum).getTitle()+"/movie_backdrop.jpg");
-        //background.setBackgroundImage(backdrop);
-    }
+    public void updateBackground(int linkNum) {}
 
     @Override
-    public void updatePreviewImage(int linkNum) {
-        //BufferedImage poster = ImageUtils.getImageFromPath("Movies/"+movies.results.get(linkNum).getTitle()+"/movie_poster.jpg");
-        //background.setBackgroundImage(poster);
-    }
+    public void updatePreviewImage(int linkNum) {}
 
     @Override
     public void updateInformationLabels(int linkNum) {
@@ -184,11 +219,25 @@ public class MainMenuScene extends Scene {
                 background.paintSceneComponent(g2d);
                 sceneMenu.drawMenu(g2d);
                 menuHUD.paintSceneComponent(g2d);
+                
+                progress++;
+                if (progress > 100)
+                {
+                    progress = 0;
+                }
+                progressBar.setVisible(true);
+                progressBar.setProgress(progress);
+                progressBar.setLoadingString(progressString);
+                progressBar.paintSceneComponent(g2d);
 
                 if (!GUI.getBuffer().contentsLost())
                 {
                     GUI.getBuffer().show();
                 }
+            }
+            catch (Exception ex)
+            {
+                System.out.println(ex.getMessage());
             }
             finally 
             {
