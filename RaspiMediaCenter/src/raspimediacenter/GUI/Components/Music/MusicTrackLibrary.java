@@ -14,6 +14,7 @@ public class MusicTrackLibrary extends SceneMenu {
     private final int BTN_HEIGHT = (int)Math.floor(GUI.getScreenHeight()*0.05);
     private final double LIST_HEIGHT = GUI.getScreenHeight();
     private boolean isScrollable = true;
+    private int currentScrollAmount = 0;
 
     private TrackLibraryLabel focusedButton;
     private int focusedLabelPos = 0;
@@ -111,10 +112,15 @@ public class MusicTrackLibrary extends SceneMenu {
     {
         if (focusedLabelPos+1 > libraryButtons.size()-1)
         {
+            scrollToTop();
             focusButton(0);
         }
         else
         {
+            if (libraryButtons.get(focusedLabelPos+1).getVisible() == false)
+            {
+                scrollList(-1);
+            }
             focusButton(focusedLabelPos+1);
         }
     }
@@ -124,10 +130,16 @@ public class MusicTrackLibrary extends SceneMenu {
     {
         if (focusedLabelPos-1 < 0)
         {
+            scrollToBottom();
             focusButton(libraryButtons.size()-1);
         }
         else
         {
+            if (libraryButtons.get(focusedLabelPos-1).getVisible() == false)
+            {
+                scrollList(1);
+            }
+
             focusButton(focusedLabelPos-1);
         }
     }
@@ -164,6 +176,43 @@ public class MusicTrackLibrary extends SceneMenu {
         }
     }
     
+    private void scrollToTop()
+    {
+        if (currentScrollAmount < 0)
+        {
+            for (TrackLibraryLabel btn : libraryButtons)
+            {
+                  btn.updateY(currentScrollAmount*-1);
+                  toggleButtonVisible(btn);
+            }
+            currentScrollAmount = 0;
+        }
+    }
+    
+    private void scrollToBottom()
+    {
+            int btnsInvis = 0;
+            for (int x = libraryButtons.size()-1; x >= 0; x--)
+            {
+                if (libraryButtons.get(x).getVisible() == false)
+                {
+                    btnsInvis++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            
+            int adjustAmount = btnsInvis*BTN_HEIGHT;
+            for (TrackLibraryLabel btn : libraryButtons)
+            {
+                  btn.updateY(-adjustAmount);
+                  toggleButtonVisible(btn);
+            }
+            currentScrollAmount = adjustAmount*-1;
+    }
+    
     @Override
     public void scrollList (int direction)
     {
@@ -176,6 +225,7 @@ public class MusicTrackLibrary extends SceneMenu {
                     btn.updateY(-BTN_HEIGHT);
                     toggleButtonVisible(btn);
                 }
+                currentScrollAmount -= BTN_HEIGHT;
             }
         }
         else //DOWN
@@ -187,6 +237,7 @@ public class MusicTrackLibrary extends SceneMenu {
                     btn.updateY(BTN_HEIGHT);
                     toggleButtonVisible(btn);
                 }
+                currentScrollAmount += BTN_HEIGHT;
             }
         }
 

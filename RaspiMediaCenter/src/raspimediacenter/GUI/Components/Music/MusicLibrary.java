@@ -5,7 +5,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
-import raspimediacenter.GUI.Components.LibraryButton;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.SceneManager;
@@ -54,8 +53,9 @@ public class MusicLibrary extends SceneMenu{
         for (int yPos = 0; element < totalListItems; yPos+=BTN_HEIGHT)
         {
             MusicLibraryLabel btn;
-            
-            btn = new MusicLibraryLabel(
+            if (yPos < LIST_HEIGHT)
+            {
+                btn = new MusicLibraryLabel(
                         artPaths.get(element),
                         nameList.get(element), 
                         bioList.get(element),
@@ -63,7 +63,18 @@ public class MusicLibrary extends SceneMenu{
                         yPos,
                         true
                 );  
-
+            }
+            else
+            {
+                btn = new MusicLibraryLabel(
+                        artPaths.get(element),
+                        nameList.get(element), 
+                        bioList.get(element),
+                        0,
+                        yPos,
+                        false
+                );  
+            }
             libraryButtons.add(btn);
             element++;
         }  
@@ -114,13 +125,16 @@ public class MusicLibrary extends SceneMenu{
     {
         if (focusedLabelPos+1 > libraryButtons.size()-1)
         {
+            scrollToTop();
             focusButton(0);
-            resetScroll();
         }
         else
         {
+            if (libraryButtons.get(focusedLabelPos+1).getVisible() == false)
+            {
+                scrollList(-1);
+            }
             focusButton(focusedLabelPos+1);
-            scrollList(-1);
         }
     }
 
@@ -129,13 +143,17 @@ public class MusicLibrary extends SceneMenu{
     {
         if (focusedLabelPos-1 < 0)
         {
+            scrollToBottom();
             focusButton(libraryButtons.size()-1);
-            resetScroll();
         }
         else
         {
+            if (libraryButtons.get(focusedLabelPos-1).getVisible() == false)
+            {
+                scrollList(1);
+            }
+
             focusButton(focusedLabelPos-1);
-            scrollList(1);
         }
     }
     
@@ -171,7 +189,7 @@ public class MusicLibrary extends SceneMenu{
         }
     }
     
-    private void resetScroll()
+    private void scrollToTop()
     {
         if (currentScrollAmount < 0)
         {
@@ -182,8 +200,10 @@ public class MusicLibrary extends SceneMenu{
             }
             currentScrollAmount = 0;
         }
-        else
-        {
+    }
+    
+    private void scrollToBottom()
+    {
             int btnsInvis = 0;
             for (int x = libraryButtons.size()-1; x >= 0; x--)
             {
@@ -198,14 +218,12 @@ public class MusicLibrary extends SceneMenu{
             }
             
             int adjustAmount = btnsInvis*BTN_HEIGHT;
-            System.out.println(adjustAmount);
             for (MusicLibraryLabel btn : libraryButtons)
             {
                   btn.updateY(-adjustAmount);
                   toggleButtonVisible(btn);
             }
-            currentScrollAmount = adjustAmount;
-        }
+            currentScrollAmount = adjustAmount*-1;
     }
     
     @Override
@@ -215,24 +233,24 @@ public class MusicLibrary extends SceneMenu{
         {
             if (!(libraryButtons.get(libraryButtons.size()-1).getY() < LIST_HEIGHT))
             {
-                currentScrollAmount -= BTN_HEIGHT;
                 for (MusicLibraryLabel btn : libraryButtons)
                 {
                     btn.updateY(-BTN_HEIGHT);
                     toggleButtonVisible(btn);
                 }
+                currentScrollAmount -= BTN_HEIGHT;
             }
         }
         else //DOWN
         {
             if (!(libraryButtons.get(0).getY() >= 0))
             {
-                currentScrollAmount += BTN_HEIGHT;
                 for (MusicLibraryLabel btn : libraryButtons)
                 {
                     btn.updateY(BTN_HEIGHT);
                     toggleButtonVisible(btn);
                 }
+                currentScrollAmount += BTN_HEIGHT;
             }
         }
 

@@ -14,6 +14,7 @@ public class FileLibrary extends SceneMenu {
     private final int BTN_WIDTH = GUI.getScreenWidth()/5;
     private final int BTN_HEIGHT = (int)Math.floor(GUI.getScreenHeight()/28.8);
     private boolean isScrollable = true;
+    private int currentScrollAmount = 0;
 
     private LibraryButton focusedButton;
     private int focusedButtonPos = 0;
@@ -62,7 +63,7 @@ public class FileLibrary extends SceneMenu {
         {
             LibraryButton btn;
             
-            if (x-BTN_HEIGHT < LIST_HEIGHT)
+            if ((x+BTN_HEIGHT > 0) && (x < LIST_HEIGHT))
             {
                 btn = new LibraryButton(list.get(element), 
                       GUI.getScreenWidth()-BTN_WIDTH,
@@ -133,10 +134,15 @@ public class FileLibrary extends SceneMenu {
     {
         if (focusedButtonPos+1 > libraryButtons.size()-1)
         {
+            scrollToTop();
             focusButton(0);
         }
         else
         {
+            if (libraryButtons.get(focusedButtonPos+1).getVisible() == false)
+            {
+                scrollList(-1);
+            }
             focusButton(focusedButtonPos+1);
         }
     }
@@ -146,10 +152,16 @@ public class FileLibrary extends SceneMenu {
     {
         if (focusedButtonPos-1 < 0)
         {
+            scrollToBottom();
             focusButton(libraryButtons.size()-1);
         }
         else
         {
+            if (libraryButtons.get(focusedButtonPos-1).getVisible() == false)
+            {
+                scrollList(1);
+            }
+
             focusButton(focusedButtonPos-1);
         }
     }
@@ -190,6 +202,43 @@ public class FileLibrary extends SceneMenu {
         }
     }
     
+    private void scrollToTop()
+    {
+        if (currentScrollAmount < 0)
+        {
+            for (LibraryButton btn : libraryButtons)
+            {
+                  btn.updateY(currentScrollAmount*-1);
+                  toggleButtonVisible(btn);
+            }
+            currentScrollAmount = 0;
+        }
+    }
+    
+    private void scrollToBottom()
+    {
+            int btnsInvis = 0;
+            for (int x = libraryButtons.size()-1; x >= 0; x--)
+            {
+                if (libraryButtons.get(x).getVisible() == false)
+                {
+                    btnsInvis++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            
+            int adjustAmount = btnsInvis*BTN_HEIGHT;
+            for (LibraryButton btn : libraryButtons)
+            {
+                  btn.updateY(-adjustAmount);
+                  toggleButtonVisible(btn);
+            }
+            currentScrollAmount = adjustAmount*-1;
+    }
+    
     @Override
     public void scrollList (int direction)
     {
@@ -205,6 +254,7 @@ public class FileLibrary extends SceneMenu {
                     btn.updateY(-scrollAmount);
                     toggleButtonVisible(btn);
                 }
+                currentScrollAmount -= scrollAmount;
             }
         }
         else //DOWN
@@ -216,6 +266,7 @@ public class FileLibrary extends SceneMenu {
                     btn.updateY(scrollAmount);
                     toggleButtonVisible(btn);
                 }
+                currentScrollAmount += scrollAmount;
             }
         }
 
@@ -227,7 +278,7 @@ public class FileLibrary extends SceneMenu {
 
     private void toggleButtonVisible(LibraryButton btn)
     {
-         if (((btn.getY()+btn.getHeight())+5 > 0) && (btn.getY()-(BTN_HEIGHT/2+5) < LIST_HEIGHT))
+         if (((btn.getY()+btn.getHeight()) > 0) && (btn.getY() < LIST_HEIGHT))
         {
             btn.setVisible(true);
         }

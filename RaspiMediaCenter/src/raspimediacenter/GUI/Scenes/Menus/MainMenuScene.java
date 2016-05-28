@@ -235,10 +235,7 @@ public class MainMenuScene extends Scene {
                     GUI.getBuffer().show();
                 }
             }
-            catch (Exception ex)
-            {
-                System.out.println(ex.getMessage());
-            }
+            catch (Exception ex){}
             finally 
             {
                 g2d.dispose();
