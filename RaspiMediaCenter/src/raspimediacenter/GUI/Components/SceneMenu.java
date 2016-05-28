@@ -11,6 +11,8 @@ public abstract class SceneMenu {
     
     public abstract int getFocusedButtonPos();
     
+    public abstract String getFocusedButtonText();
+    
     //SETTERS
     public abstract void setScrollable(boolean isScrollable);
     

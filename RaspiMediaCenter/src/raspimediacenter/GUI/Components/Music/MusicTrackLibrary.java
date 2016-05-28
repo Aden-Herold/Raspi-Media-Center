@@ -23,6 +23,12 @@ public class MusicTrackLibrary extends SceneMenu {
     
     // GETTERS
     @Override
+    public String getFocusedButtonText()
+    {
+        return libraryButtons.get(focusedLabelPos).getText();
+    }
+    
+    @Override
     public boolean isScrollable() {
         return isScrollable;
     }

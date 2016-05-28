@@ -27,6 +27,12 @@ public class MainMenu extends SceneMenu {
     public MainMenu () {}
     
     // GETTERS
+    @Override
+    public String getFocusedButtonText()
+    {
+        return menuButtons.get(focusedButtonPos).getText();
+    }
+    
     @Override 
     public int getFocusedButtonPos ()
     {

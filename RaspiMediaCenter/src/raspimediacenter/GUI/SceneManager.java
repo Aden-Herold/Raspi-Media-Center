@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import raspimediacenter.Data.Models.Music.MusicAlbumContainer.MusicAlbum;
 import raspimediacenter.Data.Models.Music.MusicArtistContainer.MusicArtist;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
 import raspimediacenter.GUI.Scenes.Images.ImageCollectionScene;
 import raspimediacenter.GUI.Scenes.Images.ImagesScene;
 import raspimediacenter.GUI.Scenes.Music.MusicAlbumScene;
@@ -120,12 +121,12 @@ public class SceneManager {
         currentScene.setupScene(); 
     }
     
-    public static void loadVideo (TVSeries series, int seasonNumber, String episode)
+    public static void loadVideo (TVSeries series, TVSeason episode)
     {
         previousScenes.add(currentScene);
         unloadCurrentScene();
         
-        currentScene = new VideoPlayerScene(series, seasonNumber, episode);
+        currentScene = new VideoPlayerScene(series, episode);
         currentScene.setupScene();
     }
     

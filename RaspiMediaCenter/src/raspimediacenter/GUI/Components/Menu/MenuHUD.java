@@ -124,11 +124,11 @@ public class MenuHUD extends SceneComponent {
             //Top Line left side --> /``` 
             shadow.moveTo(bounds.x-2, bounds.y+bounds.height); 
             shadow.lineTo(bounds.x+shapeInset+4, bounds.y-10);
-            shadow.lineTo(bounds.x+bounds.width-shapeInset+4, bounds.y-10);
+            shadow.lineTo(bounds.x+bounds.width-shapeInset-4, bounds.y-10);
             shadow.lineTo(bounds.x+bounds.width+2, bounds.y+bounds.height);
 
             
-            // Inner line -> /``````\
+            // Inner line -> /``````
             shadow.lineTo(bounds.x+bounds.width, bounds.y+bounds.height);
             shadow.lineTo(bounds.x+bounds.width-shapeInset, bounds.y);
             shadow.lineTo(bounds.x+shapeInset, bounds.y);

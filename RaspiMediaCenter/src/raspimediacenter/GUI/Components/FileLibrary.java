@@ -21,11 +21,15 @@ public class FileLibrary extends SceneMenu {
     private int totalListItems;
     private ArrayList<LibraryButton> libraryButtons;
     
-    public FileLibrary ()
-    {
-    }
+    public FileLibrary (){}
     
     // GETTERS
+    @Override
+    public String getFocusedButtonText()
+    {
+        return libraryButtons.get(focusedButtonPos).getText();
+    }
+    
     public int getButtonWidth()
     {
         return BTN_WIDTH;

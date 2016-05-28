@@ -3,6 +3,7 @@ package raspimediacenter.GUI.Scenes;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
 import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Components.Video.VideoPlayer.VideoPlayerMenu;
@@ -13,19 +14,17 @@ public class VideoPlayerScene extends Scene {
     private final String SCENE_NAME = "VIDEO PLAYER";
     
     private final TVSeries show;
-    private final int seasonNumber;
-    private final String episodeName;
+    private final TVSeason episode;
     
     private boolean painting = false;
     private SceneMenu sceneMenu;
     private EmbeddedVideoPlayer player;
     private boolean running = true;
 
-    public VideoPlayerScene (TVSeries show, int seasonNumber, String episodeName)
+    public VideoPlayerScene (TVSeries show, TVSeason episode)
     {
         this.show = show;
-        this.seasonNumber = seasonNumber+1;
-        this.episodeName = episodeName;
+        this.episode = episode;
     }
 
     // GETTERS
@@ -81,9 +80,8 @@ public class VideoPlayerScene extends Scene {
         sceneMenu = new VideoPlayerMenu(); 
         sceneMenu.setupLibraryList(null);
         
-        //String file = "TV Shows/"+show.getName()+"/Season "+seasonNumber+"/Dexter S01E01 - Dexter.avi";
-        String file = "TV Shows/Dexter/Season 1/Dexter S01E01 - Dexter.avi";
-        //player.play(file);
+        //String file = "TV Shows/"+show.getName()+"/Season "+episode.getSeasonNumber()+"/E"+episode.getEpisodeNumber()+" - "+episode.getName();
+        //player.playEpisode(reeeeeeeeeeeeeee, reeeeeeeeeeeee);
         
         painting = false;
         thread.start();

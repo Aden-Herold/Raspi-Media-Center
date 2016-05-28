@@ -176,7 +176,10 @@ public class TVEpisodesScene extends Scene {
     @Override
     public void buttonClicked() {
         int focusedBtn = sceneMenu.getFocusedButtonPos();
-        SceneManager.loadVideo(show, seasonNumber, seasons.get(seasonNumber).episodes.get(focusedBtn).getName());
+        if (!sceneMenu.getFocusedButtonText().matches("No Episodes Yet!"))
+        {
+            SceneManager.loadVideo(show, seasons.get(seasonNumber).episodes.get(focusedBtn));
+        }
     }
 
     //UPDATE FUNCTIONS

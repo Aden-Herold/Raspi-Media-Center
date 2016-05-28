@@ -4,7 +4,6 @@ import raspimediacenter.GUI.Components.Video.VideoPlayer.Buttons.PlayButton;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import raspimediacenter.GUI.Components.SceneMenu;
@@ -31,6 +30,12 @@ public class VideoPlayerMenu extends SceneMenu {
     public VideoPlayerMenu () {}
     
     // GETTERS
+    @Override
+    public String getFocusedButtonText()
+    {
+        return null;
+    }
+    
     @Override 
     public int getFocusedButtonPos ()
     {

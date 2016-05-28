@@ -48,6 +48,11 @@ public class TrackLibraryLabel extends SceneComponent {
     }
    
     // GETTERS
+    public String getText()
+    {
+        return nameLabel.getText();
+    }
+    
     public Rectangle getBounds()
     {
         return bounds;

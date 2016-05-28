@@ -40,6 +40,12 @@ public class SystemMenuPopup extends SceneMenu {
     }
     
     // GETTERS
+    @Override
+    public String getFocusedButtonText()
+    {
+        return btns.get(focusedButtonPos).getText();
+    }
+    
     public SystemMenuButton getFocusedButton()
     {
         return focusedButton;
