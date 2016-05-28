@@ -28,16 +28,22 @@ import raspimediacenter.Data.Models.Music.MusicTrackContainer;
 import raspimediacenter.Data.Models.Music.MusicTrackContainer.MusicTrack;
 import raspimediacenter.Data.Models.Music.MusicTrackSearchContainer;
 import raspimediacenter.Data.Models.Music.MusicTrackSearchContainer.MusicTrackResult.TrackMatches.FoundTrack;
+import raspimediacenter.Data.Models.TV.TVEpisodeList;
 import raspimediacenter.Data.Models.TV.TVSeasonContainer;
 import raspimediacenter.Data.Models.TV.TVSeriesContainer;
 import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 import uk.co.caprica.vlcj.filter.AudioFileFilter;
+import uk.co.caprica.vlcj.filter.VideoFileFilter;
 
 public class ScraperUtils {
 
     public static final String BACKDROP_SIZE = "w1920";
     public static final String POSTER_SIZE = "w780";
     public static final String STILL_SIZE = "w300";
+
+    public static int progress, currentProgress, maxProgress;
+    public static String progressText;
+    public static boolean tvScraping, movieScraping, musicScraping;
 
     private String tmbdApiKey = System.getenv("API_KEY");
     private String tmdbBaseURI = "http://api.themoviedb.org/3/";
@@ -61,50 +67,84 @@ public class ScraperUtils {
     private FoundArtist foundArtist;
     private MusicArtistSearchContainer artistSearchContainer;
     private MusicTrack track;
-    private MusicTrackContainer trackContainer;
+    private MusicTrackContainer trackContainer, progressTrackContainer;
     private FoundTrack foundTrack;
     private MusicTrackSearchContainer trackSearchContainer;
     private MusicArtistContainer artistList;
 
     private ParserUtils parser = new ParserUtils();
-    private AudioFileFilter filter = new AudioFileFilter();
-    private String[] audioFormats = filter.getExtensions();
+    private AudioFileFilter audioFilter = new AudioFileFilter();
+    private VideoFileFilter videoFilter = new VideoFileFilter();
+    private String[] audioFormats = audioFilter.getExtensions();
+    private String[] videoFormats = videoFilter.getExtensions();
 
     public class TVScraperThread implements Runnable {
 
+        private boolean updateAll;
+        private boolean withImages;
+
+        public TVScraperThread(boolean updateAll, boolean withImages) {
+            this.updateAll = updateAll;
+            this.withImages = withImages;
+        }
+
         @Override
         public void run() {
+            tvScraping = true;
             parser.cleanupSeriesList();
-            startTVScrape();
-            scrapeTVImages();
+            startTVScrape(updateAll);
+            scrapeTVImages(withImages);
+            tvScraping = false;
         }
     }
 
     public class MovieScraperThread implements Runnable {
 
+        private boolean updateAll;
+        private boolean withImages;
+
+        public MovieScraperThread(boolean updateAll, boolean withImages) {
+            this.updateAll = updateAll;
+            this.withImages = withImages;
+        }
+
         @Override
         public void run() {
+            movieScraping = true;
             parser.cleanupMovieList();
-            startMovieScrape();
-            scrapeMovieImages();
+            startMovieScrape(updateAll);
+            scrapeMovieImages(withImages);
+            movieScraping = false;
         }
     }
 
     public class MusicScraperThread implements Runnable {
 
+        private boolean updateAll;
+        private boolean withImages;
+
+        public MusicScraperThread(boolean updateAll, boolean withImages) {
+            this.updateAll = updateAll;
+            this.withImages = withImages;
+        }
+
         @Override
         public void run() {
+            musicScraping = true;
             parser.cleanupArtistList();
-            startMusicScrape();
-            scrapeMusicImages();
+            startMusicScrape(updateAll);
+            scrapeMusicImages(withImages);
+            musicScraping = false;
         }
     }
 
-    public void startScrapers() {
-        TVScraperThread tvScraper = new TVScraperThread();
-        MovieScraperThread movieScraper = new MovieScraperThread();
-        MusicScraperThread musicScraper = new MusicScraperThread();
+    public void startScrapers(boolean updateAll, boolean withImages) {
+        TVScraperThread tvScraper = new TVScraperThread(updateAll, withImages);
+        MovieScraperThread movieScraper = new MovieScraperThread(updateAll, withImages);
+        MusicScraperThread musicScraper = new MusicScraperThread(updateAll, withImages);
 
+        maxProgress = calculateMaxProgress(updateAll, withImages);
+        System.out.println(maxProgress);
         new Thread(tvScraper).start();
         new Thread(movieScraper).start();
         new Thread(musicScraper).start();
@@ -113,21 +153,57 @@ public class ScraperUtils {
     //Iterates through series directories and seasons directories within /TV Shows/, constructs a URI with a found series directory as a search term
     //and scrapes information about that series, as well as all of its seasons as JSON from The Movie Database. Images related to the series/seasons are also scraped
     //and saved in appropriate subdirectories.
-    public void startTVScrape() {
+    public void startTVScrape(boolean updateAll) {
         File[] files = getDirectories("TV Shows", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String name = files[i].getName();
-                String jsonURI = constructTMDBSearchURI("tv", parser.encodeURLParameter(name), "");
-                series = scraperParseSeries(jsonURI, series);
-                name = renameDir("TV Shows/", name, series.getName());
-                saveLocalSeriesJSON(series, "TV Shows/" + name + "/");
-                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + name, true);
+                if (updateAll || !new File("TV Shows/" + name + "/info.json").exists()) {
+                    progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Series - " + files[i].getPath();
+                    String jsonURI = constructTMDBSearchURI("tv", parser.encodeURLParameter(name), "");
+                    series = scraperParseSeries(jsonURI, series);
+                    name = renameDir("TV Shows/", name, series.getName());
+                    saveLocalSeriesJSON(series, "TV Shows/" + name + "/");
+                    incrementProgress();
+                } else {
+                    series = parser.parseSeries("TV Shows/" + name + "/info.json", false);
+                    parser.appendToSeriesList(series);
+                }
+                File[] subDirFiles = getDirectories("TV Shows/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
                     if (subDirName.toLowerCase().contains("season")) {
-                        tvSeason = scraperParseSeason(jsonURI, series, subDirName);
-                        saveLocalSeasonJSON(tvSeason, "TV Shows/" + name + "/" + subDirName + "/");
+                        if (updateAll || !new File("TV Shows/" + name + "/" + subDirName + "/info.json").exists()) {
+                            progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Season - " + subDirFiles[j].getPath();
+                            tvSeason = scraperParseSeason(series, subDirName);
+                            saveLocalSeasonJSON(tvSeason, "TV Shows/" + name + "/" + subDirName + "/");
+                            incrementProgress();
+                        } else {
+                            tvSeason = parser.parseSeason("TV Shows/" + name + "/" + subDirName + "/info.json", false);
+                        }
+                        File[] episodeFiles = getDirectories("TV Shows/" + name + "/" + subDirName, false);
+                        for (int k = 0; k < episodeFiles.length; k++) {
+                            boolean episodeExists = false;
+                            String episodeName = episodeFiles[k].getName();
+                            if (isVideoExtension(episodeFiles[k].getName())) {
+                                int episodeNum = parser.trimFileName("E", episodeName);
+                                if (new File("TV Shows/" + name + "/" + subDirName + "/episode-list.json").exists()) {
+                                    TVEpisodeList list = parser.parseEpisodeList("TV Shows/" + name + "/" + subDirName + "/episode-list.json");
+                                    for (int l = 0; l < list.episodes.size(); l++) {
+                                        if (trimEpisodeNumber(episodeName).equalsIgnoreCase(list.episodes.get(l).getName())) {
+                                            episodeExists = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if ((!episodeExists && episodeNum != 0) || (updateAll && episodeNum != 0)) {
+                                    progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Episode - " + episodeFiles[k].getPath();
+                                    renameFile(episodeFiles[k], episodeFiles[k].getParent() + "/", "E" + episodeNum + " - " + tvSeason.episodes.get(episodeNum - 1).getName());
+                                    addToEpisodeList(tvSeason, trimEpisodeNumber(episodeName), name);
+                                    incrementProgress();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -137,51 +213,97 @@ public class ScraperUtils {
     //Iterates through movie directories within /Movies/, constructs a URI with a found movie directory as a search term
     //and scrapes information about that movie from The Movie Database. Images related to the movie are also scraped
     //and saved in the movie's directory.
-    public void startMovieScrape() {
+    public void startMovieScrape(boolean updateAll) {
         File[] files = getDirectories("Movies", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String name = files[i].getName();
-                String jsonURI = constructTMDBSearchURI("movie", parser.encodeURLParameter(name), "");
-                movie = scraperParseMovie(jsonURI, movie);
-                name = renameDir("Movies/", name, movie.getTitle());
-                saveLocalMovieJSON(movie, "Movies/" + name + "/");
+                if (updateAll || !new File("Movies/" + name + "/info.json").exists()) {
+                    progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Movie - " + files[i].getPath();
+                    String jsonURI = constructTMDBSearchURI("movie", parser.encodeURLParameter(name), "");
+                    movie = scraperParseMovie(jsonURI, movie);
+                    if (movie != null) {
+                        name = renameDir("Movies/", name, movie.getTitle());
+                        saveLocalMovieJSON(movie, "Movies/" + name + "/");
+                        incrementProgress();
+                    }
+                } else {
+                    movie = parser.parseMovie("Movies/" + name + "/info.json", false);
+                    parser.appendToMovieList(movie);
+                }
             }
         }
     }
 
-    public void startMusicScrape() {
+    public void startMusicScrape(boolean updateAll) {
         File[] files = getDirectories("Music", true);
+        String jsonURI;
+        boolean scrapeTrack = true;
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String name = files[i].getName();
-                String jsonURI = constructArtistSearchURI(parser.encodeURLParameter(name));
-                artist = scraperParseArtist(jsonURI, artist);
-                name = renameDir("Music/", name, artist.artist.getName());
-                saveLocalArtistJSON(artist, "Music/" + name + "/");
-                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/Music/" + name + "/", false);
+                parser.cleanupAlbumList("Music/" + name + "/album-list.json");
+                if (updateAll || !new File("Music/" + name + "/info.json").exists()) {
+                    progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Artist - " + files[i].getPath();
+                    jsonURI = constructArtistSearchURI(parser.encodeURLParameter(name));
+                    artist = scraperParseArtist(jsonURI, artist);
+                    incrementProgress();
+                    name = renameDir("Music/", name, artist.artist.getName());
+                    saveLocalArtistJSON(artist, "Music/" + name + "/");
+                } else {
+                    artist = parser.parseArtist("Music/" + name + "/info.json", false);
+                    parser.appendToArtistList(artist);
+                }
+                File[] subDirFiles = getDirectories("Music/" + name + "/", false);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
+                    if (new File("Music/" + name + "/" + subDirName + "/track-list.json").exists()) {
+                        trackContainer = parser.parseTrackList("Music/" + name + "/" + subDirName + "/track-list.json", false);
+                    }
                     if (subDirFiles[j].isDirectory()) {
                         File[] existingAlbum = getDirectories("Music/" + name + "/" + subDirName, false);
                         for (int k = 0; k < existingAlbum.length; k++) {
-                            if (isMusicExtension(existingAlbum[k].getName())) {
+                            if (isAudioExtension(existingAlbum[k].getName())) {
                                 String existingAlbumName = existingAlbum[k].getName();
                                 existingAlbumName = existingAlbumName.replaceFirst("[.][^.]+$", "");
-                                jsonURI = constructTrackSearchURI(parser.encodeURLParameter(existingAlbumName), parser.encodeURLParameter(name));
-                                track = scraperParseTrack(jsonURI, artist);
-                                album = scraperParseAlbum(jsonURI, track, k);
-                                saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
-                                parser.appendToTrackList(track, name, album.getName());
+                                if (updateAll || !new File("Music/" + name + "/" + subDirName + "/info.json").exists()
+                                        || !new File("Music/" + name + "/" + subDirName + "/track-list.json").exists()) {
+                                    scrapeTrack = true;
+                                } else {
+                                    for (int l = 0; l < trackContainer.tracks.size(); l++) {
+                                        if (trackContainer.tracks.get(l).track.getName().equalsIgnoreCase(existingAlbumName)) {
+                                            scrapeTrack = false;
+                                            break;
+                                        } else {
+                                            scrapeTrack = true;
+                                        }
+                                    }
+                                }
+                                if (scrapeTrack) {
+                                    progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Track - " + existingAlbum[k].getPath();
+                                    jsonURI = constructTrackSearchURI(parser.encodeURLParameter(existingAlbumName), parser.encodeURLParameter(name));
+                                    track = scraperParseTrack(jsonURI, artist);
+                                    incrementProgress();
+                                    progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Album - " + existingAlbum[k].getPath();
+                                    album = scraperParseAlbum(track, k);
+                                    incrementProgress();
+                                    saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
+                                    parser.appendToTrackList(track, name, album.getName());
+                                }
+
                             }
                         }
-                    } else if (isMusicExtension(subDirFiles[j].getName())) {
+                    } else if (isAudioExtension(subDirFiles[j].getName())) {
                         subDirName = subDirName.replaceFirst("[.][^.]+$", "");
+                        progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Track - " + subDirFiles[j].getPath();
                         jsonURI = constructTrackSearchURI(parser.encodeURLParameter(subDirName), parser.encodeURLParameter(name));
                         track = scraperParseTrack(jsonURI, artist);
-                        album = scraperParseAlbum(jsonURI, track, j);
+                        incrementProgress();
+                        progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Album - " + subDirFiles[j].getPath();
+                        album = scraperParseAlbum(track, j);
+                        incrementProgress();
                         makeDirectory(System.getProperty("user.dir") + "/Music/" + name + "/" + album.getName());
-                        moveFile(subDirFiles[j], "Music/" + name + "/" + album.getName() + "/", track.track.getName());
+                        renameFile(subDirFiles[j], "Music/" + name + "/" + album.getName() + "/", track.track.getName());
                         subDirFiles[j].renameTo(new File(System.getProperty("user.dir") + "/Music/" + name + "/"
                                 + album.getName() + "/" + subDirName));
                         saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
@@ -193,30 +315,36 @@ public class ScraperUtils {
         }
     }
 
-    public void scrapeTVImages() {
+    public void scrapeTVImages(boolean withImages) {
         File[] files = getDirectories("TV Shows", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String path = "TV Shows/series-list.json";
                 tvSeries = parser.parseSeriesList(path, false);
                 String name = tvSeries.results.get(i).getName();
-                requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", tvSeries.results.get(i).getBackdropPath(), "TV Shows/" + name + "/");
-                requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", tvSeries.results.get(i).getPosterPath(), "TV Shows/" + name + "/");
-                File[] subDirFiles = getDirectories(System.getProperty("user.dir") + "/TV Shows/" + name, true);
+                requestImageScrape(BACKDROP_SIZE, backdropImage, "series_backdrop.jpg", tvSeries.results.get(i).getBackdropPath(), "TV Shows/" + name + "/", withImages);
+                requestImageScrape(POSTER_SIZE, posterImage, "series_poster.jpg", tvSeries.results.get(i).getPosterPath(), "TV Shows/" + name + "/", withImages);
+                File[] subDirFiles = getDirectories("TV Shows/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
-                    requestImageScrape(POSTER_SIZE, posterImage, "season_poster.jpg", tvSeason.getPosterPath(), "TV Shows/" + name + "/" + subDirName + "/");
+                    TVSeasonContainer season = parser.parseSeason("TV Shows/" + name + "/" + subDirName + "/info.json", false);
+                    requestImageScrape(POSTER_SIZE, posterImage, "season_poster.jpg", season.getPosterPath(), "TV Shows/" + name + "/" + subDirName + "/", withImages);
                     makeDirectory(System.getProperty("user.dir") + "/TV Shows/" + name + "/" + subDirName + "/Stills/");
-                    for (int k = 0; k < tvSeason.episodes.size(); k++) {
-                        requestImageScrape(BACKDROP_SIZE, backdropImage, "EP" + (k + 1) + "_still.jpg", tvSeason.episodes.get(k).getStillPath(),
-                                "TV Shows/" + name + "/" + subDirName + "/Stills/");
+                    if (new File("TV Shows/" + name + "/" + subDirName + "/episode-list.json").exists()) {
+                        TVEpisodeList list = parser.parseEpisodeList("TV Shows/" + name + "/" + subDirName + "/episode-list.json");
+                        if (list != null) {
+                            for (int k = 0; k < list.episodes.size(); k++) {
+                                requestImageScrape(BACKDROP_SIZE, backdropImage, "EP" + list.episodes.get(k).getEpisodeNumber() + "_still.jpg", season.episodes.get(k).getStillPath(),
+                                        "TV Shows/" + name + "/" + subDirName + "/Stills/", withImages);
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    public void scrapeMusicImages() {
+    public void scrapeMusicImages(boolean withImages) {
         File[] files = getDirectories("Music", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
@@ -224,28 +352,40 @@ public class ScraperUtils {
                 artistList = parser.parseArtistList(path, false);
                 String name = artistList.artists.get(i).artist.getName();
                 requestMusicImageScrape(artistImage, "artist_portrait.jpg", artistList.artists.get(i).artist.image.get(artistList.artists.get(i).artist.image.size() - 2).getPath(),
-                        "Music/" + name + "/");
+                        "Music/" + name + "/", withImages);
                 File[] subDirFiles = getDirectories("Music/" + name, true);
                 for (int j = 0; j < subDirFiles.length; j++) {
                     String subDirName = subDirFiles[j].getName();
                     album = parser.parseLocalAlbum("Music/" + name + "/" + subDirName + "/info.json");
-                    requestMusicImageScrape(albumImage, "album_art.jpg", album.image.get(album.image.size() - 2).getText(), "Music/" + name + "/" + subDirName + "/");
+                    requestMusicImageScrape(albumImage, "album_art.jpg", album.image.get(album.image.size() - 2).getText(), "Music/" + name + "/" + subDirName + "/", withImages);
                 }
             }
         }
     }
 
-    public void scrapeMovieImages() {
+    public void scrapeMovieImages(boolean withImages) {
         File[] files = getDirectories("Movies", true);
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 String path = "Movies/movie-list.json";
                 movieContainer = parser.parseMovieList(path, false);
                 String name = movieContainer.results.get(i).getTitle();
-                requestImageScrape(BACKDROP_SIZE, backdropImage, "movie_backdrop.jpg", movie.getBackdropPath(), "Movies/" + name + "/");
-                requestImageScrape(POSTER_SIZE, posterImage, "movie_poster.jpg", movie.getPosterPath(), "Movies/" + name + "/");
+                requestImageScrape(BACKDROP_SIZE, backdropImage, "movie_backdrop.jpg", movieContainer.results.get(i).getBackdropPath(), "Movies/" + name + "/", withImages);
+                requestImageScrape(POSTER_SIZE, posterImage, "movie_poster.jpg", movieContainer.results.get(i).getPosterPath(), "Movies/" + name + "/", withImages);
             }
         }
+    }
+
+    public void incrementProgress() {
+        currentProgress++;
+        //System.out.println(currentProgress + ": " + progressText);
+        progress = currentProgress * 100 / maxProgress;
+        System.out.println(progress + "%");
+    }
+
+    public static void resetProgress() {
+        progress = currentProgress = 0;
+        progressText = null;
     }
 
     public Movie scraperParseMovie(String jsonURI, Movie movie) {
@@ -266,11 +406,20 @@ public class ScraperUtils {
         return series;
     }
 
-    public TVSeasonContainer scraperParseSeason(String jsonURI, TVSeries series, String subDirName) {
+    public TVSeasonContainer scraperParseSeason(TVSeries series, String subDirName) {
         int seasonNo = parser.trimFileName("season ", subDirName.toLowerCase());
-        jsonURI = constructSeasonURI(series.getID(), seasonNo);
+        String jsonURI = constructSeasonURI(series.getID(), seasonNo);
         tvSeason = parser.parseSeason(jsonURI, true);
         return tvSeason;
+    }
+
+    public void addToEpisodeList(TVSeasonContainer season, String episodeName, String show) {
+        for (int i = 0; i < season.episodes.size(); i++) {
+            if (episodeName.equalsIgnoreCase(season.episodes.get(i).getName())) {
+                parser.appendToEpisodeList(season.episodes.get(i), show);
+                break;
+            }
+        }
     }
 
     public MusicArtist scraperParseArtist(String jsonURI, MusicArtist artist) {
@@ -278,15 +427,13 @@ public class ScraperUtils {
         foundArtist = artistSearchContainer.results.artistmatches.artist.get(0);
         jsonURI = constructGetInfoURI("artist", foundArtist.getMBID());
         artist = parser.parseArtist(jsonURI, true);
-        
-        if (artist != null)
-        {
-            if (artist.artist.bio != null)
-            {
+
+        if (artist != null) {
+            if (artist.artist.bio != null) {
                 artist.artist.bio.setSummary(trimString(artist.artist.bio.getSummary(), 0, "<a"));
             }
         }
-        
+
         parser.appendToArtistList(artist);
         return artist;
     }
@@ -296,20 +443,18 @@ public class ScraperUtils {
         foundTrack = trackSearchContainer.results.trackmatches.track.get(0);
         jsonURI = constructGetInfoURI("track", foundTrack.getMBID());
         track = parser.parseTrack(jsonURI, true);
-        
-        if (track != null)
-        {
-            if (track.track.wiki != null)
-            {
+
+        if (track != null) {
+            if (track.track.wiki != null) {
                 track.track.wiki.setSummary(trimString(track.track.wiki.getSummary(), 0, "<a"));
             }
         }
-        
+
         return track;
     }
 
-    public MusicAlbum scraperParseAlbum(String jsonURI, MusicTrack track, int index) {
-        jsonURI = constructGetInfoURI("album", track.track.album.getMBID());
+    public MusicAlbum scraperParseAlbum(MusicTrack track, int index) {
+        String jsonURI = constructGetInfoURI("album", track.track.album.getMBID());
         album = parser.parseRemoteAlbum(jsonURI);
         if (album != null) {
             if (album.wiki != null) {
@@ -322,21 +467,27 @@ public class ScraperUtils {
 
     //Prepares to scrape an image by first verifying if the image already exists in the chosen directory, and then
     //reading + saving the image. Checks that the imageURL given is not null, for cases when a still image path isn't provided by The Movie Database. 
-    public void requestImageScrape(String size, BufferedImage image, String name, String imageURL, String path) {
+    public void requestImageScrape(String size, BufferedImage image, String name, String imageURL, String path, boolean withImages) {
         File file = new File(path + "/" + name);
-        if (!file.exists() && imageURL != null) {
-            System.out.println("Downloading " + name + " to " + path + ".");
+        if ((!file.exists() && imageURL != null) || (withImages && imageURL != null)) {
+            progressText = "(" + currentProgress + "/" + maxProgress + ") Scraping Image - " + file.getPath();
             image = scrapeImage(size, imageURL);
-            saveImage(image, name, path);
+            if (image != null) {
+                saveImage(image, name, path);
+                incrementProgress();
+            }
         }
     }
 
-    public void requestMusicImageScrape(BufferedImage image, String name, String imageURL, String path) {
+    public void requestMusicImageScrape(BufferedImage image, String name, String imageURL, String path, boolean withImages) {
         File file = new File(path + "/" + name);
-        if (!file.exists() && imageURL != null) {
-            System.out.println("Downloading " + name + " to " + path + ".");
+        if ((!file.exists() && imageURL != null) || (withImages && imageURL != null)) {
+            progressText = "(" + currentProgress + "/" + maxProgress + ") Scraping Image - " + file.getPath();
             image = scrapeMusicImage(imageURL);
-            saveImage(image, name, path);
+            if (image != null) {
+                saveImage(image, name, path);
+                incrementProgress();
+            }
         }
     }
 
@@ -406,6 +557,13 @@ public class ScraperUtils {
             dir.renameTo(newDir);
         }
         return newName;
+    }
+
+    public String trimEpisodeNumber(String fileName) {
+        Matcher matcher = Pattern.compile(" - (.*)").matcher(fileName);
+        matcher.find();
+        String trimmed = matcher.group(1);
+        return trimExtension(trimmed);
     }
 
     //Prepares to output a specified movie object to a local JSON file.
@@ -521,18 +679,234 @@ public class ScraperUtils {
         return names;
     }
 
-    public boolean isMusicExtension(String fileName) {
+    public boolean isAudioExtension(String fileName) {
         String extension = fileName.substring(fileName.length() - 3, fileName.length());
         for (int i = 0; i < audioFormats.length; i++) {
             if (extension.equalsIgnoreCase(audioFormats[i])) {
-                System.out.println(fileName + " - " + extension + " audio format is supported!");
                 return true;
             }
         }
         return false;
     }
 
-    public void moveFile(File file, String path, String rename) {
+    public boolean isVideoExtension(String fileName) {
+        String extension = fileName.substring(fileName.length() - 3, fileName.length());
+        for (int i = 0; i < videoFormats.length; i++) {
+            if (extension.equalsIgnoreCase(videoFormats[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int calculateMaxProgress(boolean updateAll, boolean withImages) {
+        return calculateUnscrapedMovies(updateAll, withImages)
+                + calculateUnscrapedMusic(updateAll, withImages)
+                + calculateUnscrapedSeries(updateAll, withImages);
+    }
+
+    public int calculateUnscrapedMovies(boolean updateAll, boolean withImages) {
+        int max = 0;
+        File movieDirectories[] = getDirectories("Movies/", true);
+        for (int i = 0; i < movieDirectories.length; i++) {
+            if (updateAll) {
+                max++;
+                if (withImages) {
+                    max += 2;
+                } else {
+                    if (!new File("Movies/" + movieDirectories[i].getName() + "/movie_backdrop.jpg").exists()) {
+                        max++;
+                    }
+                    if (!new File("Movies/" + movieDirectories[i].getName() + "/movie_poster.jpg").exists()) {
+                        max++;
+                    }
+                }
+            } else {
+                if (!new File("Movies/" + movieDirectories[i].getName() + "/info.json").exists()) {
+                    max++;
+                }
+                if (!new File("Movies/" + movieDirectories[i].getName() + "/movie_backdrop.jpg").exists()) {
+                    max++;
+                }
+                if (!new File("Movies/" + movieDirectories[i].getName() + "/movie_poster.jpg").exists()) {
+                    max++;
+                }
+            }
+        }
+        return max;
+    }
+
+    public int calculateUnscrapedMusic(boolean updateAll, boolean withImages) {
+        int max = 0;
+        boolean trackExists = false;
+        File artists[] = getDirectories("Music/", true);
+        for (int i = 0; i < artists.length; i++) {
+            String artist = artists[i].getName();
+            if (updateAll) {
+                max++;
+                if (withImages) {
+                    max++;
+                } else {
+                    if (!new File("Music/" + artist + "/artist_portrait.jpg").exists()) {
+                        max++;
+                    }
+                }
+            } else {
+                if (!new File("Music/" + artist + "/info.json").exists()) {
+                    max++;
+                }
+                if (!new File("Music/" + artist + "/artist_portrait.jpg").exists()) {
+                    max++;
+                }
+            }
+            File albums[] = getDirectories("Music/" + artist + "/", false);
+            for (int j = 0; j < albums.length; j++) {
+                if (albums[j].isDirectory()) {
+                    String album = albums[j].getName();
+                    if (updateAll) {
+                        max++;
+                        if (withImages) {
+                            max++;
+                        } else {
+                            if (!new File("Music/" + artist + "/" + album + "/album_art.jpg").exists()) {
+                                max++;
+                            }
+                        }
+                    } else {
+                        if (!new File("Music/" + artist + "/" + album + "/info.json").exists()) {
+                            max++;
+                        }
+                        if (!new File("Music/" + artist + "/" + album + "/album_art.jpg").exists()) {
+                            max++;
+                        }
+                    }
+                    File tracks[] = getDirectories("Music/" + artist + "/" + album + "/", false);
+                    if (new File("Music/" + artist + "/" + album + "/track-list.json").exists()) {
+                        progressTrackContainer = parser.parseTrackList("Music/" + artist + "/" + album + "/track-list.json", false);
+                    }
+                    for (int k = 0; k < tracks.length; k++) {
+                        String track = tracks[k].getName();
+                        if (isAudioExtension(track)) {
+                            if (updateAll) {
+                                max++;
+                            } else {
+                                if (new File("Music/" + artist + "/" + album + "/track-list.json").exists()) {
+                                    for (int l = 0; l < progressTrackContainer.tracks.size(); l++) {
+                                        if (trimExtension(track).equalsIgnoreCase(progressTrackContainer.tracks.get(l).track.getName())) {
+                                            trackExists = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!trackExists) {
+                                        trackExists = false;
+                                        max++;
+                                    }
+                                } else {
+                                    max++;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (isAudioExtension(albums[j].getName())) {
+                        max += 2;
+                    }
+                }
+            }
+        }
+        return max;
+    }
+
+    public int calculateUnscrapedSeries(boolean updateAll, boolean withImages) {
+        int max = 0;
+        File series[] = getDirectories("TV Shows/", true);
+        for (int i = 0; i < series.length; i++) {
+            String seriesName = series[i].getName();
+            if (updateAll) {
+                max++;
+                if (withImages) {
+                    max += 2;
+                } else {
+                    if (!new File("TV Shows/" + seriesName + "/series_backdrop.jpg").exists()) {
+                        max++;
+                    }
+                    if (!new File("TV Shows/" + seriesName + "/series_poster.jpg").exists()) {
+                        max++;
+                    }
+                }
+            } else {
+                if (!new File("TV Shows/" + seriesName + "/info.json").exists()) {
+                    max++;
+                }
+                if (!new File("TV Shows/" + seriesName + "/series_backdrop.jpg").exists()) {
+                    max++;
+                }
+                if (!new File("TV Shows/" + seriesName + "/series_poster.jpg").exists()) {
+                    max++;
+                }
+            }
+            File seasons[] = getDirectories("TV Shows/" + seriesName + "/", true);
+            for (int j = 0; j < seasons.length; j++) {
+                String season = seasons[j].getName();
+                if (updateAll) {
+                    max++;
+                    if (withImages) {
+                        max++;
+                    } else {
+                        if (!new File("TV Shows/" + seriesName + "/" + season + "/season_poster.jpg").exists()) {
+                            max++;
+                        }
+                    }
+                } else {
+                    if (!new File("TV Shows/" + seriesName + "/" + season + "/info.json").exists()) {
+                        max++;
+                    }
+                    if (!new File("TV Shows/" + seriesName + "/" + season + "/season_poster.jpg").exists()) {
+                        max++;
+                    }
+                }
+                File[] episodes = getDirectories("TV Shows/" + seriesName + "/" + season + "/", false);
+                for (int k = 0; k < episodes.length; k++) {
+                    boolean episodeExists = false;
+                    String episode = episodes[k].getName();
+                    if (isVideoExtension(episode)) {
+                        if (new File("TV Shows/" + seriesName + "/" + season + "/episode-list.json").exists()) {
+                            TVEpisodeList list = parser.parseEpisodeList("TV Shows/" + seriesName + "/" + season + "/episode-list.json");
+                            for (int l = 0; l < list.episodes.size(); l++) {
+                                if (list.episodes.get(l).getName().equalsIgnoreCase(trimEpisodeNumber(episode))) {
+                                    if (updateAll) {
+                                        max++;
+                                    }
+                                    episodeExists = true;
+                                    break;
+                                }
+                            }
+                            if (!episodeExists) {
+                                max++;
+                            }
+                            if (withImages) {
+                                max++;
+                            } else {
+                                if (!new File("TV Shows/" + seriesName + "/" + season + "/Stills/EP" + parser.trimFileName("E", episode) + "_still.jpg").exists()) {
+                                    max++;
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+        return max;
+    }
+
+    public String trimExtension(String file) {
+        file = file.substring(0, file.length() - 4);
+        return file;
+    }
+
+    public void renameFile(File file, String path, String rename) {
         String sub = file.getAbsolutePath();
         sub = sub.substring(sub.length() - 3, sub.length());
         file.renameTo(new File(path + rename + "." + sub));

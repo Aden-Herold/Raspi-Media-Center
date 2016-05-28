@@ -7,20 +7,30 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.image.BufferStrategy;
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer;
+import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
+import raspimediacenter.Logic.Utilities.ScraperUtils;
 import uk.co.caprica.vlcj.binding.LibVlc;
+import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
+import uk.co.caprica.vlcj.medialist.MediaList;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.embedded.DefaultFullScreenStrategy;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.FullScreenStrategy;
+import uk.co.caprica.vlcj.player.list.MediaListPlayer;
+import uk.co.caprica.vlcj.player.list.MediaListPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.list.MediaListPlayerMode;
 
 public class EmbeddedVideoPlayer {
-   
+
     private final int MAX_RATE = 32;
-    
+
     private final EmbeddedMediaPlayer player;
     private final String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
 
@@ -32,7 +42,7 @@ public class EmbeddedVideoPlayer {
     private boolean controlsUpdating = false;
     private boolean controlsHiding = true;
     private int controlsPosDif = 0;
-    
+
     private boolean isPaused;
     private boolean isMuted;
     private int rate = 1;
@@ -42,15 +52,17 @@ public class EmbeddedVideoPlayer {
     private static BufferStrategy buffer;
     private Canvas mediaControls;
 
+    private MediaListPlayer listPlayer;
+    private MediaList list;
+    private ScraperUtils scraper = new ScraperUtils();
+
     //======================
     //       CONSTRUCTOR
     //======================
-    
     //Searches for the VLC libraries and plugins folder, 
-    public EmbeddedVideoPlayer() 
-    {
+    public EmbeddedVideoPlayer() {
         this.playerScene = playerScene;
-        
+
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), VLCLibPath);
         Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
 
@@ -59,17 +71,27 @@ public class EmbeddedVideoPlayer {
         player = mFactory.newEmbeddedMediaPlayer(fullScreenStrategy);
         player.setVideoSurface(mFactory.newVideoSurface(GUI.getScreen()));
 
+        list = mFactory.newMediaList();
+        listPlayer = mFactory.newMediaListPlayer();
+        listPlayer.setMediaPlayer(player);
+        listPlayer.setMode(MediaListPlayerMode.LOOP);
+        listPlayer.addMediaListPlayerEventListener(new MediaListPlayerEventAdapter() {
+            @Override
+            public void nextItem(MediaListPlayer mediaListPlayer, libvlc_media_t item, String itemMrl) {
+                //next item is called when the next track in the queue is lined up
+            }
+        });
+
         setupMediaControls();
     }
 
     //======================
     //       GETTERS
     //======================
-    public static BufferStrategy getBuffer()
-    {
+    public static BufferStrategy getBuffer() {
         return buffer;
     }
-    
+
     //Returns the EmbeddedMediaPlayerComponent, to attach to the GUI
     public EmbeddedMediaPlayer getPlayer() {
         return player;
@@ -109,92 +131,76 @@ public class EmbeddedVideoPlayer {
     public long getTime() {
         return player.getTime();
     }
-    
+
     //Returns the current rate for rewinding or fast-forwarding
     public int getRate() {
         return rate;
     }
-    
-    public boolean isPlaying()
-    {
+
+    public boolean isPlaying() {
         return player.isPlaying();
     }
-    
-    public int getSubtitlesCount()
-    {
+
+    public int getSubtitlesCount() {
         return player.getSpuCount();
     }
-    
-    public boolean getControlsVisible()
-    {
+
+    public boolean getControlsVisible() {
         return controlsVisible;
     }
-    
-    public boolean getControlsUpdating()
-    {
+
+    public boolean getControlsUpdating() {
         return controlsUpdating;
     }
 
     //======================
     //      FUNCTIONS
     //======================
-    private void setupMediaControls()
-    {
+    private void setupMediaControls() {
         mediaControls = new Canvas();
         mediaControls.setBackground(Color.BLACK);
         mediaControls.setIgnoreRepaint(true);
-        mediaControls.setBounds(0, GUI.getScreenHeight()-GUI.getScreenHeight()/10, GUI.getScreenWidth(), GUI.getScreenHeight()/10);
+        mediaControls.setBounds(0, GUI.getScreenHeight() - GUI.getScreenHeight() / 10, GUI.getScreenWidth(), GUI.getScreenHeight() / 10);
         GUI.getWindow().getLayeredPane().add(mediaControls, 1, 0);
 
         mediaControls.createBufferStrategy(2);
         buffer = mediaControls.getBufferStrategy();
-        
+
         toggleControls();
     }
-    
-    public void removeMediaControls()
-    {
+
+    public void removeMediaControls() {
         //mediaControls.setVisible(false);
         GUI.getWindow().getLayeredPane().remove(mediaControls);
     }
-    
+
     //======================
     //       MEDIA CONTROLS ANIMATION
     //======================
-    public void toggleControls()
-    {
+    public void toggleControls() {
         controlsUpdating = true;
-        if (controlManager == null || !controlManager.isAlive())
-        {
+        if (controlManager == null || !controlManager.isAlive()) {
             controlManager = new Thread(new controlsManager());
             controlManager.start();
-        }
-        else if (controlsVisible && controlsHiding)
-        {
+        } else if (controlsVisible && controlsHiding) {
             controlsUsed = true;
-        }
-        else
-        {
+        } else {
             controlsUsed = true;
             controlsHiding = false;
         }
     }
-    
-    private class controlsManager implements Runnable
-    {
+
+    private class controlsManager implements Runnable {
+
         @Override
         public void run() {
-            while (controlsUpdating)
-            {
-                if (controlsVisible && controlsHiding)
-                {
+            while (controlsUpdating) {
+                if (controlsVisible && controlsHiding) {
                     hideControls();
-                }
-                else
-                {
+                } else {
                     showControls();
                 }
-                
+
                 try {
                     Thread.sleep(20);
                 } catch (InterruptedException ex) {
@@ -203,70 +209,95 @@ public class EmbeddedVideoPlayer {
             }
         }
     }
-    
-    private void hideControls()
-    {
-        int mcHeight = GUI.getScreenHeight()/10+10;
-        int yPos = mediaControls.getY()+2;
-        controlsPosDif+=2;
-        if (controlsPosDif > mcHeight)
-        {
+
+    private void hideControls() {
+        int mcHeight = GUI.getScreenHeight() / 10 + 10;
+        int yPos = mediaControls.getY() + 2;
+        controlsPosDif += 2;
+        if (controlsPosDif > mcHeight) {
             controlsHiding = false;
             controlsUpdating = false;
             controlsVisible = false;
-        }
-        else
-        {
+        } else {
             mediaControls.setLocation(mediaControls.getX(), yPos);
         }
     }
-    
-    private void showControls()
-    {
-        int yPos = mediaControls.getY()-2;
-        controlsPosDif-=2;
-        if (controlsPosDif  < 0)
-        {
+
+    private void showControls() {
+        int yPos = mediaControls.getY() - 2;
+        controlsPosDif -= 2;
+        if (controlsPosDif < 0) {
             controlsPosDif = 0;
             controlsVisible = true;
-            if (startTime == -1)
-            {
+            if (startTime == -1) {
                 startTime = System.currentTimeMillis();
-            }
-            else
-            {
-                long time = System.currentTimeMillis(); 
+            } else {
+                long time = System.currentTimeMillis();
                 long duration = time - startTime;
-                
-                if (!controlsUsed)
-                {
-                    if (duration >= CONTROLS_VIS_TIME)
-                    {
+
+                if (!controlsUsed) {
+                    if (duration >= CONTROLS_VIS_TIME) {
                         controlsHiding = true;
                         startTime = -1;
                     }
-                }
-                else
-                {
+                } else {
                     controlsUsed = false;
                     startTime = -1;
                 }
             }
-        }
-        else
-        {
+        } else {
             mediaControls.setLocation(mediaControls.getX(), yPos);
         }
     }
-    
-    
+
     //===========================
     //   MEDIA PLAYER FUNCTIONS
     //===========================
-    
+    public MediaList loadSeason(String path, TVSeasonContainer season) {
+        File files[] = ScraperUtils.getDirectories(path, false);
+        boolean isValid = false;
+        for (int i = 0; i < files.length; i++) {
+            if (!files[i].isDirectory()) {
+                //if (scraper.isMediaExtension(files[i].getName())) {
+                    for (int j = 0; j < season.episodes.size(); j++) {
+                        if (trimExtension(files[i].getName()).equalsIgnoreCase(season.episodes.get(j).getName())) {
+                            System.out.println("Match!: " + trimExtension(files[i].getName()) + " " + season.episodes.get(j).getName());
+                            isValid = true;
+                            break;
+                        }
+                    }
+                    if (isValid) {
+                        try {
+                            isValid = false;
+                            list.addMedia(files[i].getCanonicalPath());
+                        } catch (IOException ex) {
+                            Logger.getLogger(EmbeddedVideoPlayer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                //}
+            }
+        }
+        return list;
+    }
+
     //Plays the media file at the path specified in the method's parameter 
-    public void play(String fileName) {
+    public void playMovie(String fileName) {
         player.playMedia(System.getProperty("user.dir") + "/" + fileName);
+    }
+
+    public String trimExtension(String file) {
+        file = file.substring(0, file.length() - 4);
+        return file;
+    }
+
+    public void playSeason(MediaList list) {
+        PlayAllThread play = new PlayAllThread(list);
+        new Thread(play).start();
+    }
+
+    public void playEpisode(int index, MediaList list) {
+        PlayThread play = new PlayThread(index, list);
+        new Thread(play).start();
     }
 
     //Toggles whether or not the media is paused or resumed.
@@ -334,14 +365,10 @@ public class EmbeddedVideoPlayer {
                 rate = 2;
                 trackThread = new TrackThread(func);
                 new Thread(trackThread).start();
-            } 
-            else 
-            {
+            } else {
                 rate *= 2;
             }
-        } 
-        else 
-        {
+        } else {
             rate = 2;
         }
     }
@@ -385,6 +412,49 @@ public class EmbeddedVideoPlayer {
                 Thread.sleep(1);
             } catch (InterruptedException ex) {
                 Logger.getLogger(EmbeddedVideoPlayer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public class PlayThread implements Runnable {
+
+        private int index;
+        private MediaList list;
+
+        public PlayThread(int index, MediaList list) {
+            this.index = index;
+        }
+
+        @Override
+        public void run() {
+            //listPlayer.stop();
+            listPlayer.setMediaList(list);
+            listPlayer.playItem(index);
+            try {
+                Thread.currentThread().join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(HeadlessAudioPlayer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public class PlayAllThread implements Runnable {
+        
+        private MediaList list;
+        
+        public PlayAllThread(MediaList list) {
+            this.list = list;
+        }
+
+        @Override
+        public void run() {
+            //listPlayer.stop();
+            listPlayer.setMediaList(list);
+            listPlayer.play();
+            try {
+                Thread.currentThread().join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(HeadlessAudioPlayer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

@@ -23,52 +23,51 @@ import raspimediacenter.GUI.Scenes.Images.ImageCollectionScene;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 import raspimediacenter.Logic.Utilities.FileUtils;
 import raspimediacenter.Logic.Utilities.ImageUtils;
+import raspimediacenter.Logic.Utilities.ScraperUtils;
 
 public class MainMenuScene extends Scene {
 
     private final String SCENE_NAME = "MAIN MENU";
-    
+
     //SCENE VARIABLES
     private final ArrayList<String> menuList = new ArrayList<>(Arrays.asList("MOVIES", "TV SHOWS", "MUSIC", "IMAGES"));
     private final ArrayList<String> subHeaders = new ArrayList<>(Arrays.asList("WATCHED:", "EPISODES:", "PLAYLISTS:", "COLLECTIONS:"));
     private boolean painting = false;
-    
+
     //SCENE COMPONENTS
     private Background background;
     private SceneMenu sceneMenu;
     private MenuHUD menuHUD;
     private ProgressBar progressBar;
     int progress = 0;
-    String progressString = "Scraping Tv Shows - Breaking Bad - S01E02";
-    
+    String progressString = "";
+
     // DATA MODEL VARIABLES
     MovieContainer movies;
     TVSeriesContainer tvSeries;
     ArrayList<ImageCollectionsContainer> imageCollections;
     
-    public MainMenuScene (){}
-    
+    ScraperUtils scraper = new ScraperUtils();
+
+    public MainMenuScene() {
+    }
+
     // GETTERS
     @Override
-    public String getSceneName ()
-    {
+    public String getSceneName() {
         return SCENE_NAME;
     }
-    
-    @Override 
-    public EmbeddedVideoPlayer getPlayer()
-    {
+
+    @Override
+    public EmbeddedVideoPlayer getPlayer() {
         return null;
     }
-    
+
     @Override
     public SceneMenu getMenu() {
-        if (sceneMenu != null)
-        {
+        if (sceneMenu != null) {
             return sceneMenu;
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
@@ -77,59 +76,44 @@ public class MainMenuScene extends Scene {
     public ArrayList<String> getLabelContents(int linkNum) {
         return null;
     }
-    
-    private String[] getMenuInfo(String menuChoice)
-    {
+
+    private String[] getMenuInfo(String menuChoice) {
         String[] info = new String[2];
-        
-        if (menuChoice.toLowerCase().matches("movies"))
-        {
+
+        if (menuChoice.toLowerCase().matches("movies")) {
             info[0] = String.valueOf(movies.results.size());
             info[1] = "0"; // total 
-        }
-        else if (menuChoice.toLowerCase().matches("tv shows"))
-        {
+        } else if (menuChoice.toLowerCase().matches("tv shows")) {
             info[0] = String.valueOf(tvSeries.results.size()); // total tv shows
             info[1] = "3929"; //total episodes
-        }
-        else if (menuChoice.toLowerCase().matches("music"))
-        {
+        } else if (menuChoice.toLowerCase().matches("music")) {
             info[0] = "212"; // total music
             info[1] = "14"; // playlists
-        }
-        else if (menuChoice.toLowerCase().matches("images"))
-        {
+        } else if (menuChoice.toLowerCase().matches("images")) {
             info[0] = String.valueOf(getTotalImages()); // total images
             info[1] = String.valueOf(imageCollections.size()); // collections
-        }
-        else
-        {
+        } else {
             info[0] = "ERR";
             info[1] = "ERR";
         }
-        
+
         return info;
     }
 
-    private int getTotalImages ()
-    {
+    private int getTotalImages() {
         int total = 0;
-        for (ImageCollectionsContainer cont : imageCollections)
-        {
+        for (ImageCollectionsContainer cont : imageCollections) {
             total += cont.imagePaths.size();
         }
         return total;
     }
-    
-    private ArrayList<ImageCollectionsContainer> getImagePathsContainer()
-    {
+
+    private ArrayList<ImageCollectionsContainer> getImagePathsContainer() {
         ArrayList<ImageCollectionsContainer> container = new ArrayList<>();
         ArrayList<String> directories = FileUtils.getAllSubDirsFromPath("Images/");
-        
-        
-        for (int x = 0; x < directories.size(); x++)
-        {
-            String dir = "Images/"+directories.get(x);
+
+        for (int x = 0; x < directories.size(); x++) {
+            String dir = "Images/" + directories.get(x);
             try {
                 container.add(new ImageCollectionsContainer(ImageUtils.getAllImagesPathsInDir(dir, true)));
             } catch (IOException ex) {
@@ -138,7 +122,7 @@ public class MainMenuScene extends Scene {
         }
         return container;
     }
-    
+
     // SETUP && TEAR DOWN
     @Override
     public void setupScene() {
@@ -146,31 +130,31 @@ public class MainMenuScene extends Scene {
         movies = parser.parseMovieList("Movies/movie-list.json", false);
         tvSeries = parser.parseSeriesList("TV Shows/series-list.json", false);
         imageCollections = getImagePathsContainer();
-        
+
         //Create Background
         background = new Background(true);
-        
+
         //Create Progress Bar
         progressBar = new ProgressBar(0, 0, GUI.getScreenWidth(), 0);
-        
+
         //Create Library List
         sceneMenu = new MainMenu();
         sceneMenu.setupLibraryList(createMenuList());
-        
+
         //Create Information Panel
         menuHUD = new MenuHUD();
-        
-        int hudWidth = (int)Math.floor(GUI.getScreenWidth()*0.4);
-        int hudHeight = (int)Math.floor(GUI.getScreenHeight()/24);
-        menuHUD.setBounds(GUI.getScreenWidth()/2-hudWidth/2,
-                          GUI.getScreenHeight()-hudHeight,
-                          hudWidth, hudHeight);
-        
+
+        int hudWidth = (int) Math.floor(GUI.getScreenWidth() * 0.4);
+        int hudHeight = (int) Math.floor(GUI.getScreenHeight() / 24);
+        menuHUD.setBounds(GUI.getScreenWidth() / 2 - hudWidth / 2,
+                GUI.getScreenHeight() - hudHeight,
+                hudWidth, hudHeight);
+
         String[] header = {"MOVIES:", "WATCHED:"};
         String[] content = getMenuInfo("movies");
-        
+
         menuHUD.setupHUD(header, content);
-        
+
         paintScene();
     }
 
@@ -190,22 +174,15 @@ public class MainMenuScene extends Scene {
 
     // EVENT FUNCTIONS
     @Override
-    public void buttonClicked() 
-    {
-        if (GUI.getPopup() != null)
-        {
+    public void buttonClicked() {
+        if (GUI.getPopup() != null) {
             String btnText = GUI.getPopup().getFocusedButton().getText();
-            if (btnText.contains("Images"))
-            {
-                // Do rescrape with images
+            if (btnText.contains("Images")) {
+                scraper.startScrapers(true, true);
+            } else {
+                scraper.startScrapers(true, false);
             }
-            else
-            {
-                // Do rescrape without images
-            }
-        }
-        else
-        {
+        } else {
             int focusedBtn = sceneMenu.getFocusedButtonPos();
             SceneManager.loadScene(menuList.get(focusedBtn));
         }
@@ -213,60 +190,57 @@ public class MainMenuScene extends Scene {
 
     // UPDATE FUNCTIONS
     @Override
-    public void updateBackground(int linkNum) {}
+    public void updateBackground(int linkNum) {
+    }
 
     @Override
-    public void updatePreviewImage(int linkNum) {}
+    public void updatePreviewImage(int linkNum) {
+    }
 
     @Override
     public void updateInformationLabels(int linkNum) {
-        
-        String[] header = {menuList.get(linkNum)+":", subHeaders.get(linkNum)};
+
+        String[] header = {menuList.get(linkNum) + ":", subHeaders.get(linkNum)};
         String[] content = getMenuInfo(menuList.get(linkNum));
-        
+
         menuHUD.updateHUD(header, content);
     }
 
     // DRAW FUNCTIONS
     @Override
     public void paintScene() {
-        if (!painting)
-        {
+        if (!painting) {
             painting = true;
-            Graphics2D g2d = (Graphics2D)(GUI.getBuffer().getDrawGraphics());
+            Graphics2D g2d = (Graphics2D) (GUI.getBuffer().getDrawGraphics());
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            try 
-            {
+            try {
                 background.paintSceneComponent(g2d);
                 sceneMenu.drawMenu(g2d);
                 menuHUD.paintSceneComponent(g2d);
-                
-                
-                if (GUI.getPopup() != null)
-                {
+
+                if (GUI.getPopup() != null) {
                     GUI.getPopup().drawMenu(g2d);
                 }
                 
-                progress++;
-                if (progress > 100)
-                {
-                    progress = 0;
-                }
-                progressBar.setVisible(true);
-                progressBar.setProgress(progress);
-                progressBar.setLoadingString(progressString);
-                progressBar.paintSceneComponent(g2d);
+                progressBar.setLoadingString(ScraperUtils.progressText);
+                progressBar.setProgress(ScraperUtils.progress);
+                
 
-                if (!GUI.getBuffer().contentsLost())
-                {
+                if (ScraperUtils.movieScraping || ScraperUtils.musicScraping || ScraperUtils.tvScraping) {
+                    progressBar.setVisible(true);
+                    progressBar.paintSceneComponent(g2d);
+                } else {
+                    ScraperUtils.resetProgress();
+                    progressBar.setVisible(false);
+                }
+
+                if (!GUI.getBuffer().contentsLost()) {
                     GUI.getBuffer().show();
                 }
-            }
-            catch (Exception ex){}
-            finally 
-            {
+            } catch (Exception ex) {
+            } finally {
                 g2d.dispose();
                 painting = false;
             }

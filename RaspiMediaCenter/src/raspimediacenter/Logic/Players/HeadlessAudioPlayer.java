@@ -86,7 +86,7 @@ public class HeadlessAudioPlayer {
         boolean isValid = false;
         for (int i = 0; i < files.length; i++) {
             if (!files[i].isDirectory()) {
-                if (scraper.isMusicExtension(files[i].getName())) {
+                if (scraper.isAudioExtension(files[i].getName())) {
                     for (int j = 0; j < track.tracks.size(); j++) {
                         if (trimExtension(files[i].getName()).equalsIgnoreCase(track.tracks.get(j).track.getName())) {
                             isValid = true;
@@ -95,6 +95,7 @@ public class HeadlessAudioPlayer {
                     }
                     if (isValid) {
                         try {
+                            isValid = false;
                             list.addMedia(files[i].getCanonicalPath());
                         } catch (IOException ex) {
                             Logger.getLogger(HeadlessAudioPlayer.class.getName()).log(Level.SEVERE, null, ex);

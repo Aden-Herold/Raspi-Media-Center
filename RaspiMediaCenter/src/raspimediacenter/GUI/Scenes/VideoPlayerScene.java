@@ -83,7 +83,7 @@ public class VideoPlayerScene extends Scene {
         
         //String file = "TV Shows/"+show.getName()+"/Season "+seasonNumber+"/Dexter S01E01 - Dexter.avi";
         String file = "TV Shows/Dexter/Season 1/Dexter S01E01 - Dexter.avi";
-        player.play(file);
+        //player.play(file);
         
         painting = false;
         thread.start();

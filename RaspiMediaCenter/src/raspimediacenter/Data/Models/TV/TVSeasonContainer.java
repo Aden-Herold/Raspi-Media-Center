@@ -68,6 +68,10 @@ public class TVSeasonContainer {
         public int getSeasonNumber() {
             return season_number;
         }
+        
+        public int getEpisodeNumber() {
+            return episode_number;
+        }
 
         public String getStillPath() {
             return still_path;
