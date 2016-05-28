@@ -12,7 +12,6 @@ import raspimediacenter.Logic.Utilities.ImageUtils;
 import raspimediacenter.Logic.Utilities.ParserUtils;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +19,8 @@ import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
 public class MoviesScene extends Scene {
 
+    private final String SCENE_NAME = "MOVIES";
+    
     //SCENE VARIABLES
     private final ArrayList<String> labelHeaders = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
     private boolean painting = false;
@@ -35,6 +36,12 @@ public class MoviesScene extends Scene {
     public MoviesScene (){}
     
     // GETTERS
+    @Override
+    public String getSceneName ()
+    {
+        return SCENE_NAME;
+    }
+    
     @Override 
     public EmbeddedVideoPlayer getPlayer()
     {

@@ -7,6 +7,8 @@ import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 public abstract class Scene {
     
     //GETTERS
+    public abstract String getSceneName();
+    
     public abstract SceneMenu getMenu();
     
     public abstract ArrayList<String> getLabelContents(int linkNum);

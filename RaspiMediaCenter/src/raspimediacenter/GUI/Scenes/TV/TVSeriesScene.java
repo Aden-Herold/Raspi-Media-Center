@@ -21,6 +21,8 @@ import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
 public class TVSeriesScene extends Scene {
 
+    private final String SCENE_NAME = "TV SERIES";
+    
     //SCENE VARIABLES
     private final ArrayList<String> labelHeaders = new ArrayList<>(Arrays.asList("Network:", "Year:", "Status:", "Genre:", "Country:"));
     private boolean painting = false;
@@ -38,6 +40,12 @@ public class TVSeriesScene extends Scene {
     
     // SCENE FUNCTIONS
     //GETTERS
+    @Override
+    public String getSceneName ()
+    {
+        return SCENE_NAME;
+    }
+    
     @Override 
     public EmbeddedVideoPlayer getPlayer()
     {

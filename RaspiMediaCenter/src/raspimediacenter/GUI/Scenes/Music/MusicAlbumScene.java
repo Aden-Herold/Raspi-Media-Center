@@ -16,6 +16,8 @@ import raspimediacenter.Logic.Utilities.ParserUtils;
 
 public class MusicAlbumScene extends Scene {
 
+    private final String SCENE_NAME = "MUSIC ALBUMS";
+    
      //SCENE VARIABLES
     private boolean painting = false;
     
@@ -35,6 +37,12 @@ public class MusicAlbumScene extends Scene {
     
     // SCENE FUNCTIONS
     //GETTERS
+    @Override
+    public String getSceneName ()
+    {
+        return SCENE_NAME;
+    }
+    
     @Override 
     public EmbeddedVideoPlayer getPlayer()
     {

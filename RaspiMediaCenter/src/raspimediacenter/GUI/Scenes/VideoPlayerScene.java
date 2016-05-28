@@ -3,8 +3,6 @@ package raspimediacenter.GUI.Scenes;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Components.Video.VideoPlayer.VideoPlayerMenu;
@@ -12,6 +10,8 @@ import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 
 public class VideoPlayerScene extends Scene {
 
+    private final String SCENE_NAME = "VIDEO PLAYER";
+    
     private final TVSeries show;
     private final int seasonNumber;
     private final String episodeName;
@@ -28,6 +28,13 @@ public class VideoPlayerScene extends Scene {
         this.episodeName = episodeName;
     }
 
+    // GETTERS
+    @Override
+    public String getSceneName ()
+    {
+        return SCENE_NAME;
+    }
+    
     @Override 
     public EmbeddedVideoPlayer getPlayer()
     {

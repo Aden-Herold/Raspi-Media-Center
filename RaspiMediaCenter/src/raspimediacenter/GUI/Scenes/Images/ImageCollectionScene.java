@@ -20,6 +20,8 @@ import raspimediacenter.Logic.Utilities.ImageUtils;
 
 public class ImageCollectionScene extends Scene {
 
+    private final String SCENE_NAME = "IMAGE COLLECTIONS";
+    
     //SCENE VARIABLES
     private ArrayList<String> menuList;
     private boolean painting = false;
@@ -31,6 +33,12 @@ public class ImageCollectionScene extends Scene {
     public ImageCollectionScene (){}
     
     // GETTERS
+    @Override
+    public String getSceneName ()
+    {
+        return SCENE_NAME;
+    }
+    
     @Override 
     public EmbeddedVideoPlayer getPlayer()
     {

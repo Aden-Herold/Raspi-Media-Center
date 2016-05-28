@@ -26,6 +26,8 @@ import raspimediacenter.Logic.Utilities.ImageUtils;
 
 public class MainMenuScene extends Scene {
 
+    private final String SCENE_NAME = "MAIN MENU";
+    
     //SCENE VARIABLES
     private final ArrayList<String> menuList = new ArrayList<>(Arrays.asList("MOVIES", "TV SHOWS", "MUSIC", "IMAGES"));
     private final ArrayList<String> subHeaders = new ArrayList<>(Arrays.asList("WATCHED:", "EPISODES:", "PLAYLISTS:", "COLLECTIONS:"));
@@ -47,6 +49,12 @@ public class MainMenuScene extends Scene {
     public MainMenuScene (){}
     
     // GETTERS
+    @Override
+    public String getSceneName ()
+    {
+        return SCENE_NAME;
+    }
+    
     @Override 
     public EmbeddedVideoPlayer getPlayer()
     {
@@ -219,6 +227,12 @@ public class MainMenuScene extends Scene {
                 background.paintSceneComponent(g2d);
                 sceneMenu.drawMenu(g2d);
                 menuHUD.paintSceneComponent(g2d);
+                
+                
+                if (GUI.getPopup() != null)
+                {
+                    GUI.getPopup().drawMenu(g2d);
+                }
                 
                 progress++;
                 if (progress > 100)

@@ -135,6 +135,10 @@ public class MLabel extends SceneComponent {
             {
                 g2d.drawString(text, label.x, label.y);
             }
+            else if (alignment == TextUtils.CENTER_ALIGN)
+            {
+                g2d.drawString(text, label.x+label.width/2-metrics.stringWidth(text)/2, label.y);
+            }
             else if (alignment == TextUtils.RIGHT_ALIGN)
             {
                 g2d.drawString(text, (label.x+label.width)-metrics.stringWidth(text), label.y);

@@ -8,7 +8,8 @@ import java.awt.Graphics;
 public class TextUtils {
 
     public static final int LEFT_ALIGN = 0;
-    public static final int RIGHT_ALIGN = 1;
+    public static final int CENTER_ALIGN = 1;
+    public static final int RIGHT_ALIGN = 2;
     
     public static final int TINY_FONT_SIZE = (int)Math.floor(GUI.getScreenWidth()*0.007);
     public static final int SMALL_FONT_SIZE = (int)Math.floor(GUI.getScreenWidth()*0.009);

@@ -24,9 +24,8 @@ public class SceneManager {
     private static Scene currentScene;
     
     private static final Color darkblue = new Color(38, 64, 115);
-    public static float MENU_TRANSPARENCY = 0.9f; //Percentage value of menu transparency
-    public static Color INVERTED_COLOR;
-    public static Color MENU_COLOR = darkblue; //Color of menu elements
+    private static float MENU_TRANSPARENCY = 0.9f; //Percentage value of menu transparency
+    private static Color MENU_COLOR = darkblue; //Color of menu elements
     
     public SceneManager () {
         previousScenes = new ArrayList<>();

@@ -14,7 +14,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferStrategy;
+import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.JFrame;
+import raspimediacenter.GUI.Components.System.SystemMenuPopup;
 import raspimediacenter.Logic.Utilities.TextUtils;
 
 public class GUI {
@@ -26,6 +29,7 @@ public class GUI {
     private static Canvas screen;
     private static BufferStrategy buffer;
     private SceneManager sceneManager;
+    private static SystemMenuPopup menuPopup = null;
     
     public GUI ()
     {
@@ -72,6 +76,7 @@ public class GUI {
         }
     }
     
+    // GETTERS
     public static int getScreenWidth()
     {
         return screenWidth;
@@ -97,6 +102,11 @@ public class GUI {
         return buffer;
     }
     
+    public static SystemMenuPopup getPopup ()
+    {
+        return menuPopup;
+    }
+    
     // EVENT LISTENERS
     private void addGlobalKeyListener()
     {
@@ -114,26 +124,72 @@ public class GUI {
                         
                         if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S || key == KeyEvent.VK_D)
                         {
-                            currentScene.getMenu().focusNextButton();
+                            if (menuPopup != null)
+                            {
+                                menuPopup.focusNextButton();
+                            }
+                            else
+                            {
+                                currentScene.getMenu().focusNextButton();
+                            }
                         }
                         else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_UP || key == KeyEvent.VK_W || key == KeyEvent.VK_A)
                         {
-                            currentScene.getMenu().focusPreviousButton();
+                            if (menuPopup != null)
+                            {
+                                menuPopup.focusPreviousButton();
+                            }
+                            else
+                            {
+                                currentScene.getMenu().focusPreviousButton();
+                            }
+                        }
+                        else if (key == KeyEvent.VK_TAB)
+                        {
+                            if (currentScene.getSceneName().toLowerCase().matches("main menu"))
+                            {
+                                ArrayList<String> options = new ArrayList<>(Arrays.asList("Rescrape All", "Rescrape All + Images"));
+                                menuPopup = new SystemMenuPopup(getScreenWidth()/2, getScreenHeight()/2, options);
+                                menuPopup.setupLibraryList(options);
+                            }
                         }
                         else if (key == KeyEvent.VK_ENTER)
                         {
-                            currentScene.getMenu().clickedButton();
+                            if (menuPopup != null)
+                            {
+                                menuPopup.clickedButton();
+                            }
+                            else
+                            {
+                                currentScene.getMenu().clickedButton();
+                            }
                         }
                         else if (key == KeyEvent.VK_BACK_SPACE)
                         {
-                            if (SceneManager.getLastPreviousScene() != null)
+                            if (menuPopup != null)
                             {
-                                SceneManager.loadPreviousScene();
+                                menuPopup.unloadMenu();
+                                menuPopup = null;
+                            }
+                            else
+                            {
+                                if (SceneManager.getLastPreviousScene() != null)
+                                {
+                                    SceneManager.loadPreviousScene();
+                                }
                             }
                         }
                         else if (key == KeyEvent.VK_ESCAPE)
                         {
-                            System.exit(0);
+                            if (menuPopup != null)
+                            {
+                                menuPopup.unloadMenu();
+                                menuPopup = null;
+                            }
+                            else
+                            {
+                                System.exit(0);
+                            }
                         }
                     }
                 }
@@ -149,14 +205,21 @@ public class GUI {
                 MouseEvent evt = (MouseEvent)event;
                 if(evt.getID() == MouseEvent.MOUSE_CLICKED)
                 {
-                    if (sceneManager != null)
+                    if (menuPopup != null)
                     {
-                        if (SceneManager.getCurrentScene() != null)
+                        menuPopup.clickedButton(evt); 
+                    }
+                    else
+                    {
+                        if (sceneManager != null)
                         {
-                            SceneMenu menu = SceneManager.getCurrentScene().getMenu();
-                            if (menu != null)
+                            if (SceneManager.getCurrentScene() != null)
                             {
-                                menu.clickedButton(evt);
+                                SceneMenu menu = SceneManager.getCurrentScene().getMenu();
+                                if (menu != null)
+                                {
+                                    menu.clickedButton(evt);
+                                }
                             }
                         }
                     }
@@ -173,15 +236,23 @@ public class GUI {
                 MouseWheelEvent evt = (MouseWheelEvent)event;
                 if(evt.getID() == MouseEvent.MOUSE_WHEEL)
                 {
-                    if (sceneManager != null)
+                    if (menuPopup != null)
                     {
-                        SceneMenu menu = SceneManager.getCurrentScene().getMenu();
-                        if (menu != null)
+                        int notches = evt.getWheelRotation()*-1;
+                        menuPopup.scrollList(notches); 
+                    }
+                    else
+                    {
+                        if (sceneManager != null)
                         {
-                            if (menu.isScrollable())
+                            SceneMenu menu = SceneManager.getCurrentScene().getMenu();
+                            if (menu != null)
                             {
-                                int notches = evt.getWheelRotation()*-1;
-                                menu.scrollList(notches); 
+                                if (menu.isScrollable())
+                                {
+                                    int notches = evt.getWheelRotation()*-1;
+                                    menu.scrollList(notches); 
+                                }
                             }
                         }
                     }
@@ -198,14 +269,21 @@ public class GUI {
                 MouseEvent evt = (MouseEvent)event;
                 if (evt.getID() == MouseEvent.MOUSE_MOVED)
                 {
-                    if (sceneManager != null)
+                    if (menuPopup != null)
                     {
-                        if (SceneManager.getCurrentScene() != null)
+                        menuPopup.focusHoveredButton(evt);
+                    }
+                    else
+                    {
+                        if (sceneManager != null)
                         {
-                            SceneMenu menu = SceneManager.getCurrentScene().getMenu();
-                            if (menu != null)
+                            if (SceneManager.getCurrentScene() != null)
                             {
-                                menu.focusHoveredButton(evt);
+                                SceneMenu menu = SceneManager.getCurrentScene().getMenu();
+                                if (menu != null)
+                                {
+                                    menu.focusHoveredButton(evt);
+                                }
                             }
                         }
                     }
