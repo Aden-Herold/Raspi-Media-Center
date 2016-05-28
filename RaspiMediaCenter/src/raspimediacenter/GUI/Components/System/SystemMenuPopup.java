@@ -40,6 +40,11 @@ public class SystemMenuPopup extends SceneMenu {
     }
     
     // GETTERS
+    public SystemMenuButton getFocusedButton()
+    {
+        return focusedButton;
+    }
+    
     public int getButtonWidth()
     {
         return WIDTH;
@@ -78,6 +83,7 @@ public class SystemMenuPopup extends SceneMenu {
         
         btns.get(0).setFocused(true);
         focusedButton = btns.get(0);
+        focusedButtonPos = 0;
     }
     
     @Override

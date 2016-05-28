@@ -92,8 +92,6 @@ public class SystemMenuButton extends SceneComponent {
         button.y += y;
     }
     
-    
-    
     @Override
     public void paintSceneComponent(Graphics2D g2d) {
         

@@ -190,10 +190,25 @@ public class MainMenuScene extends Scene {
 
     // EVENT FUNCTIONS
     @Override
-    public void buttonClicked() {
-        
-        int focusedBtn = sceneMenu.getFocusedButtonPos();
-        SceneManager.loadScene(menuList.get(focusedBtn));
+    public void buttonClicked() 
+    {
+        if (GUI.getPopup() != null)
+        {
+            String btnText = GUI.getPopup().getFocusedButton().getText();
+            if (btnText.contains("Images"))
+            {
+                // Do rescrape with images
+            }
+            else
+            {
+                // Do rescrape without images
+            }
+        }
+        else
+        {
+            int focusedBtn = sceneMenu.getFocusedButtonPos();
+            SceneManager.loadScene(menuList.get(focusedBtn));
+        }
     }
 
     // UPDATE FUNCTIONS
