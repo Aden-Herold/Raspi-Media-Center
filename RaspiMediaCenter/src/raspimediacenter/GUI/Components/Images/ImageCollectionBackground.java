@@ -113,8 +113,11 @@ public class ImageCollectionBackground extends SceneComponent {
             }
         }
         
-        SceneManager.getCurrentScene().paintScene();
-        
+        if (SceneManager.getCurrentScene() != null)
+        {
+            SceneManager.getCurrentScene().paintScene();
+        }
+
         try {
             Thread.sleep(50);
         } catch (InterruptedException ex) {

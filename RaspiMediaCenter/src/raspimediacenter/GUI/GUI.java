@@ -148,7 +148,13 @@ public class GUI {
                         {
                             if (currentScene.getSceneName().toLowerCase().matches("main menu"))
                             {
-                                ArrayList<String> options = new ArrayList<>(Arrays.asList("Rescrape All", "Rescrape All + Images"));
+                                ArrayList<String> options = new ArrayList<>(Arrays.asList("Scrape All", "Scrape All + Images"));
+                                menuPopup = new SystemMenuPopup(getScreenWidth()/2, getScreenHeight()/2, options);
+                                menuPopup.setupLibraryList(options);
+                            }
+                            if (currentScene.getSceneName().toLowerCase().matches("image collections"))
+                            {
+                                ArrayList<String> options = new ArrayList<>(Arrays.asList("Set as Main Menu Backgrounds", "Reset Main Menu Backgrounds"));
                                 menuPopup = new SystemMenuPopup(getScreenWidth()/2, getScreenHeight()/2, options);
                                 menuPopup.setupLibraryList(options);
                             }
@@ -158,6 +164,8 @@ public class GUI {
                             if (menuPopup != null)
                             {
                                 menuPopup.clickedButton();
+                                menuPopup.unloadMenu();
+                                menuPopup = null;
                             }
                             else
                             {

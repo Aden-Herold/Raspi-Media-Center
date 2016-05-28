@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import raspimediacenter.Data.Models.Images.ImageCollectionsContainer;
 import raspimediacenter.GUI.Components.FileLibrary;
 import raspimediacenter.GUI.Components.Images.ImageCollectionBackground;
@@ -74,18 +75,6 @@ public class ImageCollectionScene extends Scene {
         sceneMenu = new FileLibrary();
         sceneMenu.setupLibraryList(menuList);
         
-        //Create ImageCollectionsList
-        /*
-        ArrayList<String> list = new ArrayList<>();
-        
-        for (int x = 0; x < menuList.size(); x++)
-        {
-                String dir = "Images/"+menuList.get(x)+"/";
-                String str = ImageUtils.getFirstImagePathInDir(dir);
-                list.add(str);
-        }
-        */
-        
         //Create Background
         background = new ImageCollectionBackground(getStarterImages(), getImagePathsContainer());
         background.changeBackground(0);
@@ -142,11 +131,34 @@ public class ImageCollectionScene extends Scene {
 
     // EVENT FUNCTIONS
     @Override
-    public void buttonClicked() {
-    
-        int dirNum = sceneMenu.getFocusedButtonPos();
-        String dir = "Images/"+menuList.get(dirNum)+"/";
-        SceneManager.loadImages(dir);
+    public void buttonClicked() 
+    {
+        if (GUI.getPopup() != null)
+        {
+            String btnText = GUI.getPopup().getFocusedButton().getText();
+            
+            // Retrieve the user preference node for current user
+            Preferences prefs = Preferences.userRoot();
+            final String PREF_NAME = "backgroundPrefs";
+            
+            if (btnText.contains("Reset"))
+            {
+                final String newValue = "Resources/UserBackgrounds/";
+                prefs.put(PREF_NAME, newValue);
+            }
+            else
+            {
+                int focused = sceneMenu.getFocusedButtonPos();
+                final String newValue = "Images/"+menuList.get(focused)+"/";
+                prefs.put(PREF_NAME, newValue);
+            }
+        }
+        else
+        {
+            int dirNum = sceneMenu.getFocusedButtonPos();
+            String dir = "Images/"+menuList.get(dirNum)+"/";
+            SceneManager.loadImages(dir);
+        }
     }
 
     // UPDATE FUNCTIONS
@@ -177,12 +189,18 @@ public class ImageCollectionScene extends Scene {
             {
                 background.paintSceneComponent(g2d);
                 sceneMenu.drawMenu(g2d);
+                
+                if (GUI.getPopup() != null)
+                {
+                    GUI.getPopup().drawMenu(g2d);
+                }
 
                 if (!GUI.getBuffer().contentsLost())
                 {
                     GUI.getBuffer().show();
                 }
             }
+            catch (Exception ex){}
             finally 
             {
                 g2d.dispose();

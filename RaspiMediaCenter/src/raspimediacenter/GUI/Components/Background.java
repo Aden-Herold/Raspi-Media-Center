@@ -11,9 +11,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 public class Background extends SceneComponent {
 
+    private final String PREF_NAME = "backgroundPrefs";
     private final String backgroundImagePath = "Resources/defaultBackground.jpg";
     private final String userImagesPath = "Resources/UserBackgrounds/";
     private ArrayList<String> imagePaths = null; 
@@ -105,7 +107,9 @@ public class Background extends SceneComponent {
 
     private void getDefaultBackgrounds ()
     {
-        getBackgrounds(userImagesPath);
+        Preferences prefs = Preferences.userRoot();
+        String bgPath = prefs.get(PREF_NAME, userImagesPath);
+        getBackgrounds(bgPath);
     }
     
     public void getBackgrounds(String path)

@@ -286,7 +286,9 @@ public class SystemMenuPopup extends SceneMenu {
 
     @Override
     public void drawMenu(Graphics2D g2d) {
-        g2d.setColor(SceneManager.getMenuColor());
+        Color menuColor = SceneManager.getMenuColor();
+        
+        g2d.setColor(ColorUtils.darken(menuColor, 1));
         g2d.setComposite(AlphaComposite.SrcOver.derive(SceneManager.getMenuTransparency()));
         g2d.fill(bounds);
         
@@ -298,7 +300,6 @@ public class SystemMenuPopup extends SceneMenu {
         g2d.drawString("System Menu", bounds.x+bounds.width/2-stringWidth/2, (bounds.y+BTN_HEIGHT/2)+stringHeight/4);
         
         //Paint separator line 
-        Color menuColor = SceneManager.getMenuColor();
         final float[] gradientFractions = {0f, 0.2f, 0.8f, 1f};
         final Color[] backgroundGradient = {new Color(0, 0, 0, 0), ColorUtils.darken(menuColor, 3), 
                                                                    ColorUtils.darken(menuColor, 3), new Color(0, 0, 0, 0)};

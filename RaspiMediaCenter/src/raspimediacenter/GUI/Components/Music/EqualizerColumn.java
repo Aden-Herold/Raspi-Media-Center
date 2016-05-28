@@ -4,7 +4,6 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.text.DecimalFormat;
 import raspimediacenter.GUI.GUI;
 
 public class EqualizerColumn {
@@ -13,7 +12,6 @@ public class EqualizerColumn {
     private final Color color;
     
     private final int fillInterval;
-    private double fillPercent;
     private int fillWidth = 0;
     private int targetWidth = 0;
     
@@ -26,7 +24,7 @@ public class EqualizerColumn {
         randomiseStart();
     }
     
-    public void randomiseStart()
+    private void randomiseStart()
     {
         double rand = Math.random();
         int rounded = (int)Math.round(rand*100);
@@ -83,7 +81,7 @@ public class EqualizerColumn {
         
         //VERTICAL LINES
         int posX = GUI.getScreenWidth();
-         int xOffset = (int)Math.ceil(bounds.width*0.02);
+        int xOffset = (int)Math.ceil(bounds.width*0.03);
         for (int x = 0; x < 50; x++)
         {
             if (posX > GUI.getScreenWidth()-fillWidth)

@@ -104,6 +104,11 @@ public class SystemMenuButton extends SceneComponent {
                 g2d.setPaint(ColorUtils.brighten(menuColor, 1));
                 g2d.fill(button);
             }
+            else
+            {
+                g2d.setPaint(menuColor);
+                g2d.fill(button);
+            }
 
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 
