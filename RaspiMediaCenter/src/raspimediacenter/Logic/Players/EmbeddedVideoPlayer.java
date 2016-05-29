@@ -21,6 +21,7 @@ import raspimediacenter.Logic.Utilities.ScraperUtils;
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
 import uk.co.caprica.vlcj.medialist.MediaList;
+import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.embedded.DefaultFullScreenStrategy;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
@@ -33,7 +34,7 @@ public class EmbeddedVideoPlayer {
 
     private final int MAX_RATE = 32;
 
-    private final EmbeddedMediaPlayer player;
+    private EmbeddedMediaPlayer player;
     private final String VLCLibPath = System.getProperty("user.dir") + "/VLC/";
 
     private final long CONTROLS_VIS_TIME = 5000; //5 seconds
@@ -79,13 +80,16 @@ public class EmbeddedVideoPlayer {
         listPlayer.setMediaPlayer(player);
         listPlayer.setMode(MediaListPlayerMode.LOOP);
 
-        TVEpisodeList eplist = parser.parseEpisodeList("TV Shows/Breaking Bad/Season 1/episode-list.json");
-        loadSeason("TV Shows/Breaking Bad/Season 1/", eplist);
-
         listPlayer.addMediaListPlayerEventListener(new MediaListPlayerEventAdapter() {
             @Override
             public void nextItem(MediaListPlayer mediaListPlayer, libvlc_media_t item, String itemMrl) {
                 //next item is called when the next track in the queue is lined up
+            }
+        });
+
+        player.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+            public void finished(EmbeddedMediaPlayer mediaPlayer) {
+               //stuff to do when the video is finished
             }
         });
 
@@ -287,7 +291,7 @@ public class EmbeddedVideoPlayer {
     }
 
     //Plays the media file at the path specified in the method's parameter 
-    public void playMovie(String fileName) {
+    public void playMedia(String fileName) {
         player.playMedia(fileName);
     }
 

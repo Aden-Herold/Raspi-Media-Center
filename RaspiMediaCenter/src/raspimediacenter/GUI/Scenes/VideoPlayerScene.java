@@ -2,6 +2,7 @@ package raspimediacenter.GUI.Scenes;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.io.File;
 import java.util.ArrayList;
 import raspimediacenter.Data.Models.TV.TVEpisodeList;
 import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
@@ -9,6 +10,7 @@ import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.Components.Video.VideoPlayer.VideoPlayerMenu;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
+import raspimediacenter.Logic.Utilities.ScraperUtils;
 
 public class VideoPlayerScene extends Scene {
 
@@ -17,7 +19,7 @@ public class VideoPlayerScene extends Scene {
     private final TVSeries show;
     private final TVSeason season;
     private final TVEpisodeList list;
-    
+
     private int position;
     private int type;
 
@@ -25,6 +27,8 @@ public class VideoPlayerScene extends Scene {
     private SceneMenu sceneMenu;
     private EmbeddedVideoPlayer player;
     private boolean running = true;
+
+    private ScraperUtils scraper = new ScraperUtils();
 
     public VideoPlayerScene(TVSeries show, TVSeason season, TVEpisodeList list, int position, int type) {
         this.show = show;
@@ -80,12 +84,23 @@ public class VideoPlayerScene extends Scene {
         player = new EmbeddedVideoPlayer();
         sceneMenu = new VideoPlayerMenu();
         sceneMenu.setupLibraryList(null);
+        boolean episodeFound = false;
+        String episodeName = null;
 
-        if (type == 1) {
-            player.loadSeason("TV Shows/" + show.getName() + "/Season " + season.getSeasonNumber() + "/", list);
-            player.playEpisode(position);
+        File[] episodes = ScraperUtils.getDirectories("TV Shows/" + show.getName() + "/Season " + list.episodes.get(position).getSeasonNumber() + "/", false);
+        
+        for (int i = 0; i < episodes.length; i++) {
+            if (list.episodes.get(position).getName().equals(scraper.trimEpisodeNumber(episodes[i].getName()))) {
+                episodeName = episodes[i].getName();
+                episodeFound = true;
+                break;
+            }
         }
-
+        
+        if (episodeFound) {
+            player.playMedia("TV Shows/" + show.getName() + "/Season " + list.episodes.get(position).getSeasonNumber() + "/" + episodeName);
+        }
+        
         painting = false;
         thread.start();
     }
