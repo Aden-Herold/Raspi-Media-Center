@@ -156,6 +156,9 @@ public class MainMenuScene extends Scene {
         menuHUD.setupHUD(header, content);
 
         paintScene();
+        
+               // EmbeddedVideoPlayer player = new EmbeddedVideoPlayer();
+        //player.playMovie("TV Shows/Breaking Bad/Season 1/E4 - Cancer Man.mp4");
     }
 
     @Override

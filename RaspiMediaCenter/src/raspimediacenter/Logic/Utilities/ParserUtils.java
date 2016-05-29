@@ -98,6 +98,14 @@ public class ParserUtils {
     public MusicTrackContainer parseTrackList(String filePath, boolean remote) {
         Gson gson = new Gson();
         trackContainer = gson.fromJson(prepareJSON(filePath, remote), MusicTrackContainer.class);
+        if(!remote) {
+        Collections.sort(trackContainer.tracks, new Comparator<MusicTrack>() {
+            @Override
+            public int compare(MusicTrack o1, MusicTrack o2) {
+                return o1.track.getName().compareTo(o2.track.getName());
+            }
+        });
+        }
         return trackContainer;
     }
 

@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import raspimediacenter.Data.Models.Music.MusicAlbumContainer.MusicAlbum;
 import raspimediacenter.Data.Models.Music.MusicAlbumList;
 import raspimediacenter.Data.Models.Music.MusicTrackContainer;
+import raspimediacenter.GUI.SceneManager;
 import raspimediacenter.Logic.Utilities.ScraperUtils;
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
@@ -35,6 +36,7 @@ public class HeadlessAudioPlayer {
     private boolean isPaused;
     private boolean isMuted;
     private int rate = 1;
+    private boolean firstPlay;
 
     public HeadlessAudioPlayer() {
         NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), VLCLibPath);
@@ -50,7 +52,10 @@ public class HeadlessAudioPlayer {
         listPlayer.addMediaListPlayerEventListener(new MediaListPlayerEventAdapter() {
             @Override
             public void nextItem(MediaListPlayer mediaListPlayer, libvlc_media_t item, String itemMrl) {
-                //next item is called when the next track in the queue is lined up
+                if (!firstPlay) {
+                    SceneManager.getCurrentScene().getMenu().focusNextButton();
+                }
+                firstPlay = false;
             }
         });
     }
@@ -112,11 +117,13 @@ public class HeadlessAudioPlayer {
     }
 
     public void playAll() {
+        firstPlay = true;
         PlayAllThread play = new PlayAllThread();
         new Thread(play).start();
     }
 
     public void play(int index) {
+        firstPlay = true;
         PlayThread play = new PlayThread(index);
         new Thread(play).start();
     }
@@ -159,9 +166,11 @@ public class HeadlessAudioPlayer {
 
         @Override
         public void run() {
-            listPlayer.stop();
-            listPlayer.setMediaList(list);
-            listPlayer.playItem(index);
+            if (list != null) {
+                listPlayer.stop();
+                listPlayer.setMediaList(list);
+                listPlayer.playItem(index);
+            }
             try {
                 Thread.currentThread().join();
             } catch (InterruptedException ex) {
@@ -174,9 +183,11 @@ public class HeadlessAudioPlayer {
 
         @Override
         public void run() {
-            listPlayer.stop();
-            listPlayer.setMediaList(list);
-            listPlayer.play();
+            if (list != null) {
+                listPlayer.stop();
+                listPlayer.setMediaList(list);
+                listPlayer.play();
+            }
             try {
                 Thread.currentThread().join();
             } catch (InterruptedException ex) {

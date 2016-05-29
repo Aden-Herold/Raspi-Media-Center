@@ -3,6 +3,7 @@ package raspimediacenter.GUI.Scenes;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import raspimediacenter.Data.Models.TV.TVEpisodeList;
 import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
 import raspimediacenter.Data.Models.TV.TVSeriesContainer.TVSeries;
 import raspimediacenter.GUI.Components.SceneMenu;
@@ -12,34 +13,38 @@ import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 public class VideoPlayerScene extends Scene {
 
     private final String SCENE_NAME = "VIDEO PLAYER";
-    
+
     private final TVSeries show;
-    private final TVSeason episode;
+    private final TVSeason season;
+    private final TVEpisodeList list;
     
+    private int position;
+    private int type;
+
     private boolean painting = false;
     private SceneMenu sceneMenu;
     private EmbeddedVideoPlayer player;
     private boolean running = true;
 
-    public VideoPlayerScene (TVSeries show, TVSeason episode)
-    {
+    public VideoPlayerScene(TVSeries show, TVSeason season, TVEpisodeList list, int position, int type) {
         this.show = show;
-        this.episode = episode;
+        this.season = season;
+        this.list = list;
+        this.position = position;
+        this.type = type;
     }
 
     // GETTERS
     @Override
-    public String getSceneName ()
-    {
+    public String getSceneName() {
         return SCENE_NAME;
     }
-    
-    @Override 
-    public EmbeddedVideoPlayer getPlayer()
-    {
+
+    @Override
+    public EmbeddedVideoPlayer getPlayer() {
         return player;
     }
-    
+
     @Override
     public SceneMenu getMenu() {
         return sceneMenu;
@@ -50,39 +55,37 @@ public class VideoPlayerScene extends Scene {
         return null;
     }
 
-    private void update()
-    {
-        while(running)
-        {
+    private void update() {
+        while (running) {
             paintScene();
-            
+
             try {
                 Thread.sleep(100);
-            } 
-            catch (InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 System.out.println("Thread could not sleep: " + ex.getMessage());
             }
         }
     }
-    
+
     @Override
     public void setupScene() {
-        
-        Thread thread = new Thread(){
-            @Override 
-            public void run()
-            {
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
                 update();
             }
         };
-        
-        player = new EmbeddedVideoPlayer();    
-        sceneMenu = new VideoPlayerMenu(); 
+
+        player = new EmbeddedVideoPlayer();
+        sceneMenu = new VideoPlayerMenu();
         sceneMenu.setupLibraryList(null);
-        
-        //String file = "TV Shows/"+show.getName()+"/Season "+episode.getSeasonNumber()+"/E"+episode.getEpisodeNumber()+" - "+episode.getName();
-        //player.playEpisode(reeeeeeeeeeeeeee, reeeeeeeeeeeee);
-        
+
+        if (type == 1) {
+            player.loadSeason("TV Shows/" + show.getName() + "/Season " + season.getSeasonNumber() + "/", list);
+            player.playEpisode(position);
+        }
+
         painting = false;
         thread.start();
     }
@@ -93,60 +96,52 @@ public class VideoPlayerScene extends Scene {
     }
 
     @Override
-    public void unloadScene() 
-    {
+    public void unloadScene() {
         running = false;
-        if (player.isPlaying())
-        {
+        if (player.isPlaying()) {
             player.stop();
         }
         player.removeMediaControls();
         player = null;
-        
-        sceneMenu =  null;
+
+        sceneMenu = null;
     }
 
     @Override
-    public void buttonClicked() 
-    {
+    public void buttonClicked() {
     }
 
     @Override
     public void updateBackground(int linkNum) {
-        
+
     }
 
     @Override
     public void updatePreviewImage(int linkNum) {
-        
+
     }
 
     @Override
     public void updateInformationLabels(int linkNum) {
-        
+
     }
 
     @Override
     public void paintScene() {
 
-        if (!painting)
-        {
+        if (!painting) {
             painting = true;
-            Graphics2D g2d = (Graphics2D)(EmbeddedVideoPlayer.getBuffer().getDrawGraphics());
+            Graphics2D g2d = (Graphics2D) (EmbeddedVideoPlayer.getBuffer().getDrawGraphics());
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            try 
-            {
+            try {
                 sceneMenu.drawMenu(g2d);
-                
-                if (!EmbeddedVideoPlayer.getBuffer().contentsLost())
-                {
+
+                if (!EmbeddedVideoPlayer.getBuffer().contentsLost()) {
                     EmbeddedVideoPlayer.getBuffer().show();
                 }
-            }
-            finally 
-            {
+            } finally {
                 g2d.dispose();
                 painting = false;
             }

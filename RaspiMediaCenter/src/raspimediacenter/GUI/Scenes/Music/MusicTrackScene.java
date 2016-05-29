@@ -3,6 +3,8 @@ package raspimediacenter.GUI.Scenes.Music;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import raspimediacenter.Data.Models.Music.MusicAlbumContainer;
 import raspimediacenter.Data.Models.Music.MusicAlbumList;
 import raspimediacenter.Data.Models.Music.MusicArtistContainer;
@@ -14,6 +16,7 @@ import raspimediacenter.GUI.Components.SceneMenu;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.Scenes.Scene;
 import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
+import raspimediacenter.Logic.Players.HeadlessAudioPlayer;
 import raspimediacenter.Logic.Utilities.ParserUtils;
 
 public class MusicTrackScene extends Scene {
@@ -31,6 +34,8 @@ public class MusicTrackScene extends Scene {
     private static MusicArtistContainer.MusicArtist artist;
     private static MusicAlbumContainer.MusicAlbum album;
     private static MusicTrackContainer trackList;
+    
+    private HeadlessAudioPlayer player;
     
     // MUSIC SCENE FUNCTIONS
     public MusicTrackScene (MusicArtistContainer.MusicArtist artist, MusicAlbumContainer.MusicAlbum album)
@@ -84,6 +89,8 @@ public class MusicTrackScene extends Scene {
         
         background = new MusicBackground();
         
+        player = new HeadlessAudioPlayer();
+        
         paintScene();
     }
     
@@ -120,13 +127,21 @@ public class MusicTrackScene extends Scene {
         background = null;
         sceneMenu.unloadMenu();
         sceneMenu = null;
+        player.stop();
     }
     
     // EVENT FUNCTIONS
     @Override
     public void buttonClicked ()
     {
-
+        player.loadAlbum("Music/"+artist.artist.getName()+"/"+album.getName()+"/", trackList);
+        player.play(sceneMenu.getFocusedButtonPos());
+        try {
+            Thread.sleep(5000);
+            player.nextTrack();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MusicTrackScene.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     //UPDATE FUNCTIONS

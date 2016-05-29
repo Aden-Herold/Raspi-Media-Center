@@ -145,9 +145,11 @@ public class ScraperUtils {
 
         maxProgress = calculateMaxProgress(updateAll, withImages);
         System.out.println(maxProgress);
-        new Thread(tvScraper).start();
-        new Thread(movieScraper).start();
-        new Thread(musicScraper).start();
+        if (maxProgress > 0) {
+            new Thread(tvScraper).start();
+            new Thread(movieScraper).start();
+            new Thread(musicScraper).start();
+        }
     }
 
     //Iterates through series directories and seasons directories within /TV Shows/, constructs a URI with a found series directory as a search term
@@ -198,7 +200,7 @@ public class ScraperUtils {
                                 }
                                 if ((!episodeExists && episodeNum != 0) || (updateAll && episodeNum != 0)) {
                                     progressText = "(" + (currentProgress + 1) + "/" + maxProgress + ") - Scraping Episode - " + episodeFiles[k].getPath();
-                                    renameFile(episodeFiles[k], episodeFiles[k].getParent() + "/", "E" + episodeNum + " - " + tvSeason.episodes.get(episodeNum - 1).getName());
+                                    episodeName = renameFile(episodeFiles[k], episodeFiles[k].getParent() + "/", "E" + episodeNum + " - " + tvSeason.episodes.get(episodeNum - 1).getName());
                                     addToEpisodeList(tvSeason, trimEpisodeNumber(episodeName), name);
                                     incrementProgress();
                                 }
@@ -290,7 +292,6 @@ public class ScraperUtils {
                                     saveLocalAlbumJSON(album, track, "Music/" + name + "/" + album.getName() + "/");
                                     parser.appendToTrackList(track, name, album.getName());
                                 }
-
                             }
                         }
                     } else if (isAudioExtension(subDirFiles[j].getName())) {
@@ -378,7 +379,7 @@ public class ScraperUtils {
 
     public void incrementProgress() {
         currentProgress++;
-        //System.out.println(currentProgress + ": " + progressText);
+        System.out.println(currentProgress + ": " + progressText);
         progress = currentProgress * 100 / maxProgress;
         System.out.println(progress + "%");
     }
@@ -561,9 +562,11 @@ public class ScraperUtils {
 
     public String trimEpisodeNumber(String fileName) {
         Matcher matcher = Pattern.compile(" - (.*)").matcher(fileName);
-        matcher.find();
-        String trimmed = matcher.group(1);
-        return trimExtension(trimmed);
+        if (matcher.find()) {
+            String trimmed = matcher.group(1);
+            return trimExtension(trimmed);
+        }
+        return "";
     }
 
     //Prepares to output a specified movie object to a local JSON file.
@@ -906,10 +909,11 @@ public class ScraperUtils {
         return file;
     }
 
-    public void renameFile(File file, String path, String rename) {
+    public String renameFile(File file, String path, String rename) {
         String sub = file.getAbsolutePath();
         sub = sub.substring(sub.length() - 3, sub.length());
         file.renameTo(new File(path + rename + "." + sub));
+        return rename + "." + sub;
     }
 
     public String trimString(String oldString, int start, String pattern) {

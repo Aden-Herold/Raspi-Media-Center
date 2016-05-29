@@ -1,6 +1,7 @@
 package raspimediacenter;
 
 import raspimediacenter.GUI.GUI;
+import raspimediacenter.Logic.Players.EmbeddedVideoPlayer;
 import raspimediacenter.Logic.Utilities.ScraperUtils;
 
 public class RaspiMediaCenter {

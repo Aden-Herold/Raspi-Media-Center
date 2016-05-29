@@ -11,10 +11,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import raspimediacenter.Data.Models.TV.TVEpisodeList;
 import raspimediacenter.Data.Models.TV.TVSeasonContainer;
 import raspimediacenter.Data.Models.TV.TVSeasonContainer.TVSeason;
 import raspimediacenter.GUI.GUI;
 import raspimediacenter.GUI.Scenes.VideoPlayerScene;
+import raspimediacenter.Logic.Utilities.ParserUtils;
 import raspimediacenter.Logic.Utilities.ScraperUtils;
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
@@ -55,6 +57,7 @@ public class EmbeddedVideoPlayer {
     private MediaListPlayer listPlayer;
     private MediaList list;
     private ScraperUtils scraper = new ScraperUtils();
+    private ParserUtils parser = new ParserUtils();
 
     //======================
     //       CONSTRUCTOR
@@ -75,6 +78,10 @@ public class EmbeddedVideoPlayer {
         listPlayer = mFactory.newMediaListPlayer();
         listPlayer.setMediaPlayer(player);
         listPlayer.setMode(MediaListPlayerMode.LOOP);
+
+        TVEpisodeList eplist = parser.parseEpisodeList("TV Shows/Breaking Bad/Season 1/episode-list.json");
+        loadSeason("TV Shows/Breaking Bad/Season 1/", eplist);
+
         listPlayer.addMediaListPlayerEventListener(new MediaListPlayerEventAdapter() {
             @Override
             public void nextItem(MediaListPlayer mediaListPlayer, libvlc_media_t item, String itemMrl) {
@@ -253,15 +260,15 @@ public class EmbeddedVideoPlayer {
     //===========================
     //   MEDIA PLAYER FUNCTIONS
     //===========================
-    public MediaList loadSeason(String path, TVSeasonContainer season) {
+    public void loadSeason(String path, TVEpisodeList episodeList) {
         File files[] = ScraperUtils.getDirectories(path, false);
         boolean isValid = false;
         for (int i = 0; i < files.length; i++) {
             if (!files[i].isDirectory()) {
-                //if (scraper.isMediaExtension(files[i].getName())) {
-                    for (int j = 0; j < season.episodes.size(); j++) {
-                        if (trimExtension(files[i].getName()).equalsIgnoreCase(season.episodes.get(j).getName())) {
-                            System.out.println("Match!: " + trimExtension(files[i].getName()) + " " + season.episodes.get(j).getName());
+                if (scraper.isVideoExtension(files[i].getName())) {
+                    for (int j = 0; j < episodeList.episodes.size(); j++) {
+                        //System.out.println((scraper.trimEpisodeNumber(files[i].getName()) + " "  + (episodeList.episodes.get(j).getName())));
+                        if (scraper.trimEpisodeNumber(files[i].getName()).equalsIgnoreCase(episodeList.episodes.get(j).getName())) {
                             isValid = true;
                             break;
                         }
@@ -274,15 +281,14 @@ public class EmbeddedVideoPlayer {
                             Logger.getLogger(EmbeddedVideoPlayer.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                //}
+                }
             }
         }
-        return list;
     }
 
     //Plays the media file at the path specified in the method's parameter 
     public void playMovie(String fileName) {
-        player.playMedia(System.getProperty("user.dir") + "/" + fileName);
+        player.playMedia(fileName);
     }
 
     public String trimExtension(String file) {
@@ -290,13 +296,13 @@ public class EmbeddedVideoPlayer {
         return file;
     }
 
-    public void playSeason(MediaList list) {
-        PlayAllThread play = new PlayAllThread(list);
+    public void playSeason() {
+        PlayAllThread play = new PlayAllThread();
         new Thread(play).start();
     }
 
-    public void playEpisode(int index, MediaList list) {
-        PlayThread play = new PlayThread(index, list);
+    public void playEpisode(int index) {
+        PlayThread play = new PlayThread(index);
         new Thread(play).start();
     }
 
@@ -419,17 +425,18 @@ public class EmbeddedVideoPlayer {
     public class PlayThread implements Runnable {
 
         private int index;
-        private MediaList list;
 
-        public PlayThread(int index, MediaList list) {
+        public PlayThread(int index) {
             this.index = index;
         }
 
         @Override
         public void run() {
             //listPlayer.stop();
-            listPlayer.setMediaList(list);
-            listPlayer.playItem(index);
+            if (list != null) {
+                listPlayer.setMediaList(list);
+                listPlayer.playItem(index);
+            }
             try {
                 Thread.currentThread().join();
             } catch (InterruptedException ex) {
@@ -439,18 +446,14 @@ public class EmbeddedVideoPlayer {
     }
 
     public class PlayAllThread implements Runnable {
-        
-        private MediaList list;
-        
-        public PlayAllThread(MediaList list) {
-            this.list = list;
-        }
 
         @Override
         public void run() {
             //listPlayer.stop();
-            listPlayer.setMediaList(list);
-            listPlayer.play();
+            if (list != null) {
+                listPlayer.setMediaList(list);
+                listPlayer.play();
+            }
             try {
                 Thread.currentThread().join();
             } catch (InterruptedException ex) {
